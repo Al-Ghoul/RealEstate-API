@@ -1,5 +1,6 @@
 import { db } from "../db";
 import { user } from "../db/schemas/user";
+import { eq } from "drizzle-orm";
 
 export async function createUser(input: Omit<User, "id">) {
   return await db
@@ -16,3 +17,9 @@ export async function createUser(input: Omit<User, "id">) {
     });
 }
 
+export async function getUser(email: string) {
+  return await db
+    .select({ id: user.id, password: user.password })
+    .from(user)
+    .where(eq(user.email, email));
+}
