@@ -7,7 +7,12 @@
       url = "github:divnix/std";
       inputs = {
         devshell.url = "github:numtide/devshell";
+        arion.url = "github:hercules-ci/arion";
       };
+    };
+    nixng = {
+      url = "github:Al-Ghoul/NixNG";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -22,6 +27,7 @@
       cellsFrom = ./nix;
       cellBlocks = with std.blockTypes; [
         (devshells "shells")
+        (arion "arion-compose")
       ];
     } {
     };
