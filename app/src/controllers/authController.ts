@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
-import { type LoginUserDTO, type CreateUserDTO } from "../lib/dtos/users";
+import {
+  type LoginUserDTO,
+  type CreateUserDTO,
+  type RefreshTokenDTO,
+} from "../lib/dtos/users";
 import * as userService from "../services/userService";
 import { DatabaseError } from "pg";
 import bcrypt from "bcrypt";
 import { env } from "../env";
-import jwt from "jsonwebtoken";
+import jwt, { JsonWebTokenError } from "jsonwebtoken";
 
 export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
@@ -102,4 +106,70 @@ export async function loginUser(req: Request, res: Response) {
     message: "Invalid email or password",
     details: "Please check your email and password and try again",
   });
+}
+
+export async function refreshUserToken(req: Request, res: Response) {
+  const { refreshToken } = req.body as RefreshTokenDTO;
+
+  if (!refreshToken) {
+    res.status(401).json({
+      status: "error",
+      statusCode: 401,
+      message: "Invalid refresh token",
+    });
+    return;
+  }
+
+  try {
+    const { userId, role, type } = jwt.verify(refreshToken, env.JWT_SECRET) as {
+      userId: number;
+      role: string;
+      type: string;
+      exp: number;
+    };
+
+    if (type !== "refresh") {
+      res.status(401).json({
+        status: "error",
+        statusCode: 401,
+        message: "Invalid refresh token",
+      });
+      return;
+    }
+
+    const accessToken = jwt.sign({ userId, role }, env.JWT_SECRET, {
+      expiresIn: "1h",
+      issuer: env.TOKEN_ISSUER,
+    });
+
+    const newRefreshToken = jwt.sign(
+      { userId, role, type: "refresh" },
+      env.JWT_SECRET,
+      { expiresIn: "7d", issuer: env.TOKEN_ISSUER },
+    );
+
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Refresh token successful",
+      accessToken,
+      refreshToken: newRefreshToken,
+      expiresAt: new Date(Date.now() + 3600 * 1000),
+    });
+  } catch (error) {
+    if (error instanceof JsonWebTokenError) {
+      res.status(401).json({
+        status: "error",
+        statusCode: 401,
+        message: "Invalid refresh token",
+      });
+      return;
+    }
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+    });
+    return;
+  }
 }

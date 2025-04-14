@@ -34,3 +34,17 @@ export const loginUserDTO = z.object({
 });
 
 export type LoginUserDTO = z.infer<typeof loginUserDTO>;
+
+
+export const refreshTokenDTO = z
+  .object({
+    refreshToken: z.string(),
+  })
+  .strict()
+  .refine((data) => data.refreshToken, {
+    message: "Refresh token is required",
+    path: ["refreshToken"],
+  });
+
+
+export type RefreshTokenDTO = z.infer<typeof refreshTokenDTO>;

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { schemaValidatorMiddleware } from "../middlewares/schemaValidatorMiddleware";
-import { createUserDTO, loginUserDTO } from "../lib/dtos/users";
+import { createUserDTO, loginUserDTO, refreshTokenDTO } from "../lib/dtos/users";
 import * as authController from "../controllers/authController";
 
 const router = Router();
@@ -72,7 +72,7 @@ const router = Router();
  *                 example: password
  *                 description: The password of the user
  *                 required: true
- *                 
+ *
  *               firstName:
  *                 type: string
  *                 example: John
@@ -171,6 +171,69 @@ router.post(
   "/login",
   schemaValidatorMiddleware(loginUserDTO),
   authController.loginUser,
+);
+
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Refresh a user token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
+ *     responses:
+ *       200:
+ *         description: Refresh successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/GenericResponse'
+ *                 - type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
+ *                   description: The token of the user
+ *                 refreshToken:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
+ *                   description: The refresh token of the user
+ *                 expiresAt:
+ *                   type: string
+ *                   format: date
+ *                   example: 2023-01-01T00:00:00.000Z
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       401:
+ *         description: Invalid or expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ */
+router.post(
+  "/refresh",
+  schemaValidatorMiddleware(refreshTokenDTO),
+  authController.refreshUserToken,
 );
 
 export default router;
