@@ -21,6 +21,7 @@ export const verificationCode = pgTable("verification_code", {
   userId: uuid().references(() => user.id),
   type: codeType(),
   expiresAt: timestamp().notNull(),
+  usedAt: timestamp(),
   ...timestamps,
 });
 
