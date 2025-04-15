@@ -15,6 +15,7 @@ export async function getVerCodeByUserIdAndType(
       and(
         eq(verificationCode.userId, userId),
         eq(verificationCode.type, type),
+        isNull(verificationCode.usedAt),
         gt(verificationCode.expiresAt, new Date()),
       ),
     );
@@ -60,4 +61,24 @@ export async function useVerificationCode(id: number) {
     .update(verificationCode)
     .set({ usedAt: new Date() })
     .where(eq(verificationCode.id, id));
+}
+
+export async function getVerCodeByCodeAndType(
+  code: string,
+  type: NonNullable<CodeType>,
+) {
+  return await db
+    .select({
+      id: verificationCode.id,
+      userId: verificationCode.userId,
+    })
+    .from(verificationCode)
+    .where(
+      and(
+        eq(verificationCode.code, code),
+        eq(verificationCode.type, type),
+        isNull(verificationCode.usedAt),
+        gt(verificationCode.expiresAt, new Date()),
+      ),
+    );
 }

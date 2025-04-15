@@ -39,3 +39,25 @@ export const requestResetCodeDTO = z
     email: z.string().email(),
   })
   .strict();
+
+export type RequestResetCodeDTO = z.infer<typeof requestResetCodeDTO>;
+
+export const passwordResetDTO = z
+  .object({
+    code: z.string(),
+    newPassword: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long" })
+      .max(255, { message: "Password must be less than 255 characters long" })
+      .regex(/^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+$/, {
+        message:
+          "Password must only contain letters, numbers, and special characters",
+      }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type PasswordResetDTO = z.infer<typeof passwordResetDTO>;

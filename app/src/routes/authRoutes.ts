@@ -3,6 +3,7 @@ import { schemaValidatorMiddleware } from "../middlewares/schemaValidatorMiddlew
 import { createUserDTO } from "../lib/dtos/users.dto";
 import {
   loginUserDTO,
+  passwordResetDTO,
   refreshTokenInputDTO,
   requestResetCodeDTO,
   verifyUserDTO,
@@ -278,11 +279,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  */
-router.post(
-  "/logout",
-  isAuthenticated,
-  authController.logoutUser,
-);
+router.post("/logout", isAuthenticated, authController.logoutUser);
 
 /**
  * @swagger
@@ -395,7 +392,6 @@ router.post(
   authController.verifyUser,
 );
 
-
 /**
  * @swagger
  * /api/auth/request-password-reset:
@@ -445,4 +441,65 @@ router.post(
   schemaValidatorMiddleware(requestResetCodeDTO),
   authController.requestPasswordReset,
 );
+
+/**
+ * @swagger
+ * /api/auth/password-reset:
+ *   post:
+ *     summary: Reset user password
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 example: 123456
+ *                 description: The verification code
+ *                 required: true
+ *               newPassword:
+ *                 type: string
+ *                 example: 12345678
+ *                 description: The new password
+ *                 required: true
+ *               confirmPassword:
+ *                 type: string
+ *                 example: 12345678
+ *                 description: The new password
+ *                 required: true
+ *     responses:
+ *      200:
+ *        description: Password reset successful
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      400:
+ *        description: Bad request
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      404:
+ *        description: Invalid or expired reset code
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      500:
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ */
+router.post(
+  "/password-reset",
+  schemaValidatorMiddleware(passwordResetDTO),
+  authController.resetUserPassword,
+);
+
 export default router;

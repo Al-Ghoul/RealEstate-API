@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { user } from "../db/schemas/user";
 import { eq, and, isNull } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 export async function createUser(input: Omit<User, "id">) {
   return await db
@@ -46,5 +47,13 @@ export async function verifyUser(id: string) {
   return await db
     .update(user)
     .set({ emailVerified: new Date() })
+    .where(eq(user.id, id));
+}
+
+export async function updateUserPassword(id: string, password: string) {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  return await db
+    .update(user)
+    .set({ password: hashedPassword })
     .where(eq(user.id, id));
 }

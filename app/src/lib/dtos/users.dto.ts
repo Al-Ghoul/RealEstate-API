@@ -17,6 +17,7 @@ export const createUserDTO = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
+    path: ["confirmPassword"],
   });
 
 export type CreateUserDTO = z.infer<typeof createUserDTO>;

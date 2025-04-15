@@ -5,6 +5,7 @@ import {
   type LoginUserDTO,
   type RefreshTokenInputDTO,
   type VerifyUserDTO,
+  type PasswordResetDTO,
 } from "../lib/dtos/auth.dto";
 import * as userService from "../services/userService";
 import { DatabaseError } from "pg";
@@ -314,9 +315,9 @@ export async function verifyUser(req: Request, res: Response) {
 
   try {
     const verificationCode = (
-      await verificationCodeService.getUnUsedVerCodeByCodeAndUserId(
+      await verificationCodeService.getVerCodeByCodeAndType(
         code,
-        req.user!.id,
+        "EMAIL_VERIFICATION",
       )
     )[0];
 
@@ -340,27 +341,8 @@ export async function verifyUser(req: Request, res: Response) {
       return;
     }
 
-    const verifiedUser = await userService.verifyUser(verificationCode.userId);
-    const usedCode = await verificationCodeService.useVerificationCode(
-      verificationCode.id,
-    );
-
-    if (
-      !verifiedUser ||
-      !usedCode ||
-      usedCode.rowCount === null ||
-      usedCode.rowCount <= 0 ||
-      verifiedUser.rowCount === null ||
-      verifiedUser.rowCount <= 0
-    ) {
-      res.status(500).json({
-        status: "error",
-        statusCode: 500,
-        message: "Internal server error",
-        details: "Something went wrong, please try again later",
-      });
-      return;
-    }
+    await userService.verifyUser(verificationCode.userId);
+    await verificationCodeService.useVerificationCode(verificationCode.id);
 
     res.status(200).json({
       status: "success",
@@ -395,13 +377,14 @@ export async function requestPasswordReset(req: Request, res: Response) {
       return;
     }
 
-    const verificationCode =
+    const verificationCode = (
       await verificationCodeService.getVerCodeByUserIdAndType(
         user.id,
         "PASSWORD_RESET",
-      );
+      )
+    )[0];
 
-    if (verificationCode.length) {
+    if (verificationCode) {
       res.status(400).json({
         status: "error",
         statusCode: 400,
@@ -412,7 +395,6 @@ export async function requestPasswordReset(req: Request, res: Response) {
     }
 
     const code = generateCode();
-
     await verificationCodeService.createVerificationCode(
       user,
       code,
@@ -448,13 +430,52 @@ export async function requestPasswordReset(req: Request, res: Response) {
       return;
     }
 
-    res
-      .status(200)
-      .json({
-        status: "success",
-        statusCode: 200,
-        message: "Email was sent successfully",
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Email was sent successfully",
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
+
+export async function resetUserPassword(req: Request, res: Response) {
+  const input = req.body as PasswordResetDTO;
+  const { code, newPassword } = input;
+
+  try {
+    const resetCode = (
+      await verificationCodeService.getVerCodeByCodeAndType(
+        code,
+        "PASSWORD_RESET",
+      )
+    )[0];
+
+    if (!resetCode || !resetCode.userId) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "Reset code expired or not found",
+        details: "Please provide a valid reset code",
       });
+      return;
+    }
+
+    await userService.updateUserPassword(resetCode.userId, newPassword);
+    await verificationCodeService.useVerificationCode(resetCode.id);
+
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Password was reset successfully",
+    });
   } catch {
     res.status(500).json({
       status: "error",
