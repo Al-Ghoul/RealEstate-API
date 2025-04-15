@@ -52,6 +52,7 @@ in
       project.name = "real-estate-db";
       docker-compose.volumes = {
         db-data = {};
+        redis-data = {};
       };
 
       services = {
@@ -70,6 +71,41 @@ in
             stop_signal = "SIGINT";
             ports = ["5433:5433"];
             volumes = ["db-data:/var/lib/postgresql/data"];
+          };
+        };
+
+        real-estate-redis-service = {
+          build.image = inputs.nixpkgs.lib.mkForce (inputs.nixpkgs.dockerTools.buildImage {
+            name = "real-estate-redist-service";
+            tag = "latest";
+
+            copyToRoot = inputs.nixpkgs.buildEnv {
+              name = "image-root";
+              paths = [
+                inputs.nixpkgs.redis
+              ];
+              pathsToLink = ["/bin"];
+            };
+
+            runAsRoot = ''
+              mkdir /data
+            '';
+
+            config = {
+              Cmd = ["/bin/redis-server" "--requirepass" "secure_password"];
+              WorkingDir = "/data";
+              ExposedPorts = {
+                "6379/tcp" = {};
+              };
+            };
+          });
+
+          service = {
+            useHostStore = true;
+            container_name = "RealEstate-Redist";
+            stop_signal = "SIGINT";
+            ports = ["6379:6379"];
+            volumes = ["redis-data:/data"];
           };
         };
       };

@@ -7,6 +7,7 @@ const envSchema = z.object({
   JWT_KEY: z.string(),
   GMAIL_USER: z.string(),
   GMAIL_PASSWORD: z.string(),
+  REDIS_URL: z.string(),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
