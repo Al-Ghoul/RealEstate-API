@@ -4,6 +4,7 @@ import { createUserDTO } from "../lib/dtos/users.dto";
 import {
   loginUserDTO,
   refreshTokenInputDTO,
+  requestResetCodeDTO,
   verifyUserDTO,
 } from "../lib/dtos/auth.dto";
 import * as authController from "../controllers/authController";
@@ -394,4 +395,54 @@ router.post(
   authController.verifyUser,
 );
 
+
+/**
+ * @swagger
+ * /api/auth/request-password-reset:
+ *   post:
+ *     summary: Request password reset code
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 required: false
+ *                 example: 6bVJt@example.com
+ *                 description: The email of the user
+ *     responses:
+ *      200:
+ *        description: Verification code sent
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      400:
+ *        description: Bad request
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      404:
+ *        description: User not found
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      500:
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ */
+router.post(
+  "/request-password-reset",
+  schemaValidatorMiddleware(requestResetCodeDTO),
+  authController.requestPasswordReset,
+);
 export default router;

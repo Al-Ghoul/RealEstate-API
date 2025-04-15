@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { type CreateUserDTO } from "../lib/dtos/users.dto";
 import {
+  type RequestResetCodeDTO,
   type LoginUserDTO,
   type RefreshTokenInputDTO,
   type VerifyUserDTO,
@@ -366,6 +367,94 @@ export async function verifyUser(req: Request, res: Response) {
       statusCode: 200,
       message: "User verified successfully",
     });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
+
+export async function requestPasswordReset(req: Request, res: Response) {
+  const input = req.body as RequestResetCodeDTO;
+
+  try {
+    const { email } = input;
+    const user = (await userService.getUser(email))[0];
+
+    if (!user) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "User not found",
+        details: "User with provided email not found",
+      });
+      return;
+    }
+
+    const verificationCode =
+      await verificationCodeService.getVerCodeByUserIdAndType(
+        user.id,
+        "PASSWORD_RESET",
+      );
+
+    if (verificationCode.length) {
+      res.status(400).json({
+        status: "error",
+        statusCode: 400,
+        message: "Reset code already sent",
+        details: "Please try again later",
+      });
+      return;
+    }
+
+    const code = generateCode();
+
+    await verificationCodeService.createVerificationCode(
+      user,
+      code,
+      "PASSWORD_RESET",
+    );
+
+    const content = mailService.renderPugTemplate("PASSWORD_RESET", {
+      user,
+      code,
+    });
+
+    const emailSent = await mailService.sendEmail(
+      user,
+      "Password reset code",
+      content,
+    );
+    await notificationService.createNotification({
+      userId: user.id,
+      recipient: user.email,
+      subject: "Password reset code",
+      type: "EMAIL",
+      message: content,
+      isSent: emailSent,
+    });
+
+    if (!emailSent) {
+      res.status(500).json({
+        status: "error",
+        statusCode: 500,
+        message: "Email was not sent",
+        details: "Please try again later",
+      });
+      return;
+    }
+
+    res
+      .status(200)
+      .json({
+        status: "success",
+        statusCode: 200,
+        message: "Email was sent successfully",
+      });
   } catch {
     res.status(500).json({
       status: "error",

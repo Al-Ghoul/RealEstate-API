@@ -19,7 +19,12 @@ export async function createUser(input: Omit<User, "id">) {
 
 export async function getUser(email: string) {
   return await db
-    .select({ id: user.id, password: user.password })
+    .select({
+      id: user.id,
+      password: user.password,
+      email: user.email,
+      firstName: user.firstName,
+    })
     .from(user)
     .where(eq(user.email, email))
     .limit(1);

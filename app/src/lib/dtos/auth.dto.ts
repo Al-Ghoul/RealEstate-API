@@ -33,3 +33,9 @@ export const verifyUserDTO = z
   .strict();
 
 export type VerifyUserDTO = z.infer<typeof verifyUserDTO>;
+
+export const requestResetCodeDTO = z
+  .object({
+    email: z.string().email(),
+  })
+  .strict();
