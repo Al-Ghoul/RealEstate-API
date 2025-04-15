@@ -373,7 +373,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      404:
- *        description: Verification code not found
+ *        description: Invalid or expired verification code 
  *        content:
  *          application/json:
  *            schema:

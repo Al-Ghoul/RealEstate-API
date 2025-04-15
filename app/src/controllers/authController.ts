@@ -326,22 +326,12 @@ export async function verifyUser(req: Request, res: Response) {
         status: "error",
         statusCode: 404,
         message: "Verification code not found or expired",
-        details: "Verification code not found or expired",
+        details: "Please provide a valid verification code",
       });
       return;
     }
 
-    if (!verificationCode.userId) {
-      res.status(500).json({
-        status: "error",
-        statusCode: 500,
-        message: "Internal server error",
-        details: "Something went wrong, please try again later",
-      });
-      return;
-    }
-
-    await userService.verifyUser(verificationCode.userId);
+    await userService.verifyUser(verificationCode.userId!);
     await verificationCodeService.useVerificationCode(verificationCode.id);
 
     res.status(200).json({
