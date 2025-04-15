@@ -16,20 +16,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Al-Ghoul/RealEstate-App.git"
+    "url": "git+https://github.com/Al-Ghoul/RealEstate-Backend.git"
   },
   "keywords": [
     "expressjs",
     "typescript",
+    "backend",
     "restful",
-    "API"
+    "api"
   ],
   "author": "Al-Ghoul",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Al-Ghoul/RealEstate-App/issues"
+    "url": "https://github.com/Al-Ghoul/RealEstate-Backend/issues"
   },
-  "homepage": "https://github.com/Al-Ghoul/RealEstate-App#readme",
+  "homepage": "https://github.com/Al-Ghoul/RealEstate-Backend#readme",
   "devDependencies": {
     "@types/bcrypt": "5.0.2",
     "@types/express": "5.0.1",
