@@ -244,13 +244,54 @@ router.post(
 
 /**
  * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout a user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       401:
+ *         description: Missing authorization token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       403:
+ *         description: Invalid or expired token
+ *         content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *       500:
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ */
+router.post(
+  "/logout",
+  isAuthenticated,
+  authController.logoutUser,
+);
+
+/**
+ * @swagger
  * /api/auth/request-email-verification-code:
  *   post:
  *     summary: Request verification code
  *     tags: [Verification]
  *     security:
  *       - bearerAuth: []
-*     responses:
+ *     responses:
  *      200:
  *        description: Verification code sent
  *        content:
@@ -263,7 +304,7 @@ router.post(
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
- *      401: 
+ *      401:
  *        description: Missing authorization token
  *        content:
  *          application/json:

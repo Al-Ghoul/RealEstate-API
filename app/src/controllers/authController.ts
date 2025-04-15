@@ -114,6 +114,31 @@ export async function loginUser(req: Request, res: Response) {
   });
 }
 
+export async function logoutUser(req: Request, res: Response) {
+  try {
+    const accessToken = req.headers.authorization?.split(" ")[1] as string;
+    const { exp } = jwt.decode(accessToken) as { exp: number };
+    await redis.setEx(
+      `blacklist:${accessToken}`,
+      exp - Math.floor(Date.now() / 1000),
+      "1",
+    );
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Logout successful",
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
+
 export async function refreshUserToken(req: Request, res: Response) {
   const { refreshToken } = req.body as RefreshTokenInputDTO;
 
