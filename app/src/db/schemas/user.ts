@@ -1,11 +1,8 @@
-import {
-  pgTable,
-  timestamp,
-  unique,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { pgTable, timestamp, unique, uuid, varchar } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
+import { relations } from "drizzle-orm";
+import { notification } from "./notification";
+import { verificationCode } from "./verificationCode";
 
 export const user = pgTable(
   "user",
@@ -20,3 +17,8 @@ export const user = pgTable(
   },
   (table) => [unique().on(table.firstName, table.lastName)],
 );
+
+export const usersRelations = relations(user, ({ many }) => ({
+  notifications: many(notification),
+  verificationCodes: many(verificationCode),
+}));
