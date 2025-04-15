@@ -263,6 +263,18 @@ router.post(
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
+ *      401: 
+ *        description: Missing authorization token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      403:
+ *        description: Invalid or expired token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
  *      404:
  *        description: User not found
  *        content:
@@ -309,7 +321,18 @@ router.post(
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
- *
+ *      401:
+ *        description: Missing authorization token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      403:
+ *        description: Invalid or expired token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
  *      404:
  *        description: Verification code not found
  *        content:
