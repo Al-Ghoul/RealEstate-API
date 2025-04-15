@@ -1,14 +1,19 @@
 import { Request, Response } from "express";
+import { type CreateUserDTO } from "../lib/dtos/users.dto";
 import {
+  type RequestEmailCodeDTO,
   type LoginUserDTO,
-  type CreateUserDTO,
-  type RefreshTokenDTO,
-} from "../lib/dtos/users";
+  type RefreshTokenInputDTO,
+} from "../lib/dtos/auth.dto";
 import * as userService from "../services/userService";
 import { DatabaseError } from "pg";
 import bcrypt from "bcrypt";
 import { env } from "../env";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
+import * as verificationCodeService from "../services/verificationCodeService";
+import { generateCode } from "../lib/codeGenerator";
+import * as mailService from "../services/mailService";
+import * as notificationService from "../services/notificationService";
 
 export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
@@ -109,7 +114,7 @@ export async function loginUser(req: Request, res: Response) {
 }
 
 export async function refreshUserToken(req: Request, res: Response) {
-  const { refreshToken } = req.body as RefreshTokenDTO;
+  const { refreshToken } = req.body as RefreshTokenInputDTO;
 
   if (!refreshToken) {
     res.status(401).json({
@@ -171,5 +176,86 @@ export async function refreshUserToken(req: Request, res: Response) {
       message: "Internal server error",
     });
     return;
+  }
+}
+
+export async function requestEmailVerificationCode(req: Request, res: Response) {
+  const { email } = req.body as RequestEmailCodeDTO;
+
+  try {
+    const user = (await userService.getUnVerifiedUser(email))[0];
+
+    if (!user) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "User not found or already verified",
+        details: "User with provided email not found or already verified",
+      });
+      return;
+    }
+    const verificationCode =
+      (await verificationCodeService.getVerCodeByUserIdAndType(
+        user.id,
+        "EMAIL_VERIFICATION",
+      ))[0];
+
+    if (verificationCode) {
+      res.status(400).json({
+        status: "error",
+        statusCode: 400,
+        message: "Verification code already sent",
+        details: "Please try again later",
+      });
+      return;
+    }
+
+    const code = generateCode();
+    await verificationCodeService.createVerificationCode(
+      user,
+      code,
+      "EMAIL_VERIFICATION",
+    );
+
+    const content = mailService.renderPugTemplate("EMAIL_VERIFICATION", {
+      user,
+      code,
+    });
+
+    const emailSent = await mailService.sendEmail(
+      user,
+      "Verify your email",
+      content,
+    );
+
+    await notificationService.createNotification({
+      userId: user.id,
+      recipient: user.email,
+      subject: "Verify your email",
+      type: "EMAIL",
+      message: content,
+      isSent: emailSent,
+    });
+
+    if (!emailSent) {
+      res.status(500).json({
+        status: "error",
+        statusCode: 500,
+        message: "Email not sent",
+        details: "Please try again later",
+      });
+      return;
+    }
+
+    res
+      .status(200)
+      .json({ status: "success", statusCode: 200, message: "Email sent" });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
   }
 }

@@ -1,7 +1,9 @@
 import { Router } from "express";
 import { schemaValidatorMiddleware } from "../middlewares/schemaValidatorMiddleware";
-import { createUserDTO, loginUserDTO, refreshTokenDTO } from "../lib/dtos/users";
+import { createUserDTO } from "../lib/dtos/users.dto";
+import { loginUserDTO, refreshTokenInputDTO } from "../lib/dtos/auth.dto";
 import * as authController from "../controllers/authController";
+import { requestEmailCodeDTO } from "../lib/dtos/auth.dto";
 
 const router = Router();
 
@@ -232,8 +234,57 @@ router.post(
  */
 router.post(
   "/refresh",
-  schemaValidatorMiddleware(refreshTokenDTO),
+  schemaValidatorMiddleware(refreshTokenInputDTO),
   authController.refreshUserToken,
+);
+
+/**
+ * @swagger
+ * /api/auth/request-email-verification-code:
+ *   post:
+ *     summary: Request verification code
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: 6bVJt@example.com
+ *                 description: The email of the user
+ *     responses:
+ *      200:
+ *        description: Verification code sent
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      400:
+ *        description: Bad request
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      404:
+ *        description: User not found
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      500:
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ */
+router.post(
+  "/request-email-verification-code",
+  schemaValidatorMiddleware(requestEmailCodeDTO),
+  authController.requestEmailVerificationCode,
 );
 
 export default router;

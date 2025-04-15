@@ -5,6 +5,8 @@ const envSchema = z.object({
   TOKEN_ISSUER: z.string(),
   JWT_SECRET: z.string(),
   JWT_KEY: z.string(),
+  GMAIL_USER: z.string(),
+  GMAIL_PASSWORD: z.string(),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
