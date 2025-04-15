@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { verificationCode } from "../db/schemas/verificationCode";
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, isNull } from "drizzle-orm";
 
 export async function getVerCodeByUserIdAndType(
   userId: string,
@@ -31,4 +31,33 @@ export async function createVerificationCode(
     type,
     expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30 minutes,
   });
+}
+
+export async function getUnUsedVerCodeByCodeAndUserId(
+  code: string,
+  userId: string,
+) {
+  return await db
+    .select({
+      id: verificationCode.id,
+      userId: verificationCode.userId,
+    })
+    .from(verificationCode)
+    .where(
+      and(
+        and(
+          eq(verificationCode.userId, userId),
+          eq(verificationCode.code, code),
+          isNull(verificationCode.usedAt),
+        ),
+        gt(verificationCode.expiresAt, new Date()),
+      ),
+    );
+}
+
+export async function useVerificationCode(id: number) {
+  return await db
+    .update(verificationCode)
+    .set({ usedAt: new Date() })
+    .where(eq(verificationCode.id, id));
 }

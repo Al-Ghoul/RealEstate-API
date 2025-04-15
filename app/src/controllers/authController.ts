@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { type CreateUserDTO } from "../lib/dtos/users.dto";
 import {
-  type RequestEmailCodeDTO,
   type LoginUserDTO,
   type RefreshTokenInputDTO,
+  type VerifyUserDTO,
 } from "../lib/dtos/auth.dto";
 import * as userService from "../services/userService";
 import { DatabaseError } from "pg";
@@ -14,6 +14,7 @@ import * as verificationCodeService from "../services/verificationCodeService";
 import { generateCode } from "../lib/codeGenerator";
 import * as mailService from "../services/mailService";
 import * as notificationService from "../services/notificationService";
+import { redis } from "../clients/redis";
 
 export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
@@ -76,13 +77,13 @@ export async function loginUser(req: Request, res: Response) {
         return;
       }
 
-      const accessToken = jwt.sign({ userId: user.id }, env.JWT_SECRET, {
+      const accessToken = jwt.sign({ id: user.id }, env.JWT_SECRET, {
         expiresIn: "1h",
         issuer: env.TOKEN_ISSUER,
       });
 
       const refreshToken = jwt.sign(
-        { userId: user.id, type: "refresh" },
+        { id: user.id, type: "refresh" },
         env.JWT_SECRET,
         { expiresIn: "7d", issuer: env.TOKEN_ISSUER },
       );
@@ -117,17 +118,30 @@ export async function refreshUserToken(req: Request, res: Response) {
   const { refreshToken } = req.body as RefreshTokenInputDTO;
 
   if (!refreshToken) {
-    res.status(401).json({
+    res.status(403).json({
       status: "error",
-      statusCode: 401,
+      statusCode: 403,
+      message: "Invalid refresh token",
+    });
+    return;
+  }
+
+  const isBlacklisted = await redis.get(`blacklist:${refreshToken}`);
+  if (isBlacklisted) {
+    res.status(403).json({
+      status: "error",
+      statusCode: 403,
       message: "Invalid refresh token",
     });
     return;
   }
 
   try {
-    const { userId, role, type } = jwt.verify(refreshToken, env.JWT_SECRET) as {
-      userId: number;
+    const { id, role, type, exp } = jwt.verify(
+      refreshToken,
+      env.JWT_SECRET,
+    ) as {
+      id: number;
       role: string;
       type: string;
       exp: number;
@@ -142,13 +156,18 @@ export async function refreshUserToken(req: Request, res: Response) {
       return;
     }
 
-    const accessToken = jwt.sign({ userId, role }, env.JWT_SECRET, {
+    await redis.setEx(
+      `blacklist:${refreshToken}`,
+      exp - Math.floor(Date.now() / 1000),
+      "1",
+    );
+    const accessToken = jwt.sign({ id, role }, env.JWT_SECRET, {
       expiresIn: "1h",
       issuer: env.TOKEN_ISSUER,
     });
 
     const newRefreshToken = jwt.sign(
-      { userId, role, type: "refresh" },
+      { id, role, type: "refresh" },
       env.JWT_SECRET,
       { expiresIn: "7d", issuer: env.TOKEN_ISSUER },
     );
@@ -163,9 +182,9 @@ export async function refreshUserToken(req: Request, res: Response) {
     });
   } catch (error) {
     if (error instanceof JsonWebTokenError) {
-      res.status(401).json({
+      res.status(403).json({
         status: "error",
-        statusCode: 401,
+        statusCode: 403,
         message: "Invalid refresh token",
       });
       return;
@@ -179,11 +198,12 @@ export async function refreshUserToken(req: Request, res: Response) {
   }
 }
 
-export async function requestEmailVerificationCode(req: Request, res: Response) {
-  const { email } = req.body as RequestEmailCodeDTO;
-
+export async function requestEmailVerificationCode(
+  req: Request,
+  res: Response,
+) {
   try {
-    const user = (await userService.getUnVerifiedUser(email))[0];
+    const user = (await userService.getUnVerifiedUserById(req.user!.id))[0];
 
     if (!user) {
       res.status(404).json({
@@ -194,11 +214,12 @@ export async function requestEmailVerificationCode(req: Request, res: Response) 
       });
       return;
     }
-    const verificationCode =
-      (await verificationCodeService.getVerCodeByUserIdAndType(
+    const verificationCode = (
+      await verificationCodeService.getVerCodeByUserIdAndType(
         user.id,
         "EMAIL_VERIFICATION",
-      ))[0];
+      )
+    )[0];
 
     if (verificationCode) {
       res.status(400).json({
@@ -247,9 +268,11 @@ export async function requestEmailVerificationCode(req: Request, res: Response) 
       return;
     }
 
-    res
-      .status(200)
-      .json({ status: "success", statusCode: 200, message: "Email sent" });
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Email was sent successfully",
+    });
   } catch {
     res.status(500).json({
       status: "error",
@@ -257,5 +280,74 @@ export async function requestEmailVerificationCode(req: Request, res: Response) 
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
+  }
+}
+
+export async function verifyUser(req: Request, res: Response) {
+  const { code } = req.body as VerifyUserDTO;
+
+  try {
+    const verificationCode = (
+      await verificationCodeService.getUnUsedVerCodeByCodeAndUserId(
+        code,
+        req.user!.id,
+      )
+    )[0];
+
+    if (!verificationCode) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "Verification code not found or expired",
+        details: "Verification code not found or expired",
+      });
+      return;
+    }
+
+    if (!verificationCode.userId) {
+      res.status(500).json({
+        status: "error",
+        statusCode: 500,
+        message: "Internal server error",
+        details: "Something went wrong, please try again later",
+      });
+      return;
+    }
+
+    const verifiedUser = await userService.verifyUser(verificationCode.userId);
+    const usedCode = await verificationCodeService.useVerificationCode(
+      verificationCode.id,
+    );
+
+    if (
+      !verifiedUser ||
+      !usedCode ||
+      usedCode.rowCount === null ||
+      usedCode.rowCount <= 0 ||
+      verifiedUser.rowCount === null ||
+      verifiedUser.rowCount <= 0
+    ) {
+      res.status(500).json({
+        status: "error",
+        statusCode: 500,
+        message: "Internal server error",
+        details: "Something went wrong, please try again later",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "User verified successfully",
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
   }
 }

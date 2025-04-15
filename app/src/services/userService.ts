@@ -25,7 +25,7 @@ export async function getUser(email: string) {
     .limit(1);
 }
 
-export async function getUnVerifiedUser(email: string) {
+export async function getUnVerifiedUserById(id: string) {
   return await db
     .select({
       id: user.id,
@@ -33,6 +33,13 @@ export async function getUnVerifiedUser(email: string) {
       firstName: user.firstName,
     })
     .from(user)
-    .where(and(eq(user.email, email), isNull(user.emailVerified)))
+    .where(and(eq(user.id, id), isNull(user.emailVerified)))
     .limit(1);
+}
+
+export async function verifyUser(id: string) {
+  return await db
+    .update(user)
+    .set({ emailVerified: new Date() })
+    .where(eq(user.id, id));
 }

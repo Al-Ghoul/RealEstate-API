@@ -26,10 +26,10 @@ export const refreshTokenInputDTO = z
 
 export type RefreshTokenInputDTO = z.infer<typeof refreshTokenInputDTO>;
 
-export const requestEmailCodeDTO = z
+export const verifyUserDTO = z
   .object({
-    email: z.string().email(),
+    code: z.string(),
   })
   .strict();
 
-export type RequestEmailCodeDTO = z.infer<typeof requestEmailCodeDTO>;
+export type VerifyUserDTO = z.infer<typeof verifyUserDTO>;

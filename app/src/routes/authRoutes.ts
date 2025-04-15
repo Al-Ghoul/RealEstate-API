@@ -1,9 +1,13 @@
 import { Router } from "express";
 import { schemaValidatorMiddleware } from "../middlewares/schemaValidatorMiddleware";
 import { createUserDTO } from "../lib/dtos/users.dto";
-import { loginUserDTO, refreshTokenInputDTO } from "../lib/dtos/auth.dto";
+import {
+  loginUserDTO,
+  refreshTokenInputDTO,
+  verifyUserDTO,
+} from "../lib/dtos/auth.dto";
 import * as authController from "../controllers/authController";
-import { requestEmailCodeDTO } from "../lib/dtos/auth.dto";
+import { isAuthenticated } from "../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -243,19 +247,10 @@ router.post(
  * /api/auth/request-email-verification-code:
  *   post:
  *     summary: Request verification code
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: 6bVJt@example.com
- *                 description: The email of the user
- *     responses:
+ *     tags: [Verification]
+ *     security:
+ *       - bearerAuth: []
+*     responses:
  *      200:
  *        description: Verification code sent
  *        content:
@@ -283,8 +278,56 @@ router.post(
  */
 router.post(
   "/request-email-verification-code",
-  schemaValidatorMiddleware(requestEmailCodeDTO),
+  isAuthenticated,
   authController.requestEmailVerificationCode,
+);
+
+/**
+ * @swagger
+ * /api/auth/verify:
+ *   post:
+ *     summary: Verify user
+ *     tags: [Verification]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 example: 123456
+ *                 description: The verification code
+ *                 required: true
+ *     responses:
+ *      200:
+ *        description: User verified
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *
+ *      404:
+ *        description: Verification code not found
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      500:
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ */
+router.post(
+  "/verify",
+  isAuthenticated,
+  schemaValidatorMiddleware(verifyUserDTO),
+  authController.verifyUser,
 );
 
 export default router;
