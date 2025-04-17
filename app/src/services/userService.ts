@@ -25,6 +25,7 @@ export async function getUser(email: string) {
       password: user.password,
       email: user.email,
       firstName: user.firstName,
+      emailVerified: user.emailVerified,
     })
     .from(user)
     .where(eq(user.email, email))

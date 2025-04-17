@@ -65,10 +65,9 @@ export async function registerUser(req: Request, res: Response) {
 export async function loginUser(req: Request, res: Response) {
   try {
     const { password, email } = req.body as LoginUserDTO;
-    const users = await userService.getUser(email);
+    const user = (await userService.getUser(email))[0];
 
-    if (users.length !== 0) {
-      const user = users[0];
+    if (user) {
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         res.status(401).json({
@@ -79,13 +78,17 @@ export async function loginUser(req: Request, res: Response) {
         return;
       }
 
-      const accessToken = jwt.sign({ id: user.id }, env.JWT_SECRET, {
-        expiresIn: "1h",
-        issuer: env.TOKEN_ISSUER,
-      });
+      const accessToken = jwt.sign(
+        { id: user.id, emailVerified: user.emailVerified !== null },
+        env.JWT_SECRET,
+        {
+          expiresIn: "1h",
+          issuer: env.TOKEN_ISSUER,
+        },
+      );
 
       const refreshToken = jwt.sign(
-        { id: user.id, type: "refresh" },
+        { id: user.id, type: "refresh", emailVerified: user.emailVerified !== null  },
         env.JWT_SECRET,
         { expiresIn: "7d", issuer: env.TOKEN_ISSUER },
       );
@@ -164,13 +167,10 @@ export async function refreshUserToken(req: Request, res: Response) {
   }
 
   try {
-    const { id, role, type, exp } = jwt.verify(
-      refreshToken,
-      env.JWT_SECRET,
-    ) as {
+    const { id, type, exp, emailVerified } = jwt.verify(refreshToken, env.JWT_SECRET) as {
       id: number;
-      role: string;
       type: string;
+      emailVerified: boolean;
       exp: number;
     };
 
@@ -188,21 +188,20 @@ export async function refreshUserToken(req: Request, res: Response) {
       exp - Math.floor(Date.now() / 1000),
       "1",
     );
-    const accessToken = jwt.sign({ id, role }, env.JWT_SECRET, {
+    const accessToken = jwt.sign({ id, emailVerified   }, env.JWT_SECRET, {
       expiresIn: "1h",
       issuer: env.TOKEN_ISSUER,
     });
 
-    const newRefreshToken = jwt.sign(
-      { id, role, type: "refresh" },
-      env.JWT_SECRET,
-      { expiresIn: "7d", issuer: env.TOKEN_ISSUER },
-    );
+    const newRefreshToken = jwt.sign({ id, type: "refresh", emailVerified }, env.JWT_SECRET, {
+      expiresIn: "7d",
+      issuer: env.TOKEN_ISSUER,
+    });
 
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Refresh token successful",
+      message: "Refreshed token successfully",
       accessToken,
       refreshToken: newRefreshToken,
       expiresAt: new Date(Date.now() + 3600 * 1000),
