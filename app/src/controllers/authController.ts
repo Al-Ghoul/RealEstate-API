@@ -79,7 +79,7 @@ export async function loginUser(req: Request, res: Response) {
       }
 
       const accessToken = jwt.sign(
-        { id: user.id, emailVerified: user.emailVerified !== null },
+        { id: user.id, },
         env.JWT_SECRET,
         {
           expiresIn: "1h",
@@ -88,7 +88,10 @@ export async function loginUser(req: Request, res: Response) {
       );
 
       const refreshToken = jwt.sign(
-        { id: user.id, type: "refresh", emailVerified: user.emailVerified !== null  },
+        {
+          id: user.id,
+          type: "refresh",
+        },
         env.JWT_SECRET,
         { expiresIn: "7d", issuer: env.TOKEN_ISSUER },
       );
@@ -167,10 +170,12 @@ export async function refreshUserToken(req: Request, res: Response) {
   }
 
   try {
-    const { id, type, exp, emailVerified } = jwt.verify(refreshToken, env.JWT_SECRET) as {
+    const { id, type, exp } = jwt.verify(
+      refreshToken,
+      env.JWT_SECRET,
+    ) as {
       id: number;
       type: string;
-      emailVerified: boolean;
       exp: number;
     };
 
@@ -188,23 +193,28 @@ export async function refreshUserToken(req: Request, res: Response) {
       exp - Math.floor(Date.now() / 1000),
       "1",
     );
-    const accessToken = jwt.sign({ id, emailVerified   }, env.JWT_SECRET, {
+    const accessToken = jwt.sign({ id, }, env.JWT_SECRET, {
       expiresIn: "1h",
       issuer: env.TOKEN_ISSUER,
     });
 
-    const newRefreshToken = jwt.sign({ id, type: "refresh", emailVerified }, env.JWT_SECRET, {
-      expiresIn: "7d",
-      issuer: env.TOKEN_ISSUER,
-    });
+    const newRefreshToken = jwt.sign(
+      { id, type: "refresh", },
+      env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+        issuer: env.TOKEN_ISSUER,
+      },
+    );
 
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "Refreshed token successfully",
-      accessToken,
-      refreshToken: newRefreshToken,
-      expiresAt: new Date(Date.now() + 3600 * 1000),
+      data: {
+        accessToken,
+        refreshToken: newRefreshToken,
+      },
     });
   } catch (error) {
     if (error instanceof JsonWebTokenError) {
