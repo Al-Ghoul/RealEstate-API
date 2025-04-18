@@ -13,6 +13,7 @@ export const user = pgTable(
     firstName: varchar({ length: 255 }),
     lastName: varchar({ length: 255 }),
     emailVerified: timestamp(),
+    image: varchar({ length: 255 }),
     ...timestamps,
   },
   (table) => [unique().on(table.firstName, table.lastName)],

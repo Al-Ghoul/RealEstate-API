@@ -12,7 +12,8 @@ export async function createUser(input: Omit<User, "id">) {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      emailNerified: user.emailVerified,
+      image: user.image,
+      emailVerified: user.emailVerified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });
@@ -25,7 +26,11 @@ export async function getUser(email: string) {
       password: user.password,
       email: user.email,
       firstName: user.firstName,
+      lastName: user.lastName,
+      image: user.image,
       emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     })
     .from(user)
     .where(eq(user.email, email))

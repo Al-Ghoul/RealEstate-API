@@ -22,14 +22,17 @@ export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
   const hashedPassword = await bcrypt.hash(input.password, 10);
   try {
-    const user = await userService.createUser({
-      ...input,
-      password: hashedPassword,
-    });
+    const user = (
+      await userService.createUser({
+        ...input,
+        password: hashedPassword,
+        image: `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${input.firstName}${input.lastName}`,
+      })
+    )[0];
     res.status(201).json({
       status: "success",
       statusCode: 201,
-      user: user[0],
+      user: user,
       message: "User created successfully",
     });
     return;

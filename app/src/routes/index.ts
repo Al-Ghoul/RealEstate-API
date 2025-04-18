@@ -25,6 +25,8 @@
  *          type: string
  *          format: date-time
  *          default: null
+ *        image:
+ *          type: string
  *        createdAt:
  *           type: string
  *           format: date-time
