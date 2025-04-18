@@ -80,3 +80,7 @@ export async function getUserById(id: string) {
     .where(eq(user.id, id))
     .limit(1);
 }
+
+export async function updateUserImage(id: string, image: string) {
+  return await db.update(user).set({ image }).where(eq(user.id, id));
+}
