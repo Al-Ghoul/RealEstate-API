@@ -207,18 +207,17 @@ router.post(
  *                 - $ref: '#/components/schemas/GenericResponse'
  *                 - type: object
  *               properties:
- *                 accessToken:
- *                   type: string
- *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                   description: The token of the user
- *                 refreshToken:
- *                   type: string
- *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                   description: The refresh token of the user
- *                 expiresAt:
- *                   type: string
- *                   format: date
- *                   example: 2023-01-01T00:00:00.000Z
+ *                data:
+ *                 type: object
+ *                 properties:
+ *                  accessToken:
+ *                    type: string
+ *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
+ *                    description: The token of the user
+ *                  refreshToken:
+ *                    type: string
+ *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
+ *                    description: The refresh token of the user
  *       400:
  *         description: Bad request
  *         content:
@@ -373,7 +372,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      404:
- *        description: Invalid or expired verification code 
+ *        description: Invalid or expired verification code
  *        content:
  *          application/json:
  *            schema:

@@ -25,6 +25,7 @@ export async function registerUser(req: Request, res: Response) {
     const user = (
       await userService.createUser({
         ...input,
+        email: input.email.toLowerCase(),
         password: hashedPassword,
         image: `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${input.firstName}${input.lastName}`,
       })
@@ -68,7 +69,7 @@ export async function registerUser(req: Request, res: Response) {
 export async function loginUser(req: Request, res: Response) {
   try {
     const { password, email } = req.body as LoginUserDTO;
-    const user = (await userService.getUser(email))[0];
+    const user = (await userService.getUser(email.toLowerCase()))[0];
 
     if (user) {
       const isPasswordValid = await bcrypt.compare(password, user.password);
