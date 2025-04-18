@@ -502,4 +502,42 @@ router.post(
   authController.resetUserPassword,
 );
 
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get logged in user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *      200:
+ *        description: Logged in user
+ *        content:
+ *         application/json:
+ *           schema:
+ *             properties:
+ *               data:
+ *                 $ref: '#/components/schemas/User'
+ *      401:
+ *        description: Missing authorization header
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      403:
+ *        description: Invalid authorization header
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      500:
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ */
+router.get("/me", isAuthenticated, authController.getCurrentUser);
+
 export default router;

@@ -63,3 +63,20 @@ export async function updateUserPassword(id: string, password: string) {
     .set({ password: hashedPassword })
     .where(eq(user.id, id));
 }
+
+export async function getUserById(id: string) {
+  return await db
+    .select({
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailVerified: user.emailVerified,
+      image: user.image,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    })
+    .from(user)
+    .where(eq(user.id, id))
+    .limit(1);
+}

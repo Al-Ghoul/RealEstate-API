@@ -488,3 +488,23 @@ export async function resetUserPassword(req: Request, res: Response) {
     return;
   }
 }
+
+export async function getCurrentUser(req: Request, res: Response) {
+  try {
+    const user = (await userService.getUserById(req.user!.id))[0];
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "User found successfully",
+      data: user,
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
