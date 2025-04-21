@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createUserDTO = z
+export const baseUserDTO = z
   .object({
     email: z.string().email(),
     password: z
@@ -15,9 +15,25 @@ export const createUserDTO = z
     firstName: z.string(),
     lastName: z.string(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .strict();
+
+export const createUserDTO = baseUserDTO.refine(
+  (data) => data.password === data.confirmPassword,
+  {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
+  },
+);
 
 export type CreateUserDTO = z.infer<typeof createUserDTO>;
+
+export const updateUserDTO = baseUserDTO
+  .pick({
+    email: true,
+    firstName: true,
+    lastName: true,
+  })
+  .partial()
+  .strict();
+
+export type UpdateUserDTO = z.infer<typeof updateUserDTO>;

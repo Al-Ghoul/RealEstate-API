@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { user } from "../db/schemas/user";
 import { eq, and, isNull } from "drizzle-orm";
+import { type UpdateUserDTO } from "../lib/dtos/users.dto";
 
 export async function createUser(input: Omit<User, "id">) {
   return await db
@@ -81,3 +82,14 @@ export async function updateUserImage(id: string, image: string) {
   return await db.update(user).set({ image }).where(eq(user.id, id));
 }
 
+export async function updateUser(id: string, input: UpdateUserDTO) {
+  const [currentUser] = await db.select().from(user).where(eq(user.id, id));
+  const isEmailChanging = input.email && input.email !== currentUser.email;
+  return await db
+    .update(user)
+    .set({
+      ...input,
+      emailVerified: isEmailChanging ? null : undefined,
+    })
+    .where(eq(user.id, id));
+}

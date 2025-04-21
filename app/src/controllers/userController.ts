@@ -33,3 +33,22 @@ export async function updateProfileImage(req: Request, res: Response) {
     return;
   }
 }
+
+export async function updateUser(req: Request, res: Response) {
+  try {
+    await userService.updateUser(req.user!.id, req.body);
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "User updated successfully",
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}

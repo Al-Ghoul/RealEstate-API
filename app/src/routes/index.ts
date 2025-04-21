@@ -2,7 +2,7 @@
  * @swagger
  * components:
  *  securitySchemes:
- *    bearerAuth: 
+ *    bearerAuth:
  *      type: http
  *      scheme: bearer
  *      bearerFormat: JWT
@@ -22,15 +22,19 @@
  *        email:
  *           type: string
  *        emailVerified:
+ *          readOnly: true
  *          type: string
  *          format: date-time
  *          default: null
  *        image:
+ *          readOnly: true
  *          type: string
  *        createdAt:
+ *           readOnly: true
  *           type: string
  *           format: date-time
  *        updatedAt:
+ *          readOnly: true
  *          type: string
  *          format: date-time
  *    GenericResponse:
