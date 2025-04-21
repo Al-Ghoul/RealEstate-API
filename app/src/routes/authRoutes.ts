@@ -2,6 +2,7 @@ import { Router } from "express";
 import { schemaValidatorMiddleware } from "../middlewares/schemaValidatorMiddleware";
 import { createUserDTO } from "../lib/dtos/users.dto";
 import {
+  changePasswordDTO,
   loginUserDTO,
   passwordResetDTO,
   refreshTokenInputDTO,
@@ -499,6 +500,75 @@ router.post(
   "/password-reset",
   schemaValidatorMiddleware(passwordResetDTO),
   authController.resetUserPassword,
+);
+
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *  post:
+ *    summary: Change user password
+ *    tags: [Auth]
+ *    security:
+ *      - bearerAuth: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              currentPassword:
+ *                type: string
+ *                example: 12345678
+ *                description: The current password
+ *                required: true
+ *              newPassword:
+ *                type: string
+ *                example: 12345678
+ *                description: The new password
+ *                required: true
+ *              confirmPassword:
+ *                type: string
+ *                example: 12345678
+ *                description: The new password
+ *                required: true
+ *    responses:
+ *      200:
+ *        description: Password changed successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      400:
+ *        description: Current password is incorrect or passwords do not match
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      401:
+ *        description: Missing authorization token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      403:
+ *        description: Invalid or expired token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      500:
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ */
+router.post(
+  "/change-password",
+  isAuthenticated,
+  schemaValidatorMiddleware(changePasswordDTO),
+  authController.changePassword,
 );
 
 /**

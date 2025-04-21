@@ -6,6 +6,7 @@ import {
   type RefreshTokenInputDTO,
   type VerifyUserDTO,
   type PasswordResetDTO,
+  ChangePasswordDTO,
 } from "../lib/dtos/auth.dto";
 import * as userService from "../services/userService";
 import { DatabaseError } from "pg";
@@ -82,14 +83,10 @@ export async function loginUser(req: Request, res: Response) {
         return;
       }
 
-      const accessToken = jwt.sign(
-        { id: user.id, },
-        env.JWT_SECRET,
-        {
-          expiresIn: "1h",
-          issuer: env.TOKEN_ISSUER,
-        },
-      );
+      const accessToken = jwt.sign({ id: user.id }, env.JWT_SECRET, {
+        expiresIn: "1h",
+        issuer: env.TOKEN_ISSUER,
+      });
 
       const refreshToken = jwt.sign(
         {
@@ -174,10 +171,7 @@ export async function refreshUserToken(req: Request, res: Response) {
   }
 
   try {
-    const { id, type, exp } = jwt.verify(
-      refreshToken,
-      env.JWT_SECRET,
-    ) as {
+    const { id, type, exp } = jwt.verify(refreshToken, env.JWT_SECRET) as {
       id: number;
       type: string;
       exp: number;
@@ -197,19 +191,15 @@ export async function refreshUserToken(req: Request, res: Response) {
       exp - Math.floor(Date.now() / 1000),
       "1",
     );
-    const accessToken = jwt.sign({ id, }, env.JWT_SECRET, {
+    const accessToken = jwt.sign({ id }, env.JWT_SECRET, {
       expiresIn: "1h",
       issuer: env.TOKEN_ISSUER,
     });
 
-    const newRefreshToken = jwt.sign(
-      { id, type: "refresh", },
-      env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-        issuer: env.TOKEN_ISSUER,
-      },
-    );
+    const newRefreshToken = jwt.sign({ id, type: "refresh" }, env.JWT_SECRET, {
+      expiresIn: "7d",
+      issuer: env.TOKEN_ISSUER,
+    });
 
     res.status(200).json({
       status: "success",
@@ -471,7 +461,8 @@ export async function resetUserPassword(req: Request, res: Response) {
       return;
     }
 
-    await userService.updateUserPassword(resetCode.userId, newPassword);
+    const hashedPassword = await bcrypt.hash(input.newPassword, 10);
+    await userService.updateUserPassword(resetCode.userId, hashedPassword);
     await verificationCodeService.useVerificationCode(resetCode.id);
 
     res.status(200).json({
@@ -498,6 +489,44 @@ export async function getCurrentUser(req: Request, res: Response) {
       statusCode: 200,
       message: "User found successfully",
       data: user,
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
+
+export async function changePassword(req: Request, res: Response) {
+  const input = req.body as ChangePasswordDTO;
+  try {
+    let user = (await userService.getUserById(req.user!.id))[0];
+
+    const passwordMatch = await bcrypt.compare(
+      input.currentPassword,
+      user.password,
+    );
+
+    if (!passwordMatch) {
+      res.status(400).json({
+        status: "error",
+        statusCode: 400,
+        message: "Current password is incorrect",
+        details: "Please try again later",
+      });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(input.newPassword, 10);
+    await userService.updateUserPassword(req.user!.id, hashedPassword);
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Password was changed successfully",
     });
   } catch {
     res.status(500).json({
