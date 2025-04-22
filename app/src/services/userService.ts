@@ -2,6 +2,7 @@ import { db } from "../db";
 import { user } from "../db/schemas/user";
 import { eq, and, isNull } from "drizzle-orm";
 import { type UpdateUserDTO } from "../lib/dtos/users.dto";
+import { account } from "../db/schemas/account";
 
 export async function createUser(input: Omit<User, "id">) {
   return await db
@@ -92,4 +93,73 @@ export async function updateUser(id: string, input: UpdateUserDTO) {
       emailVerified: isEmailChanging ? null : undefined,
     })
     .where(eq(user.id, id));
+}
+
+export async function getAccountsByUserId(id: string) {
+  return await db
+    .select({
+      userId: account.userId,
+      provider: account.provider,
+      providerAccountId: account.providerAccountId,
+    })
+    .from(account)
+    .where(eq(account.userId, id));
+}
+
+export async function getUserByFacebook(fbUserData: any) {
+  const [userAccount] = await db
+    .select({ id: user.id, email: user.email })
+    .from(account)
+    .where(eq(account.providerAccountId, fbUserData.id))
+    .leftJoin(user, eq(user.id, account.userId))
+    .limit(1);
+
+  return userAccount;
+}
+
+export async function createUserByFacebook(fbUserData: any) {
+  const {
+    id,
+    email,
+    first_name: firstName,
+    last_name: lastName,
+    picture,
+  } = fbUserData;
+
+  const [createdUser] = await db
+    .insert(user)
+    .values({
+      firstName,
+      lastName,
+      image: picture.data.url,
+      email: email || undefined,
+      emailVerified: email ? new Date() : null,
+    })
+    .returning({ id: user.id, email: user.email });
+
+  await db.insert(account).values({
+    userId: createdUser.id,
+    provider: "facebook",
+    providerAccountId: id,
+  });
+
+  return createdUser;
+}
+
+export async function linkAccount(
+  userId: string,
+  provider: string,
+  providerAccountId: string,
+) {
+  return await db.insert(account).values({
+    userId,
+    provider,
+    providerAccountId,
+  });
+}
+
+export async function unLinkAccount(provider: string, userId: string) {
+  return await db
+    .delete(account)
+    .where(and(eq(account.provider, provider), eq(account.userId, userId)));
 }

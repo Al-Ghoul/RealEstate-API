@@ -6,7 +6,11 @@ import {
   type RefreshTokenInputDTO,
   type VerifyUserDTO,
   type PasswordResetDTO,
-  ChangePasswordDTO,
+  type ChangePasswordDTO,
+  type LoginWithFacebookDTO,
+  type LinkAccountDTO,
+  type UnlinkAccountDTO,
+  type SetPasswordDTO,
 } from "../lib/dtos/auth.dto";
 import * as userService from "../services/userService";
 import { DatabaseError } from "pg";
@@ -18,6 +22,7 @@ import { generateCode } from "../lib/codeGenerator";
 import * as mailService from "../services/mailService";
 import * as notificationService from "../services/notificationService";
 import { redis } from "../clients/redis";
+import { generateJWTTokens, getFacebookUserData } from "../lib/auth";
 
 export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
@@ -73,6 +78,21 @@ export async function loginUser(req: Request, res: Response) {
     const user = (await userService.getUser(email.toLowerCase()))[0];
 
     if (user) {
+      if (!user.password) {
+        const accounts = await userService.getAccountsByUserId(user.id);
+        if (accounts.length > 0) {
+          res.status(403).json({
+            status: "error",
+            statusCode: 403,
+            message:
+              "This email is associated with a social login. Please sign in with your social provider (e.g., Google, Facebook).",
+            details:
+              "Please sign in with your social provider (e.g., Google, Facebook).",
+          });
+        }
+        return;
+      }
+
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         res.status(401).json({
@@ -83,25 +103,11 @@ export async function loginUser(req: Request, res: Response) {
         return;
       }
 
-      const accessToken = jwt.sign({ id: user.id }, env.JWT_SECRET, {
-        expiresIn: "1h",
-        issuer: env.TOKEN_ISSUER,
-      });
-
-      const refreshToken = jwt.sign(
-        {
-          id: user.id,
-          type: "refresh",
-        },
-        env.JWT_SECRET,
-        { expiresIn: "7d", issuer: env.TOKEN_ISSUER },
-      );
-
       res.status(200).json({
         status: "success",
         statusCode: 200,
         message: "Login successful",
-        data: { accessToken, refreshToken },
+        data: generateJWTTokens(user),
       });
       return;
     }
@@ -172,7 +178,7 @@ export async function refreshUserToken(req: Request, res: Response) {
 
   try {
     const { id, type, exp } = jwt.verify(refreshToken, env.JWT_SECRET) as {
-      id: number;
+      id: string;
       type: string;
       exp: number;
     };
@@ -191,24 +197,12 @@ export async function refreshUserToken(req: Request, res: Response) {
       exp - Math.floor(Date.now() / 1000),
       "1",
     );
-    const accessToken = jwt.sign({ id }, env.JWT_SECRET, {
-      expiresIn: "1h",
-      issuer: env.TOKEN_ISSUER,
-    });
-
-    const newRefreshToken = jwt.sign({ id, type: "refresh" }, env.JWT_SECRET, {
-      expiresIn: "7d",
-      issuer: env.TOKEN_ISSUER,
-    });
 
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "Refreshed token successfully",
-      data: {
-        accessToken,
-        refreshToken: newRefreshToken,
-      },
+      data: generateJWTTokens({ id }),
     });
   } catch (error) {
     if (error instanceof JsonWebTokenError) {
@@ -281,7 +275,7 @@ export async function requestEmailVerificationCode(
 
     await notificationService.createNotification({
       userId: user.id,
-      recipient: user.email,
+      recipient: user.email!,
       subject: "Verify your email",
       type: "EMAIL",
       message: content,
@@ -406,7 +400,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
     );
     await notificationService.createNotification({
       userId: user.id,
-      recipient: user.email,
+      recipient: user.email!,
       subject: "Password reset code",
       type: "EMAIL",
       message: content,
@@ -441,12 +435,11 @@ export async function requestPasswordReset(req: Request, res: Response) {
 
 export async function resetUserPassword(req: Request, res: Response) {
   const input = req.body as PasswordResetDTO;
-  const { code, newPassword } = input;
 
   try {
     const resetCode = (
       await verificationCodeService.getVerCodeByCodeAndType(
-        code,
+        input.code,
         "PASSWORD_RESET",
       )
     )[0];
@@ -483,12 +476,15 @@ export async function resetUserPassword(req: Request, res: Response) {
 
 export async function getCurrentUser(req: Request, res: Response) {
   try {
-    const user = (await userService.getUserById(req.user!.id))[0];
+    const [user] = await userService.getUserById(req.user!.id);
+    const finalUser = { ...user, hasPassword: !!user.password };
+    // @ts-ignore
+    delete finalUser.password;
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "User found successfully",
-      data: user,
+      data: finalUser,
     });
   } catch {
     res.status(500).json({
@@ -508,7 +504,7 @@ export async function changePassword(req: Request, res: Response) {
 
     const passwordMatch = await bcrypt.compare(
       input.currentPassword,
-      user.password,
+      user.password!,
     );
 
     if (!passwordMatch) {
@@ -529,6 +525,177 @@ export async function changePassword(req: Request, res: Response) {
       message: "Password was changed successfully",
     });
   } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
+
+export async function loginWithFacebook(req: Request, res: Response) {
+  const { accessToken } = req.body as LoginWithFacebookDTO;
+  try {
+    const fbUserData = await getFacebookUserData(accessToken);
+    let user = await userService.getUserByFacebook(fbUserData);
+
+    if (user) {
+      res.status(200).json({
+        status: "success",
+        statusCode: 200,
+        message: "Login successful",
+        data: generateJWTTokens(user as User),
+      });
+      return;
+    }
+
+    user = await userService.createUserByFacebook(fbUserData);
+    res.status(200).json({
+      status: "success",
+      statusCode: 201,
+      message: "Login successful",
+      data: generateJWTTokens(user as User),
+    });
+  } catch (err) {
+    if (err instanceof DatabaseError) {
+      if (err.code === "23505") {
+        res.status(409).json({
+          status: "error",
+          statusCode: 409,
+          message: "Email already in use",
+          details:
+            "Please sign in with your email first then link your Facebook account",
+        });
+        return;
+      }
+    }
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
+
+export async function getAccounts(req: Request, res: Response) {
+  try {
+    const accounts = await userService.getAccountsByUserId(req.user!.id);
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Accounts retrieved successfully",
+      data: accounts,
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
+
+export async function linkAccount(req: Request, res: Response) {
+  const { provider, accessToken } = req.body as LinkAccountDTO;
+  let providerAccountId = null;
+  try {
+    const user = (await userService.getUserById(req.user!.id))[0];
+    if (provider === "facebook") {
+      const fbUserData = await getFacebookUserData(accessToken);
+      providerAccountId = fbUserData.id;
+    }
+    const account = await userService.linkAccount(
+      user.id,
+      provider,
+      providerAccountId,
+    );
+
+    res.status(201).json({
+      status: "success",
+      statusCode: 200,
+      message: "Account linked successfully",
+      data: account,
+    });
+  } catch (err) {
+    if (err instanceof DatabaseError) {
+      if (err.code === "23505") {
+        res.status(409).json({
+          status: "error",
+          statusCode: 409,
+          message: "Email or account with provider already in use",
+          details: "Please either use another account or provider",
+        });
+        return;
+      }
+    }
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
+
+export async function unlinkAccount(req: Request, res: Response) {
+  const { provider } = req.params as UnlinkAccountDTO;
+  try {
+    const [user] = await userService.getUserById(req.user!.id);
+    if (!user.password) {
+      res.status(400).json({
+        status: "error",
+        statusCode: 400,
+        message: "User has no password",
+        details: "Please set your password to unlink your account",
+      });
+      return;
+    }
+    const account = await userService.unLinkAccount(provider, req.user!.id);
+    if (!account) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "Account with provider not found",
+        details: "Please check your provider and try again",
+      });
+      return;
+    }
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Account unlinked successfully",
+    });
+    return;
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+    return;
+  }
+}
+
+export async function setPassword(req: Request, res: Response) {
+  const input = req.body as SetPasswordDTO;
+  try {
+    const password = await bcrypt.hash(input.newPassword, 10);
+    await userService.updateUserPassword(req.user!.id, password);
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Password set successfully",
+    });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({
       status: "error",
       statusCode: 500,

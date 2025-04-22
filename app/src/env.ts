@@ -7,6 +7,8 @@ const envSchema = z.object({
   JWT_KEY: z.string(),
   GMAIL_USER: z.string(),
   GMAIL_PASSWORD: z.string(),
+  FACEBOOK_APP_ID: z.string(),
+  FACEBOOK_APP_SECRET: z.string(),
   REDIS_URL: z.string(),
   NODE_ENV: z
     .enum(["development", "production", "test"])

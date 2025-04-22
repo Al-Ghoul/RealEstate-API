@@ -34,7 +34,7 @@ export const notification = pgTable("notification", {
   ...timestamps,
 });
 
-export const postsRelations = relations(notification, ({ one }) => ({
+export const notificationsRelations = relations(notification, ({ one }) => ({
   user: one(user, {
     fields: [notification.userId],
     references: [user.id],

@@ -85,3 +85,47 @@ export const changePasswordDTO = z
   });
 
 export type ChangePasswordDTO = z.infer<typeof changePasswordDTO>;
+
+export const setPasswordDTO = z
+  .object({
+    newPassword: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long" })
+      .max(255, { message: "Password must be less than 255 characters long" })
+      .regex(/^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+$/, {
+        message:
+          "Password must only contain letters, numbers, and special characters",
+      }),
+    confirmPassword: z.string(),
+  })
+  .strict()
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type SetPasswordDTO = z.infer<typeof setPasswordDTO>;
+
+export const loginWithFacebookDTO = z
+  .object({
+    accessToken: z.string(),
+  })
+  .strict();
+
+export type LoginWithFacebookDTO = z.infer<typeof loginWithFacebookDTO>;
+
+export const linkAccountDTO = loginWithFacebookDTO
+  .extend({
+    provider: z.enum(["google", "facebook"]),
+  })
+  .strict();
+
+export type LinkAccountDTO = z.infer<typeof linkAccountDTO>;
+
+export const unlinkAccountDTO = linkAccountDTO
+  .pick({
+    provider: true,
+  })
+  .strict();
+
+export type UnlinkAccountDTO = z.infer<typeof unlinkAccountDTO>;
