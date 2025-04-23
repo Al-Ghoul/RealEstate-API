@@ -10,6 +10,10 @@
         arion.url = "github:hercules-ci/arion";
       };
     };
+    makes = {
+      url = "github:Al-Ghoul/makes";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixng = {
       url = "github:Al-Ghoul/NixNG";
       inputs.nixpkgs.follows = "nixpkgs";

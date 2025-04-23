@@ -194,6 +194,26 @@
         "type": "github"
       }
     },
+    "makes": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1726082442,
+        "narHash": "sha256-4r9ahQFFeGV8VgF+axCmMWm16Yvxo+2Bwv4FH7G2k54=",
+        "owner": "Al-Ghoul",
+        "repo": "makes",
+        "rev": "c29028124fadc3d62d06feb8c9b336c90f951e09",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Al-Ghoul",
+        "repo": "makes",
+        "type": "github"
+      }
+    },
     "nixng": {
       "inputs": {
         "nixpkgs": [
@@ -357,6 +377,7 @@
     },
     "root": {
       "inputs": {
+        "makes": "makes",
         "nixng": "nixng",
         "nixpkgs": "nixpkgs_2",
         "std": "std"
