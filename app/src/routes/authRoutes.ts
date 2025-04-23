@@ -11,7 +11,6 @@ import {
   refreshTokenInputDTO,
   requestResetCodeDTO,
   setPasswordDTO,
-  unlinkAccountDTO,
   verifyUserDTO,
 } from "../lib/dtos/auth.dto";
 import * as authController from "../controllers/authController";
@@ -290,7 +289,7 @@ router.post("/logout", isAuthenticated, authController.logoutUser);
  * /api/auth/request-email-verification-code:
  *   post:
  *     summary: Request verification code
- *     tags: [Verification]
+ *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -313,7 +312,7 @@ router.post("/logout", isAuthenticated, authController.logoutUser);
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Invalid or expired token
+ *        description: Invalid, expired token or user does not have an email
  *        content:
  *          application/json:
  *            schema:
@@ -342,7 +341,7 @@ router.post(
  * /api/auth/verify:
  *   post:
  *     summary: Verify user
- *     tags: [Verification]
+ *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -417,6 +416,12 @@ router.post(
  *     responses:
  *      200:
  *        description: Verification code sent
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      403:
+ *        description: User does not have an email
  *        content:
  *          application/json:
  *            schema:
@@ -556,7 +561,13 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Invalid or expired token
+ *        description: Invalid, expired token or user does not have a password
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      404:
+ *        description: User not found
  *        content:
  *          application/json:
  *            schema:
@@ -610,6 +621,12 @@ router.post(
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
  *        description: Invalid authorization header
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      404:
+ *        description: User not found
  *        content:
  *          application/json:
  *            schema:
@@ -836,6 +853,12 @@ router.post(
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
+ *      404:
+ *        description: User not found
+ *        content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/GenericResponse'
  *      409:
  *        description: The associated email or provider already exists
  *        content:
@@ -858,7 +881,7 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/accounts/unlink:
+ * /api/auth/accounts/unlink/{provider}:
  *   delete:
  *     summary: Unlink user account
  *     tags: [Auth]
@@ -892,6 +915,12 @@ router.post(
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
  *        description: Invalid or expired token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      404:
+ *        description: User not found
  *        content:
  *          application/json:
  *            schema:

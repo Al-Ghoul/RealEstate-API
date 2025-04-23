@@ -28,6 +28,7 @@ import {
   getFacebookUserData,
   getGoogleUserData,
 } from "../lib/auth";
+import { assertAuthenticated } from "../lib/assertions";
 
 export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
@@ -72,7 +73,7 @@ export async function registerUser(req: Request, res: Response) {
 export async function loginUser(req: Request, res: Response) {
   try {
     const { password, email } = req.body as LoginUserDTO;
-    const user = (await userService.getUser(email.toLowerCase()))[0];
+    const user = await userService.getUser(email.toLowerCase());
 
     if (user) {
       if (!user.password) {
@@ -96,6 +97,7 @@ export async function loginUser(req: Request, res: Response) {
           status: "error",
           statusCode: 401,
           message: "Invalid credentials",
+          details: "Please check your email and password and try again",
         });
         return;
       }
@@ -108,7 +110,7 @@ export async function loginUser(req: Request, res: Response) {
       });
       return;
     }
-  } catch (err) {
+  } catch {
     res.status(500).json({
       status: "error",
       statusCode: 500,
@@ -121,7 +123,7 @@ export async function loginUser(req: Request, res: Response) {
   res.status(401).json({
     status: "error",
     statusCode: 401,
-    message: "Invalid email or password",
+    message: "Invalid credentials",
     details: "Please check your email and password and try again",
   });
 }
@@ -221,8 +223,10 @@ export async function requestEmailVerificationCode(
   req: Request,
   res: Response,
 ) {
+  assertAuthenticated(req);
+
   try {
-    const user = (await userService.getUnVerifiedUserById(req.user!.id))[0];
+    const user = await userService.getUnVerifiedUserById(req.user.id);
 
     if (!user) {
       res.status(404).json({
@@ -233,13 +237,22 @@ export async function requestEmailVerificationCode(
       });
       return;
     }
-    const verificationCode = (
+    
+    if (!user.email) {
+      res.status(403).json({
+        status: "error",
+        statusCode: 404,
+        message: "User does not have an email",
+        details: "Please set your email to request a verification code",
+      });
+      return;
+    }
+
+    const verificationCode =
       await verificationCodeService.getVerCodeByUserIdAndType(
         user.id,
         "EMAIL_VERIFICATION",
-      )
-    )[0];
-
+      );
     if (verificationCode) {
       res.status(400).json({
         status: "error",
@@ -270,7 +283,7 @@ export async function requestEmailVerificationCode(
 
     await notificationService.createNotification({
       userId: user.id,
-      recipient: user.email!,
+      recipient: user.email,
       subject: "Verify your email",
       type: "EMAIL",
       message: content,
@@ -306,13 +319,11 @@ export async function verifyUser(req: Request, res: Response) {
   const { code } = req.body as VerifyUserDTO;
 
   try {
-    const verificationCode = (
+    const verificationCode =
       await verificationCodeService.getVerCodeByCodeAndType(
         code,
         "EMAIL_VERIFICATION",
-      )
-    )[0];
-
+      );
     if (!verificationCode) {
       res.status(404).json({
         status: "error",
@@ -323,7 +334,7 @@ export async function verifyUser(req: Request, res: Response) {
       return;
     }
 
-    await userService.verifyUser(verificationCode.userId!);
+    await userService.verifyUser(verificationCode.userId);
     await verificationCodeService.useVerificationCode(verificationCode.id);
 
     res.status(200).json({
@@ -346,7 +357,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
 
   try {
     const { email } = input;
-    const user = (await userService.getUser(email))[0];
+    const user = await userService.getUser(email);
 
     if (!user) {
       res.status(404).json({
@@ -358,13 +369,21 @@ export async function requestPasswordReset(req: Request, res: Response) {
       return;
     }
 
-    const verificationCode = (
+    if (!user.email) {
+      res.status(403).json({
+        status: "error",
+        statusCode: 404,
+        message: "User does not have an email",
+        details: "Please set your email to request a verification code",
+      });
+      return;
+    }
+
+    const verificationCode =
       await verificationCodeService.getVerCodeByUserIdAndType(
         user.id,
         "PASSWORD_RESET",
-      )
-    )[0];
-
+      );
     if (verificationCode) {
       res.status(400).json({
         status: "error",
@@ -394,7 +413,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
     );
     await notificationService.createNotification({
       userId: user.id,
-      recipient: user.email!,
+      recipient: user.email,
       subject: "Password reset code",
       type: "EMAIL",
       message: content,
@@ -430,13 +449,10 @@ export async function resetUserPassword(req: Request, res: Response) {
   const input = req.body as PasswordResetDTO;
 
   try {
-    const resetCode = (
-      await verificationCodeService.getVerCodeByCodeAndType(
-        input.code,
-        "PASSWORD_RESET",
-      )
-    )[0];
-
+    const resetCode = await verificationCodeService.getVerCodeByCodeAndType(
+      input.code,
+      "PASSWORD_RESET",
+    );
     if (!resetCode || !resetCode.userId) {
       res.status(404).json({
         status: "error",
@@ -467,10 +483,19 @@ export async function resetUserPassword(req: Request, res: Response) {
 }
 
 export async function getCurrentUser(req: Request, res: Response) {
+  assertAuthenticated(req);
   try {
-    const [user] = await userService.getUserById(req.user!.id);
-    const finalUser = { ...user, hasPassword: !!user.password };
-    // @ts-ignore
+    const user = await userService.getUserById(req.user.id);
+    if (!user) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "User not found",
+        details: "User with provided id not found",
+      });
+      return;
+    }
+    const finalUser = { ...user, hasPassword: !!user.password } as User;
     delete finalUser.password;
     res.status(200).json({
       status: "success",
@@ -489,13 +514,34 @@ export async function getCurrentUser(req: Request, res: Response) {
 }
 
 export async function changePassword(req: Request, res: Response) {
+  assertAuthenticated(req);
   const input = req.body as ChangePasswordDTO;
   try {
-    let user = (await userService.getUserById(req.user!.id))[0];
+    const user = await userService.getUserById(req.user.id);
+
+    if (!user) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "User not found",
+        details: "User with provided id not found",
+      });
+      return;
+    }
+
+    if (!user.password) {
+      res.status(403).json({
+        status: "error",
+        statusCode: 400,
+        message: "User has no password",
+        details: "Please set your password to change your password",
+      });
+      return;
+    }
 
     const passwordMatch = await bcrypt.compare(
       input.currentPassword,
-      user.password!,
+      user.password,
     );
 
     if (!passwordMatch) {
@@ -509,7 +555,7 @@ export async function changePassword(req: Request, res: Response) {
     }
 
     const hashedPassword = await bcrypt.hash(input.newPassword, 10);
-    await userService.updateUserPassword(req.user!.id, hashedPassword);
+    await userService.updateUserPassword(req.user.id, hashedPassword);
     res.status(200).json({
       status: "success",
       statusCode: 200,
@@ -573,8 +619,9 @@ export async function loginWithFacebook(req: Request, res: Response) {
 }
 
 export async function getAccounts(req: Request, res: Response) {
+  assertAuthenticated(req);
   try {
-    const accounts = await userService.getAccountsByUserId(req.user!.id);
+    const accounts = await userService.getAccountsByUserId(req.user.id);
     res.status(200).json({
       status: "success",
       statusCode: 200,
@@ -592,15 +639,25 @@ export async function getAccounts(req: Request, res: Response) {
 }
 
 export async function linkAccount(req: Request, res: Response) {
+  assertAuthenticated(req);
   const input = req.body as LinkAccountDTO;
   const { provider } = input;
   let providerAccountId = null;
   try {
-    const user = (await userService.getUserById(req.user!.id))[0];
+    const user = await userService.getUserById(req.user.id);
+    if (!user) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "User not found",
+        details: "User with provided id not found",
+      });
+      return;
+    }
     if (provider === "facebook") {
       const fbUserData = await getFacebookUserData(input.accessToken);
       providerAccountId = fbUserData.id;
-    } else if (provider === "google") {
+    } else {
       const data = await getGoogleUserData(input.idToken);
       if (!data) {
         res.status(400).json({
@@ -647,9 +704,19 @@ export async function linkAccount(req: Request, res: Response) {
 }
 
 export async function unlinkAccount(req: Request, res: Response) {
+  assertAuthenticated(req);
   const { provider } = req.params as UnlinkAccountDTO;
   try {
-    const [user] = await userService.getUserById(req.user!.id);
+    const user = await userService.getUserById(req.user.id);
+    if (!user) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "User not found",
+        details: "User with provided id not found",
+      });
+      return;
+    }
     if (!user.password) {
       res.status(400).json({
         status: "error",
@@ -659,8 +726,8 @@ export async function unlinkAccount(req: Request, res: Response) {
       });
       return;
     }
-    const account = await userService.unLinkAccount(provider, req.user!.id);
-    if (!account) {
+    const account = await userService.unLinkAccount(provider, req.user.id);
+    if (!account.rowCount) {
       res.status(404).json({
         status: "error",
         statusCode: 404,
@@ -686,16 +753,17 @@ export async function unlinkAccount(req: Request, res: Response) {
 }
 
 export async function setPassword(req: Request, res: Response) {
+  assertAuthenticated(req);
   const input = req.body as SetPasswordDTO;
   try {
     const password = await bcrypt.hash(input.newPassword, 10);
-    await userService.updateUserPassword(req.user!.id, password);
+    await userService.updateUserPassword(req.user.id, password);
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "Password set successfully",
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({
       status: "error",
       statusCode: 500,
@@ -714,9 +782,7 @@ export async function loginWithGoogle(req: Request, res: Response) {
       "google",
       googleUserData?.sub ?? "",
     );
-    if (!user) {
-      user = await userService.createUserByGoogle(googleUserData);
-    }
+    user = await userService.createUserByGoogle(googleUserData);
 
     if (!user) {
       res.status(400).json({

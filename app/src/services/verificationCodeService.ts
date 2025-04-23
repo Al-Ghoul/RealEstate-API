@@ -1,3 +1,4 @@
+import { first } from "lodash-es";
 import { db } from "../db";
 import { verificationCode } from "../db/schemas/verificationCode";
 import { and, eq, gt, isNull } from "drizzle-orm";
@@ -6,19 +7,22 @@ export async function getVerCodeByUserIdAndType(
   userId: string,
   type: NonNullable<CodeType>,
 ) {
-  return await db
-    .select({
-      id: verificationCode.id,
-    })
-    .from(verificationCode)
-    .where(
-      and(
-        eq(verificationCode.userId, userId),
-        eq(verificationCode.type, type),
-        isNull(verificationCode.usedAt),
-        gt(verificationCode.expiresAt, new Date()),
-      ),
-    );
+  return first(
+    await db
+      .select({
+        id: verificationCode.id,
+      })
+      .from(verificationCode)
+      .where(
+        and(
+          eq(verificationCode.userId, userId),
+          eq(verificationCode.type, type),
+          isNull(verificationCode.usedAt),
+          gt(verificationCode.expiresAt, new Date()),
+        ),
+      )
+      .limit(1),
+  );
 }
 
 export async function createVerificationCode(
@@ -67,18 +71,21 @@ export async function getVerCodeByCodeAndType(
   code: string,
   type: NonNullable<CodeType>,
 ) {
-  return await db
-    .select({
-      id: verificationCode.id,
-      userId: verificationCode.userId,
-    })
-    .from(verificationCode)
-    .where(
-      and(
-        eq(verificationCode.code, code),
-        eq(verificationCode.type, type),
-        isNull(verificationCode.usedAt),
-        gt(verificationCode.expiresAt, new Date()),
-      ),
-    );
+  return first(
+    await db
+      .select({
+        id: verificationCode.id,
+        userId: verificationCode.userId,
+      })
+      .from(verificationCode)
+      .where(
+        and(
+          eq(verificationCode.code, code),
+          eq(verificationCode.type, type),
+          isNull(verificationCode.usedAt),
+          gt(verificationCode.expiresAt, new Date()),
+        ),
+      )
+      .limit(1),
+  );
 }

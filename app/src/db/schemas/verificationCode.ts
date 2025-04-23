@@ -18,7 +18,7 @@ export const codeType = pgEnum("code_type", [
 export const verificationCode = pgTable("verification_code", {
   id: serial().primaryKey(),
   code: varchar({ length: 255 }).notNull(),
-  userId: uuid().references(() => user.id),
+  userId: uuid().references(() => user.id).notNull(),
   type: codeType(),
   expiresAt: timestamp().notNull(),
   usedAt: timestamp(),

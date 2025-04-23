@@ -1,4 +1,4 @@
-import { pgTable, timestamp, unique, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { timestamps } from "../columns.helpers";
 import { relations } from "drizzle-orm";
 import { notification } from "./notification";

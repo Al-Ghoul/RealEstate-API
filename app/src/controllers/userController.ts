@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import * as userService from "../services/userService";
+import { assertAuthenticated } from "../lib/assertions";
+import { type UpdateUserDTO } from "../lib/dtos/users.dto";
 
 export async function updateProfileImage(req: Request, res: Response) {
+  assertAuthenticated(req);
   if (!req.file) {
     res.status(400).json({
       status: "error",
@@ -13,8 +16,8 @@ export async function updateProfileImage(req: Request, res: Response) {
   }
 
   await userService.updateUserImage(
-    req.user!.id,
-    `${req.protocol}://${req.get("host")}/public/uploads/profile-images/${req.file.filename}`,
+    req.user.id,
+    `${req.protocol}://${req.get("host") ?? "localhost"}/public/uploads/profile-images/${req.file.filename}`,
   );
 
   try {
@@ -35,8 +38,9 @@ export async function updateProfileImage(req: Request, res: Response) {
 }
 
 export async function updateUser(req: Request, res: Response) {
+  assertAuthenticated(req);
   try {
-    await userService.updateUser(req.user!.id, req.body);
+    await userService.updateUser(req.user.id, req.body as UpdateUserDTO);
     res.status(200).json({
       status: "success",
       statusCode: 200,

@@ -2,34 +2,51 @@ import { OAuth2Client } from "google-auth-library";
 import { env } from "../env";
 import jwt from "jsonwebtoken";
 
-export async function getFacebookUserData(accessToken: string) {
-  const appToken = `${env.FACEBOOK_APP_ID}|${env.FACEBOOK_APP_SECRET}`;
+export async function getFacebookUserData(
+  accessToken: string,
+): Promise<FacebookUser> {
+  try {
+    const appToken = `${env.FACEBOOK_APP_ID}|${env.FACEBOOK_APP_SECRET}`;
 
-  const debugTokenURL =
-    `https://graph.facebook.com/debug_token?` +
-    `input_token=${accessToken}` +
-    `&access_token=${appToken}`;
+    const debugTokenURL = new URL("https://graph.facebook.com/debug_token");
+    debugTokenURL.searchParams.set("input_token", accessToken);
+    debugTokenURL.searchParams.set("access_token", appToken);
 
-  const debugRes = await fetch(debugTokenURL);
-  if (debugRes.status !== 200) throw new Error("Invalid token");
+    const debugRes = await fetch(debugTokenURL.toString());
+    if (!debugRes.ok) throw new Error("Token validation failed");
 
-  const debugData = await debugRes.json();
-  if (
-    !debugData.data.is_valid ||
-    debugData.data.app_id !== env.FACEBOOK_APP_ID
-  ) {
-    throw new Error("Invalid token");
+    const debugData = (await debugRes.json()) as FacebookDebugTokenResponse;
+
+    if (
+      !debugData.data.is_valid ||
+      debugData.data.app_id !== env.FACEBOOK_APP_ID
+    ) {
+      throw new Error("Invalid Facebook token");
+    }
+
+    const userDataURL = new URL("https://graph.facebook.com/me");
+    userDataURL.searchParams.set(
+      "fields",
+      "id,first_name,last_name,email,picture",
+    );
+    userDataURL.searchParams.set("access_token", accessToken);
+
+    const userRes = await fetch(userDataURL.toString());
+    if (!userRes.ok) throw new Error("Failed to fetch user data");
+
+    const userData = (await userRes.json()) as FacebookUser;
+
+    if (!userData.id) {
+      throw new Error("Invalid user data received");
+    }
+
+    return userData;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Facebook API error: ${error.message}`);
+    }
+    throw new Error("Unknown Facebook API error occurred");
   }
-
-  const userData = await fetch(
-    `https://graph.facebook.com/me?` +
-      `fields=id,first_name,last_name,email,picture` +
-      `&access_token=${accessToken}`,
-  );
-
-  if (userData.status !== 200) throw new Error("Invalid token");
-
-  return userData.json();
 }
 
 export async function getGoogleUserData(idToken: string) {
