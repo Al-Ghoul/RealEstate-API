@@ -33,7 +33,7 @@ export const sendEmail = async (
   try {
     await transporter.sendMail({
       from: "RealEstate App",
-      to: user.email,
+      to: user.email as string,
       subject,
       html,
     });

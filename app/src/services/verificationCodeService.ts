@@ -32,7 +32,7 @@ export async function createVerificationCode(
 ) {
   return await db.insert(verificationCode).values({
     code,
-    userId: user.id,
+    userId: user.id as string,
     type,
     expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30 minutes,
   });
