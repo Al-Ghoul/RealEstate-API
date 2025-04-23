@@ -1,1 +1,0 @@
-ALTER TABLE "verification_code" ADD COLUMN "used_at" timestamp;

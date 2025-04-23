@@ -24,7 +24,7 @@ export const notificationStatusEnum = pgEnum("notification_status", [
 
 export const notification = pgTable("notification", {
   id: bigserial({ mode: "number" }).primaryKey(),
-  userId: uuid().references(() => user.id),
+  userId: uuid().references(() => user.id).notNull(),
   type: notificationTypeEnum().notNull(),
   recipient: varchar({ length: 255 }).notNull(), // Email or phone number
   subject: varchar({ length: 255 }),
