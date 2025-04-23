@@ -8,6 +8,7 @@ erDiagram
 
 USER ||--o{ NOTIFICATION : "User's notifications"
 USER ||--o{ VERIFICATION_CODE : "User's verification code(s)"
+USER ||--o{ ACCOUNT : "User's account"
 
 USER {
     UUID id PK
@@ -34,13 +35,22 @@ NOTIFICATION {
 }
 
 VERIFICATION_CODE {
-  SERIAL id PK
-  UUID user_id FK
-  VARCHAR(255) code
-  ENUM type "email_verification, password_reset"
-  DATETIME expires_at
-  DATETIME created_at
-  DATETIME updated_at
+    SERIAL id PK
+    UUID user_id FK
+    VARCHAR(255) code
+    ENUM type "EMAIL_VERIFICATION, PASSWORD_RESET"
+    DATETIME expires_at
+    DATETIME used_at
+    DATETIME created_at
+    DATETIME updated_at
+}
+
+ACCOUNT {
+    UUID user_id FK
+    VARCHAR(255) provider PK
+    VARCHAR(255) provider_account_id PK
+    DATETIME created_at
+    DATETIME updated_at
 }
 
 ```
