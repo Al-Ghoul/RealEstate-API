@@ -3,6 +3,7 @@ import { user } from "../db/schemas/user";
 import { eq, and, isNull } from "drizzle-orm";
 import { type UpdateUserDTO } from "../lib/dtos/users.dto";
 import { account } from "../db/schemas/account";
+import { type TokenPayload } from "google-auth-library";
 
 export async function createUser(input: Omit<User, "id">) {
   return await db
@@ -106,11 +107,13 @@ export async function getAccountsByUserId(id: string) {
     .where(eq(account.userId, id));
 }
 
-export async function getUserByFacebook(fbUserData: any) {
+export async function getUserByProviderAndId(provider: string, id: string) {
   const [userAccount] = await db
     .select({ id: user.id, email: user.email })
     .from(account)
-    .where(eq(account.providerAccountId, fbUserData.id))
+    .where(
+      and(eq(account.providerAccountId, id), eq(account.provider, provider)),
+    )
     .leftJoin(user, eq(user.id, account.userId))
     .limit(1);
 
@@ -162,4 +165,30 @@ export async function unLinkAccount(provider: string, userId: string) {
   return await db
     .delete(account)
     .where(and(eq(account.provider, provider), eq(account.userId, userId)));
+}
+
+export async function createUserByGoogle(data: TokenPayload | undefined) {
+  if (!data) return null;
+  const [firstName, lastName] = data.name?.split(" ") ?? [null, null];
+
+  const [createdUser] = await db
+    .insert(user)
+    .values({
+      firstName: firstName || data.given_name || null,
+      lastName,
+      image:
+        data.picture ||
+        `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${firstName}${lastName}`,
+      email: data.email || null,
+      emailVerified: data.email_verified ? new Date() : null,
+    })
+    .returning({ id: user.id, email: user.email });
+
+  await db.insert(account).values({
+    userId: createdUser.id,
+    provider: "google",
+    providerAccountId: data.sub,
+  });
+
+  return createdUser;
 }

@@ -11,6 +11,7 @@ import {
   type LinkAccountDTO,
   type UnlinkAccountDTO,
   type SetPasswordDTO,
+  type LoginWithGoogleDTO,
 } from "../lib/dtos/auth.dto";
 import * as userService from "../services/userService";
 import { DatabaseError } from "pg";
@@ -22,7 +23,11 @@ import { generateCode } from "../lib/codeGenerator";
 import * as mailService from "../services/mailService";
 import * as notificationService from "../services/notificationService";
 import { redis } from "../clients/redis";
-import { generateJWTTokens, getFacebookUserData } from "../lib/auth";
+import {
+  generateJWTTokens,
+  getFacebookUserData,
+  getGoogleUserData,
+} from "../lib/auth";
 
 export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
@@ -54,19 +59,11 @@ export async function registerUser(req: Request, res: Response) {
         });
         return;
       }
-    } else {
-      res.status(500).json({
-        status: "error",
-        statusCode: 500,
-        message: "Database error",
-        details: "Something went wrong, please try again later",
-      });
-      return;
     }
     res.status(500).json({
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
+      message: "Database error",
       details: "Something went wrong, please try again later",
     });
   }
@@ -150,7 +147,6 @@ export async function logoutUser(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -218,7 +214,6 @@ export async function refreshUserToken(req: Request, res: Response) {
       statusCode: 500,
       message: "Internal server error",
     });
-    return;
   }
 }
 
@@ -343,7 +338,6 @@ export async function verifyUser(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -429,7 +423,6 @@ export async function requestPasswordReset(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -470,7 +463,6 @@ export async function resetUserPassword(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -493,7 +485,6 @@ export async function getCurrentUser(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -531,7 +522,6 @@ export async function changePassword(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -539,7 +529,10 @@ export async function loginWithFacebook(req: Request, res: Response) {
   const { accessToken } = req.body as LoginWithFacebookDTO;
   try {
     const fbUserData = await getFacebookUserData(accessToken);
-    let user = await userService.getUserByFacebook(fbUserData);
+    let user = await userService.getUserByProviderAndId(
+      "facebook",
+      fbUserData.id,
+    );
 
     if (user) {
       res.status(200).json({
@@ -564,9 +557,8 @@ export async function loginWithFacebook(req: Request, res: Response) {
         res.status(409).json({
           status: "error",
           statusCode: 409,
-          message: "Email already in use",
-          details:
-            "Please sign in with your email first then link your Facebook account",
+          message: "Email or account with provider already in use",
+          details: "Please either use another account or provider",
         });
         return;
       }
@@ -577,7 +569,6 @@ export async function loginWithFacebook(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -597,18 +588,30 @@ export async function getAccounts(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
 export async function linkAccount(req: Request, res: Response) {
-  const { provider, accessToken } = req.body as LinkAccountDTO;
+  const input = req.body as LinkAccountDTO;
+  const { provider } = input;
   let providerAccountId = null;
   try {
     const user = (await userService.getUserById(req.user!.id))[0];
     if (provider === "facebook") {
-      const fbUserData = await getFacebookUserData(accessToken);
+      const fbUserData = await getFacebookUserData(input.accessToken);
       providerAccountId = fbUserData.id;
+    } else if (provider === "google") {
+      const data = await getGoogleUserData(input.idToken);
+      if (!data) {
+        res.status(400).json({
+          status: "error",
+          statusCode: 400,
+          message: "Account could not be linked",
+          details: "Please try again later",
+        });
+        return;
+      }
+      providerAccountId = data.sub;
     }
     const account = await userService.linkAccount(
       user.id,
@@ -640,7 +643,6 @@ export async function linkAccount(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -680,7 +682,6 @@ export async function unlinkAccount(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -695,13 +696,62 @@ export async function setPassword(req: Request, res: Response) {
       message: "Password set successfully",
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({
       status: "error",
       statusCode: 500,
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
+  }
+}
+
+export async function loginWithGoogle(req: Request, res: Response) {
+  const { idToken } = req.body as LoginWithGoogleDTO;
+  let user = null;
+  try {
+    const googleUserData = await getGoogleUserData(idToken);
+    user = await userService.getUserByProviderAndId(
+      "google",
+      googleUserData?.sub ?? "",
+    );
+    if (!user) {
+      user = await userService.createUserByGoogle(googleUserData);
+    }
+
+    if (!user) {
+      res.status(400).json({
+        status: "error",
+        statusCode: 400,
+        message: "User could not be retrieved nor created",
+        details: "Please try again later",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Login successful",
+      data: generateJWTTokens(user as User),
+    });
     return;
+  } catch (err) {
+    if (err instanceof DatabaseError) {
+      if (err.code === "23505") {
+        res.status(409).json({
+          status: "error",
+          statusCode: 409,
+          message: "Email or account with provider already in use",
+          details: "Please either use another account or provider",
+        });
+        return;
+      }
+    }
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
   }
 }

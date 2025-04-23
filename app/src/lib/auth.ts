@@ -1,3 +1,4 @@
+import { OAuth2Client } from "google-auth-library";
 import { env } from "../env";
 import jwt from "jsonwebtoken";
 
@@ -29,6 +30,17 @@ export async function getFacebookUserData(accessToken: string) {
   if (userData.status !== 200) throw new Error("Invalid token");
 
   return userData.json();
+}
+
+export async function getGoogleUserData(idToken: string) {
+  const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+
+  const ticket = await client.verifyIdToken({
+    idToken,
+    audience: env.GOOGLE_CLIENT_ID,
+  });
+  const payload = ticket.getPayload();
+  return payload;
 }
 
 export function generateJWTTokens(user: Partial<User>) {

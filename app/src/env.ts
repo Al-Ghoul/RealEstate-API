@@ -9,6 +9,8 @@ const envSchema = z.object({
   GMAIL_PASSWORD: z.string(),
   FACEBOOK_APP_ID: z.string(),
   FACEBOOK_APP_SECRET: z.string(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
   REDIS_URL: z.string(),
   NODE_ENV: z
     .enum(["development", "production", "test"])

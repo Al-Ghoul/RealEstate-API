@@ -77,4 +77,23 @@
  *                description: The error message
  *                required: true
  *                title: The error message
+ *    Account:
+ *      type: object
+ *      properties:
+ *        userId:
+ *          type: string
+ *          description: The id of the user
+ *          required: true
+ *          title: The id of the user
+ *        provider:
+ *          type: string
+ *          enum: [google, facebook]
+ *          description: The provider of the account
+ *          required: true
+ *          title: The provider of the account
+ *        providerAccountId:
+ *          type: string
+ *          description: The id of the account
+ *          required: true
+ *          title: The id of the account
  */

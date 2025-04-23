@@ -114,18 +114,31 @@ export const loginWithFacebookDTO = z
 
 export type LoginWithFacebookDTO = z.infer<typeof loginWithFacebookDTO>;
 
-export const linkAccountDTO = loginWithFacebookDTO
-  .extend({
+export const linkAccountDTO = z.discriminatedUnion("provider", [
+  z.object({
+    provider: z.literal("google"),
+    idToken: z.string(),
+  }),
+  z.object({
+    provider: z.literal("facebook"),
+    accessToken: z.string(),
+  }),
+]);
+
+export type LinkAccountDTO = z.infer<typeof linkAccountDTO>;
+
+export const unlinkAccountDTO = z
+  .object({
     provider: z.enum(["google", "facebook"]),
   })
   .strict();
 
-export type LinkAccountDTO = z.infer<typeof linkAccountDTO>;
+export type UnlinkAccountDTO = z.infer<typeof unlinkAccountDTO>;
 
-export const unlinkAccountDTO = linkAccountDTO
-  .pick({
-    provider: true,
+export const loginWithGoogleDTO = z
+  .object({
+    idToken: z.string(),
   })
   .strict();
 
-export type UnlinkAccountDTO = z.infer<typeof unlinkAccountDTO>;
+export type LoginWithGoogleDTO = z.infer<typeof loginWithGoogleDTO>;

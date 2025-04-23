@@ -6,6 +6,7 @@ import {
   linkAccountDTO,
   loginUserDTO,
   loginWithFacebookDTO,
+  loginWithGoogleDTO,
   passwordResetDTO,
   refreshTokenInputDTO,
   requestResetCodeDTO,
@@ -590,7 +591,7 @@ router.post(
  *           schema:
  *             allOf:
  *               - $ref: '#/components/schemas/GenericResponse'
- *               - type: object 
+ *               - type: object
  *             properties:
  *              data:
  *                type: object
@@ -706,39 +707,85 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/accounts:
- *   get:
- *     summary: Get user accounts
+ * /api/auth/google:
+ *   post:
+ *     summary: Login with Google
  *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *                 required: true
  *     responses:
- *      200:
- *        description: User accounts
+ *       200:
+ *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/GenericResponse'
+ *                 - type: object
+ *               properties:
+ *                data:
+ *                 type: object
+ *                 properties:
+ *                  accessToken:
+ *                    type: string
+ *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
+ *                    description: The token of the user
+ *                  refreshToken:
+ *                    type: string
+ *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
+ *                    description: The refresh token of the user
+ *       201:
+ *         description: User created and logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/GenericResponse'
+ *                 - type: object
+ *               properties:
+ *                data:
+ *                 type: object
+ *                 properties:
+ *                  accessToken:
+ *                    type: string
+ *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
+ *                    description: The token of the user
+ *                  refreshToken:
+ *                    type: string
+ *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
+ *                    description: The refresh token of the user
+ *       400:
+ *        description: Bad request
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
- *      401:
- *        description: Missing authorization token
+ *       409:
+ *        description: The associated email already exists
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
- *      403:
- *        description: Invalid or expired token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      500:
+ *       500:
  *        description: Internal server error
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  */
-router.get("/accounts", isAuthenticated, authController.getAccounts);
+router.post(
+  "/google",
+  schemaValidatorMiddleware(loginWithGoogleDTO),
+  authController.loginWithGoogle,
+);
 
 /**
  * @swagger
@@ -863,67 +910,111 @@ router.delete(
 );
 
 /**
-* @swagger
-* /api/auth/set-password:
-*   post:
-*     summary: Set user password
-*     tags: [Auth]
-*     security:
-*       - bearerAuth: []
-*     requestBody:
-*       required: true
-*       content:
-*         application/json:
-*           schema:
-*             type: object
-*             properties:
-*             newPassword:
-*               type: string
-*               example: 12345678
-*               description: The new password of the user
-*               required: true
-*             confirmPassword:
-*               type: string
-*               example: 12345678
-*               description: The new password of the user
-*               required: true
-*     responses:
-*       200:
-*         description: Password set successfully
-*         content:
-*           application/json:
-*             schema:
-*               $ref: '#/components/schemas/GenericResponse'
-*       400:
-*         description: Bad request
-*         content:
-*           application/json:
-*             schema:
-*               $ref: '#/components/schemas/GenericResponse'
-*       401:
-*         description: Missing authorization token
-*         content:
-*           application/json:
-*             schema:
-*               $ref: '#/components/schemas/GenericResponse'
-*       403:
-*         description: Invalid or expired token
-*         content:
-*           application/json:
-*             schema:
-*               $ref: '#/components/schemas/GenericResponse'
-*       500:
-*       description: Internal server error
-*       content:
-*         application/json:
-*           schema:
-*             $ref: '#/components/schemas/GenericResponse'
-*/
+ * @swagger
+ * /api/auth/set-password:
+ *   post:
+ *     summary: Set user password
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *             newPassword:
+ *               type: string
+ *               example: 12345678
+ *               description: The new password of the user
+ *               required: true
+ *             confirmPassword:
+ *               type: string
+ *               example: 12345678
+ *               description: The new password of the user
+ *               required: true
+ *     responses:
+ *       200:
+ *         description: Password set successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       401:
+ *         description: Missing authorization token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       403:
+ *         description: Invalid or expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       500:
+ *       description: Internal server error
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ */
 router.post(
   "/set-password",
   isAuthenticated,
   schemaValidatorMiddleware(setPasswordDTO),
   authController.setPassword,
 );
+
+/**
+ * @swagger
+ * /api/auth/accounts:
+ *   get:
+ *     summary: Get user accounts
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User accounts retrieved successfully
+ *         content:
+ *           application/json:
+ *            schema:
+ *              allOf:
+ *                - $ref: '#/components/schemas/GenericResponse'
+ *                - type: object
+ *                  properties:
+ *                    data:
+ *                      type: array
+ *                      items:
+ *                        type: object
+ *                        $ref: '#/components/schemas/Account'
+ *       401:
+ *        description: Missing authorization token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *       403:
+ *        description: Invalid or expired token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *       500:
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ */
+router.get("/accounts", isAuthenticated, authController.getAccounts);
 
 export default router;
