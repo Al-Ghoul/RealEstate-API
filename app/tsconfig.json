@@ -104,5 +104,10 @@
     "outDir": "./dist", // Output directory for compiled files
     "rootDir": "./src" // Root directory for source files
   },
-  "include": ["src/**/*"] // Include all files in the `src` directory
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "src/tests/"
+  ]
 }
