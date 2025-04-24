@@ -22,10 +22,7 @@ jobs:
       hits: ${{ steps.discovery.outputs.hits }}
     runs-on: ubuntu-latest
     steps:
-      # Important: use v25 or above as it also detects flake configuration
       - uses: nixbuild/nix-quick-install-action@master
-      # significantly speeds up things in small projects
-      - uses: DeterminateSystems/magic-nix-cache-action@main
       - uses: divnix/std-action/discover@main
         id: discovery
 
@@ -38,8 +35,18 @@ jobs:
       matrix:
         target: ${{ fromJSON(needs.discover.outputs.hits).jobs.build }}
     steps:
-      # Important: use v25 or above as it also detects flake configuration
       - uses: nixbuild/nix-quick-install-action@master
-      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - uses: divnix/std-action/run@main
+      
+  integration:
+    needs: discover
+    name: ${{ matrix.target.jobName }}
+    runs-on: ubuntu-latest
+    if: fromJSON(needs.discover.outputs.hits).integration.run != '{}'
+    strategy:
+      matrix:
+        target: ${{ fromJSON(needs.discover.outputs.hits).integration.run }}
+    steps:
+      - uses: nixbuild/nix-quick-install-action@master
       - uses: divnix/std-action/run@main
 
