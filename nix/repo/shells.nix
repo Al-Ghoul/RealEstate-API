@@ -13,10 +13,6 @@ in
 
       commands = [
         {package = inputs.nixpkgs.nodejs;}
-        {
-          package = inputs.makes.packages.default;
-          help = "A software supply chain framework powered by Nix.";
-        }
       ];
     };
   }
