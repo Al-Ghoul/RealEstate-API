@@ -28,7 +28,8 @@
       cellBlocks = with std.blockTypes; [
         (devshells "shells")
         (arion "arion-compose")
+        
+        (runnables "jobs" {ci.build = true;})
       ];
-    } {
     };
 }
