@@ -30,7 +30,7 @@
         (arion "arion-compose")
         
         (runnables "jobs" {ci.build = true;})
-        (nixostests "integration" {ci.run = true;})
+        (nixostests "nixos" {ci.run = true;})
       ];
     };
 }

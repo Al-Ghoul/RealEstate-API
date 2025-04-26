@@ -26,8 +26,8 @@
       '';
     };
 in {
-  integration = pkgs.testers.runNixOSTest {
-    name = "Real-Estate Integration Test";
+  smoke = pkgs.testers.runNixOSTest {
+    name = "Real-Estate Smoke Tests";
 
     nodes = {
       machine = {pkgs, ...}: {
@@ -71,7 +71,7 @@ in {
       machine.wait_for_open_port(5433)
 
       machine.succeed("cd /run/current-system/sw/bin/real-estate-api && npm run db:runmigrations")
-      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && npm run test:integration")
+      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && npm run test:smoke")
       machine.shutdown()
     '';
   };
