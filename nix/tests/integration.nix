@@ -3,12 +3,27 @@
   cell,
 }: let
   pkgs = inputs.nixpkgs;
-  real-estate-backend =
-    pkgs.callPackage
-    ./real-estate-pkg.nix
-    {
-      nixpkgs = pkgs;
-      src = inputs.self + /app;
+  real-estate-api-build =
+    (pkgs.callPackage ./real-estate-api-pkg.nix
+      {
+        nixpkgs = pkgs;
+        src = inputs.self + /app;
+      })
+    .overrideAttrs {
+      doCheck = false;
+      installPhase = ''
+        runHook preInstall
+
+        mkdir -p $out/bin
+
+        mkdir $out/bin/real-estate-api
+
+        cp -r . $out/bin/real-estate-api
+
+        mv $out/bin/real-estate-api/.env.development.example $out/bin/real-estate-api/.env.development.local
+
+        runHook postInstall
+      '';
     };
 in {
   integration = pkgs.testers.runNixOSTest {
@@ -19,22 +34,7 @@ in {
         virtualisation.memorySize = 1524;
 
         environment.systemPackages = [
-          (real-estate-backend.overrideAttrs {
-            installPhase = ''
-              runHook preInstall
-
-              mkdir -p $out/bin
-
-              mkdir $out/bin/real-estate-backend
-
-              cp -r . $out/bin/real-estate-backend/
-
-              rm -rf $out/bin/real-estate-backend/drizzle
-              rm $out/bin/real-estate-backend/.env.development.example
-
-              runHook postInstall
-            '';
-          })
+          real-estate-api-build
           pkgs.nodejs
         ];
 
@@ -70,7 +70,8 @@ in {
       machine.wait_for_open_port(6379)
       machine.wait_for_open_port(5433)
 
-      machine.succeed("cd /run/current-system/sw/bin/real-estate-backend && npm run test:integration")
+      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && npm run db:runmigrations")
+      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && npm run test:integration")
       machine.shutdown()
     '';
   };
