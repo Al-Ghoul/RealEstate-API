@@ -8,6 +8,7 @@
       inputs = {
         devshell.url = "github:numtide/devshell";
         arion.url = "github:hercules-ci/arion";
+        nixago.url = "github:nix-community/nixago";
       };
     };
     nixng = {
@@ -28,7 +29,8 @@
       cellBlocks = with std.blockTypes; [
         (devshells "shells")
         (arion "arion-compose")
-        
+        (nixago "configs")
+
         (runnables "jobs" {ci.build = true;})
         (nixostests "nixos" {ci.run = true;})
       ];

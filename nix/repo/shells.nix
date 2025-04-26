@@ -11,6 +11,10 @@ in
 
       imports = [std.devshellProfiles.default];
 
+      nixago = [
+        cell.configs.treefmt
+      ];
+
       commands = [
         {package = inputs.nixpkgs.nodejs;}
       ];
