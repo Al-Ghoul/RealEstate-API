@@ -1,4 +1,4 @@
-import { first } from "lodash-es";
+import { first } from "lodash";
 import { db } from "../db";
 import { verificationCode } from "../db/schemas/verificationCode";
 import { and, eq, gt, isNull } from "drizzle-orm";

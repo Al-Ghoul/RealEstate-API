@@ -4,7 +4,7 @@ import { eq, and, isNull } from "drizzle-orm";
 import { type UpdateUserDTO } from "../lib/dtos/users.dto";
 import { account } from "../db/schemas/account";
 import { type TokenPayload } from "google-auth-library";
-import { first } from "lodash-es";
+import { first } from "lodash";
 
 export async function createUser(input: Omit<User, "id">) {
   return await db
