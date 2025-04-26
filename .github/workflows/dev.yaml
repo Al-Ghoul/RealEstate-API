@@ -38,14 +38,14 @@ jobs:
       - uses: nixbuild/nix-quick-install-action@master
       - uses: divnix/std-action/run@main
       
-  integration:
+  nixostests:
     needs: discover
     name: ${{ matrix.target.jobName }}
     runs-on: ubuntu-latest
-    if: fromJSON(needs.discover.outputs.hits).integration.run != '{}'
+    if: fromJSON(needs.discover.outputs.hits).nixos.run != '{}'
     strategy:
       matrix:
-        target: ${{ fromJSON(needs.discover.outputs.hits).integration.run }}
+        target: ${{ fromJSON(needs.discover.outputs.hits).nixos.run }}
     steps:
       - uses: nixbuild/nix-quick-install-action@master
       - uses: divnix/std-action/run@main
