@@ -47,12 +47,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -60,10 +56,7 @@
       "compositePrimaryKeys": {
         "account_provider_provider_account_id_pk": {
           "name": "account_provider_provider_account_id_pk",
-          "columns": [
-            "provider",
-            "provider_account_id"
-          ]
+          "columns": ["provider", "provider_account_id"]
         }
       },
       "uniqueConstraints": {},
@@ -147,12 +140,8 @@
           "name": "notification_user_id_user_id_fk",
           "tableFrom": "notification",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -232,9 +221,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -303,12 +290,8 @@
           "name": "verification_code_user_id_user_id_fk",
           "tableFrom": "verification_code",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -324,28 +307,17 @@
     "public.notification_status": {
       "name": "notification_status",
       "schema": "public",
-      "values": [
-        "PENDING",
-        "SENT",
-        "FAILED"
-      ]
+      "values": ["PENDING", "SENT", "FAILED"]
     },
     "public.notification_type": {
       "name": "notification_type",
       "schema": "public",
-      "values": [
-        "EMAIL",
-        "SMS",
-        "PUSH"
-      ]
+      "values": ["EMAIL", "SMS", "PUSH"]
     },
     "public.code_type": {
       "name": "code_type",
       "schema": "public",
-      "values": [
-        "EMAIL_VERIFICATION",
-        "PASSWORD_RESET"
-      ]
+      "values": ["EMAIL_VERIFICATION", "PASSWORD_RESET"]
     }
   },
   "schemas": {},

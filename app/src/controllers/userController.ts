@@ -17,7 +17,9 @@ export async function updateProfileImage(req: Request, res: Response) {
 
   await userService.updateUserImage(
     req.user.id,
-    `${req.protocol}://${req.get("host") ?? "localhost"}/public/uploads/profile-images/${req.file.filename}`,
+    `${req.protocol}://${
+      req.get("host") ?? "localhost"
+    }/public/uploads/profile-images/${req.file.filename}`,
   );
 
   try {

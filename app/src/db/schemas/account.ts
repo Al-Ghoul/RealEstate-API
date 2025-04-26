@@ -6,7 +6,9 @@ import { relations } from "drizzle-orm";
 export const account = pgTable(
   "account",
   {
-    userId: uuid().references(() => user.id).notNull(),
+    userId: uuid()
+      .references(() => user.id)
+      .notNull(),
     provider: varchar({ length: 255 }).notNull(),
     providerAccountId: varchar({ length: 255 }).notNull(),
     ...timestamps,

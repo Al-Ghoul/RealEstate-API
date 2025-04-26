@@ -185,7 +185,9 @@ export async function createUserByGoogle(data: TokenPayload | undefined) {
       lastName,
       image:
         data.picture ||
-        `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${data.name || data.sub}`,
+        `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${
+          data.name || data.sub
+        }`,
       email: data.email || null,
       emailVerified: data.email_verified ? new Date() : null,
     })

@@ -16,7 +16,7 @@ describe("Check for user endpoints existence", () => {
       details: "Missing authorization token",
     });
   });
-  
+
   it("PUT /api/users/me returns 401 unauthorized", async () => {
     const response = await request(app)
       .put("/api/users/me/profile-image")

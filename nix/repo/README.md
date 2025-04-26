@@ -16,4 +16,3 @@ direnv allow
 $EDITOR ./nix/repo/configs.nix
 direnv reload
 ```
-

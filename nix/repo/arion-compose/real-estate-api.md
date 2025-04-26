@@ -16,7 +16,7 @@ the aforementioned images are built from the source code and create the followin
 
 ## Configuration
 
-The following environment variables are *required* for the Real Estate API to run:
+The following environment variables are _required_ for the Real Estate API to run:
 
 ```sh
 TZ=Europe/Berlin # This is not used directly by the backend but some libs might use it internally, (setting it won't do any harm) do ur own research.
@@ -44,7 +44,6 @@ GOOGLE_CLIENT_SECRET=XXXXXX-XXXX-XXXXXXXXXXXXXXXXXXXXXXX
 UPLOAD_PATH=/bin/real-estate-backend/public/uploads/profile-images
 PUBLIC_PATH=/bin/real-estate-backend/public
 ```
-
 
 ## Reference
 

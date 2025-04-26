@@ -237,7 +237,7 @@ export async function requestEmailVerificationCode(
       });
       return;
     }
-    
+
     if (!user.email) {
       res.status(403).json({
         status: "error",
