@@ -7,6 +7,7 @@
     "build": "tsc",
     "dev": "dotenv -e .env.development.local --  tsx watch src/server.ts",
     "lint": "eslint .",
+    "test:smoke": "dotenv -e ./.env.test -- jest --testPathPattern=smoke --detectOpenHandles",
     "test:integration": "dotenv -e ./.env.test -- jest --testPathPattern=integration --detectOpenHandles",
     "db:push": "dotenv -e .env.development.local -- npx drizzle-kit push",
     "db:makemigrations": "dotenv -e ./.env.development.local -- npx drizzle-kit generate",

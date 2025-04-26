@@ -3,9 +3,9 @@ import { app } from "../../app";
 import { redis } from "../../clients/redis";
 
 describe("Check for user endpoints existence", () => {
-  it("GET /api/users/me returns 401 unauthorized", async () => {
+  it("PATCH /api/users/me returns 401 unauthorized", async () => {
     const response = await request(app)
-      .get("/api/auth/me")
+      .patch("/api/users/me")
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -16,10 +16,10 @@ describe("Check for user endpoints existence", () => {
       details: "Missing authorization token",
     });
   });
-
-  it("PATCH /api/users/me returns 401 unauthorized", async () => {
+  
+  it("PUT /api/users/me returns 401 unauthorized", async () => {
     const response = await request(app)
-      .patch("/api/users/me")
+      .put("/api/users/me/profile-image")
       .expect("Content-Type", /json/)
       .expect(401);
 
