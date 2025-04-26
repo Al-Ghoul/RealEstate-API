@@ -4,10 +4,9 @@ import { assertAuthenticated } from "./assertions";
 
 const storage = multer.diskStorage({
   destination: (_, __, cb) => {
-    const uploadDir = path.join(
-      __dirname,
-      "../../public/uploads/profile-images/",
-    );
+    const uploadDir =
+      process.env.UPLOAD_PATH ||
+      path.join(__dirname, "../../public/uploads/profile-images/");
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
@@ -16,4 +15,5 @@ const storage = multer.diskStorage({
     cb(null, `pfp-${req.user.id}${ext}`);
   },
 });
+
 export const upload = multer({ storage });

@@ -39,7 +39,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, options));
 
 app.use(
   "/public",
-  express.static(path.join(__dirname, "../public/")),
+  express.static(process.env.PUBLIC_PATH || path.join(__dirname, "../public/")),
 );
 
 app.use(express.json());
