@@ -13,5 +13,5 @@ nixpkgs.buildNpmPackage rec {
 
   dontNpmBuild = true;
   npmPackFlags = ["--ignore-scripts"];
-  npmDepsHash = "sha256-xbyJoKvAHOQdvUwuiHAZTd/A4OqF14NfVQiKOlJyFv0=";
+  npmDepsHash = "sha256-KrIJb1rzOCzDHbczvzbTvFpQWTf6UED64r6Idzw8CBM=";
 }
