@@ -13,6 +13,8 @@ in
 
       nixago = [
         cell.configs.treefmt
+        cell.configs.conform
+        cell.configs.lefthook
       ];
 
       commands = [
