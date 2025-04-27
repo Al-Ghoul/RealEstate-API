@@ -43,16 +43,17 @@ describe("Check for auth endpoints existence", () => {
     });
   });
 
-  it("POST /api/auth/refresh returns 400 with validation error", async () => {
+  it("POST /api/auth/refresh returns 401 with unauthorized", async () => {
     const response = await request(app)
       .post("/api/auth/refresh")
       .expect("Content-Type", /json/)
-      .expect(400);
+      .expect(401);
 
     expect(response.body).toMatchObject({
       status: "error",
-      statusCode: 400,
-      message: "Validation failed",
+      statusCode: 401,
+      message: "Access Denied",
+      details: "Missing authorization token",
     });
   });
 
@@ -206,9 +207,9 @@ describe("Check for auth endpoints existence", () => {
     });
   });
 
-  it("GET /api/auth/accounts returns 401 unauthorized", async () => {
+  it("GET /api/auth/me/accounts returns 401 unauthorized", async () => {
     const response = await request(app)
-      .get("/api/auth/accounts")
+      .get("/api/auth/me/accounts")
       .expect("Content-Type", /json/)
       .expect(401);
 
