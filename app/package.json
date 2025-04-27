@@ -11,7 +11,7 @@
     "test:integration": "dotenv -e ./.env.test -- jest --testPathPattern=integration --detectOpenHandles --runInBand",
     "db:push": "dotenv -e .env.development.local -- npx drizzle-kit push",
     "db:makemigrations": "dotenv -e ./.env.development.local -- npx drizzle-kit generate",
-    "db:runmigrations": "dotenv -e ./.env.development.local -- npx drizzle-kit migrate",
+    "db:applymigrations": "dotenv -e ./.env.development.local -- npx drizzle-kit migrate",
     "db:studio": "dotenv -e ./.env.development.local -- npx drizzle-kit studio",
     "db:reset": "dotenv -e .env.development.local -- tsx ./src/db/dropDatabase.ts"
   },
