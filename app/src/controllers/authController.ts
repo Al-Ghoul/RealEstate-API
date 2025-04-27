@@ -684,9 +684,9 @@ export async function linkAccount(req: Request, res: Response) {
       message: "Account linked successfully",
       data: account,
     });
-  } catch (err) {
-    if (err instanceof DatabaseError) {
-      if (err.code === "23505") {
+  } catch (error) {
+    if (error instanceof DatabaseError) {
+      if (error.code === "23505") {
         res.status(409).json({
           status: "error",
           statusCode: 409,
