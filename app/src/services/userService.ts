@@ -140,6 +140,18 @@ export async function getUserByProviderAndId(provider: string, id: string) {
   );
 }
 
+export async function linkAccount(
+  userId: string,
+  provider: string,
+  providerAccountId: string,
+) {
+  return db.insert(account).values({
+    userId,
+    provider,
+    providerAccountId,
+  });
+}
+
 export async function createUserByFacebook(fbUserData: FacebookUser) {
   const {
     id,
@@ -160,25 +172,9 @@ export async function createUserByFacebook(fbUserData: FacebookUser) {
     })
     .returning({ id: user.id, email: user.email });
 
-  await db.insert(account).values({
-    userId: createdUser.id,
-    provider: "facebook",
-    providerAccountId: id,
-  });
+  await linkAccount(createdUser.id, "facebook", id);
 
   return createdUser;
-}
-
-export async function linkAccount(
-  userId: string,
-  provider: string,
-  providerAccountId: string,
-) {
-  return await db.insert(account).values({
-    userId,
-    provider,
-    providerAccountId,
-  });
 }
 
 export async function unLinkAccount(provider: string, userId: string) {
@@ -206,11 +202,7 @@ export async function createUserByGoogle(data: TokenPayload | undefined) {
     })
     .returning({ id: user.id, email: user.email });
 
-  await db.insert(account).values({
-    userId: createdUser.id,
-    provider: "google",
-    providerAccountId: data.sub,
-  });
+  await linkAccount(createdUser.id, "google", data.sub);
 
   return createdUser;
 }
