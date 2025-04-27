@@ -15,7 +15,7 @@ in {
     data =
       {inherit (inputs) cells;}
       // {
-        commit.conventional.scopes = inputs.std.dmerge.append ["nix" "api"];
+        commit.conventional.scopes = inputs.std.dmerge.append ["nix" "api" "db"];
       };
   };
 
