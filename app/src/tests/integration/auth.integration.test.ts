@@ -16,7 +16,7 @@ const basicUser = {
 const createUser = async (input: typeof basicUser) =>
   request(app)
     .post("/api/auth/register")
-    .send(basicUser)
+    .send(input)
     .set("Accept", "application/json")
     .expect("Content-Type", /json/)
     .expect(201);
@@ -153,7 +153,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
 
     const input2 = {
       currentPassword: basicUser.password,
-      newPassword: "newPassword",
+      password: "newPassword",
       confirmPassword: "newPassword",
     };
     const response2 = await request(app)
