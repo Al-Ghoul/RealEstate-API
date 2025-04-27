@@ -13,9 +13,9 @@ export const account = pgTable(
     providerAccountId: varchar({ length: 255 }).notNull(),
     ...timestamps,
   },
-  (account) => [
+  (table) => [
     primaryKey({
-      columns: [account.provider, account.providerAccountId],
+      columns: [table.provider, table.providerAccountId],
     }),
   ],
 );
