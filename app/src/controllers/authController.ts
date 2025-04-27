@@ -45,7 +45,7 @@ export async function registerUser(req: Request, res: Response) {
     res.status(201).json({
       status: "success",
       statusCode: 201,
-      user: user,
+      data: user,
       message: "User created successfully",
     });
     return;
