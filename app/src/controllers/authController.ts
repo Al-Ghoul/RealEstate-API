@@ -497,7 +497,9 @@ export async function getCurrentUser(req: Request, res: Response) {
       });
       return;
     }
-    const finalUser = { ...user, hasPassword: !!user.password } as User;
+    const finalUser = { ...user, hasPassword: !!user.password } as User & {
+      hasPassword: boolean;
+    };
     delete finalUser.password;
     res.status(200).json({
       status: "success",
