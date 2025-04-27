@@ -783,7 +783,7 @@ export async function loginWithGoogle(req: Request, res: Response) {
     const googleUserData = await getGoogleUserData(idToken);
     user = await userService.getUserByProviderAndId(
       "google",
-      googleUserData?.sub ?? "",
+      googleUserData?.sub as string,
     );
     user = await userService.createUserByGoogle(googleUserData);
 
