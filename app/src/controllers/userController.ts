@@ -42,11 +42,15 @@ export async function updateProfileImage(req: Request, res: Response) {
 export async function updateUser(req: Request, res: Response) {
   assertAuthenticated(req);
   try {
-    await userService.updateUser(req.user.id, req.body as UpdateUserDTO);
+    const user = await userService.updateUser(
+      req.user.id,
+      req.body as UpdateUserDTO,
+    );
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "User updated successfully",
+      data: user,
     });
   } catch {
     res.status(500).json({
