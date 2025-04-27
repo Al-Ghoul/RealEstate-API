@@ -455,7 +455,7 @@ export async function resetUserPassword(req: Request, res: Response) {
       input.code,
       "PASSWORD_RESET",
     );
-    if (!resetCode || !resetCode.userId) {
+    if (!resetCode) {
       res.status(404).json({
         status: "error",
         statusCode: 404,
