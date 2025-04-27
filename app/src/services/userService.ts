@@ -5,6 +5,7 @@ import { type UpdateUserDTO } from "../lib/dtos/user.dto";
 import { account } from "../db/schemas/account";
 import { type TokenPayload } from "google-auth-library";
 import { first } from "lodash";
+import { lower } from "../db/columns.helpers";
 
 export async function createUser(input: Omit<User, "id">) {
   return await db
@@ -37,7 +38,7 @@ export async function getUser(email: string) {
         updatedAt: user.updatedAt,
       })
       .from(user)
-      .where(eq(user.email, email))
+      .where(eq(lower(user.email), email.toLowerCase()))
       .limit(1),
   );
 }
