@@ -1005,7 +1005,7 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/accounts:
+ * /api/auth/me/accounts:
  *   get:
  *     summary: Get user accounts
  *     tags: [Auth]
@@ -1045,6 +1045,6 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  */
-router.get("/accounts", isAuthenticated, authController.getAccounts);
+router.get("/me/accounts", isAuthenticated, authController.getAccounts);
 
 export default router;
