@@ -17,6 +17,7 @@ export async function updateProfileImage(req: Request, res: Response) {
 
   await userService.updateUserImage(
     req.user.id,
+    // TODO: change this to use an env var
     `${req.protocol}://${
       req.get("host") ?? "localhost"
     }/public/uploads/profile-images/${req.file.filename}`,

@@ -51,7 +51,6 @@ export async function registerUser(req: Request, res: Response) {
       data: user,
       message: "User created successfully",
     });
-    return;
   } catch (error) {
     if (error instanceof DatabaseError) {
       if (error.code === "23505") {
@@ -88,7 +87,7 @@ export async function loginUser(req: Request, res: Response) {
             message:
               "This email is associated with a social login. Please sign in with your social provider (e.g., Google, Facebook).",
             details:
-              "Please sign in with your social provider (e.g., Google, Facebook).",
+              "Please sign in with your social provider (e.g. Google, Facebook).",
           });
         }
         return;
@@ -744,7 +743,6 @@ export async function unlinkAccount(req: Request, res: Response) {
       statusCode: 200,
       message: "Account unlinked successfully",
     });
-    return;
   } catch {
     res.status(500).json({
       status: "error",
@@ -803,7 +801,6 @@ export async function loginWithGoogle(req: Request, res: Response) {
       message: "Login successful",
       data: generateJWTTokens(user as User),
     });
-    return;
   } catch (err) {
     if (err instanceof DatabaseError) {
       if (err.code === "23505") {
