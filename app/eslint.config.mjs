@@ -14,6 +14,7 @@ export default [
       "jest.config.ts",
       "babel.config.js",
       "src/db/dropDatabase.ts",
+      "jest.d.ts",
     ],
   },
   pluginJs.configs.recommended,
