@@ -8,7 +8,7 @@ import { first } from "lodash";
 import { lower } from "../db/columns.helpers";
 
 export async function createUser(input: Omit<User, "id">) {
-  return await db
+  return db
     .insert(user)
     .values({ ...input })
     .returning({
@@ -58,7 +58,7 @@ export async function getUnVerifiedUserById(id: string) {
 }
 
 export async function verifyUser(id: string) {
-  return await db
+  return db
     .update(user)
     .set({ emailVerified: new Date() })
     .where(eq(user.id, id));
@@ -89,7 +89,7 @@ export async function getUserById(id: string) {
 }
 
 export async function updateUserImage(id: string, image: string) {
-  return await db.update(user).set({ image }).where(eq(user.id, id));
+  return db.update(user).set({ image }).where(eq(user.id, id));
 }
 
 export async function updateUser(id: string, input: UpdateUserDTO) {
@@ -117,7 +117,7 @@ export async function updateUser(id: string, input: UpdateUserDTO) {
 }
 
 export async function getAccountsByUserId(id: string) {
-  return await db
+  return db
     .select({
       userId: account.userId,
       provider: account.provider,
@@ -178,7 +178,7 @@ export async function createUserByFacebook(fbUserData: FacebookUser) {
 }
 
 export async function unLinkAccount(provider: string, userId: string) {
-  return await db
+  return db
     .delete(account)
     .where(and(eq(account.provider, provider), eq(account.userId, userId)));
 }

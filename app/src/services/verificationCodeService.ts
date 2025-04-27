@@ -30,7 +30,7 @@ export async function createVerificationCode(
   code: string,
   type: NonNullable<CodeType>,
 ) {
-  return await db.insert(verificationCode).values({
+  return db.insert(verificationCode).values({
     code,
     userId: user.id as string,
     type,
@@ -42,7 +42,7 @@ export async function getUnUsedVerCodeByCodeAndUserId(
   code: string,
   userId: string,
 ) {
-  return await db
+  return db
     .select({
       id: verificationCode.id,
       userId: verificationCode.userId,
@@ -61,7 +61,7 @@ export async function getUnUsedVerCodeByCodeAndUserId(
 }
 
 export async function useVerificationCode(id: number) {
-  return await db
+  return db
     .update(verificationCode)
     .set({ usedAt: new Date() })
     .where(eq(verificationCode.id, id));
