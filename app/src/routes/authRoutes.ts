@@ -1,20 +1,21 @@
 import { Router } from "express";
 import { schemaValidatorMiddleware } from "../middlewares/schemaValidatorMiddleware";
-import { createUserDTO } from "../lib/dtos/users.dto";
-import {
-  changePasswordDTO,
-  linkAccountDTO,
-  loginUserDTO,
-  loginWithFacebookDTO,
-  loginWithGoogleDTO,
-  passwordResetDTO,
-  refreshTokenInputDTO,
-  requestResetCodeDTO,
-  setPasswordDTO,
-  verifyUserDTO,
-} from "../lib/dtos/auth.dto";
+import { createUserDTO } from "../lib/dtos/user.dto";
+import { loginUserDTO, refreshTokenInputDTO } from "../lib/dtos/auth.dto";
 import * as authController from "../controllers/authController";
 import { isAuthenticated } from "../middlewares/authMiddleware";
+import {
+  linkAccountDTO,
+  loginWithFacebookDTO,
+  loginWithGoogleDTO,
+} from "../lib/dtos/account.dto";
+import {
+  changePasswordDTO,
+  passwordResetDTO,
+  setPasswordDTO,
+} from "../lib/dtos/password.dto";
+import { verifyUserDTO } from "../lib/dtos/verify.dto";
+import { requestResetCodeDTO } from "../lib/dtos/reset.dto";
 
 const router = Router();
 
@@ -470,7 +471,7 @@ router.post(
  *                 example: 123456
  *                 description: The verification code
  *                 required: true
- *               newPassword:
+ *               password:
  *                 type: string
  *                 example: 12345678
  *                 description: The new password
@@ -478,7 +479,7 @@ router.post(
  *               confirmPassword:
  *                 type: string
  *                 example: 12345678
- *                 description: The new password
+ *                 description: The confirmation of new password
  *                 required: true
  *     responses:
  *      200:
@@ -532,7 +533,7 @@ router.post(
  *                example: 12345678
  *                description: The current password
  *                required: true
- *              newPassword:
+ *              password:
  *                type: string
  *                example: 12345678
  *                description: The new password
@@ -540,7 +541,7 @@ router.post(
  *              confirmPassword:
  *                type: string
  *                example: 12345678
- *                description: The new password
+ *                description: The confirmation of the new password
  *                required: true
  *    responses:
  *      200:
@@ -954,15 +955,15 @@ router.delete(
  *           schema:
  *             type: object
  *             properties:
- *             newPassword:
+ *             password:
  *               type: string
  *               example: 12345678
- *               description: The new password of the user
+ *               description: The new password
  *               required: true
  *             confirmPassword:
  *               type: string
  *               example: 12345678
- *               description: The new password of the user
+ *               description: The confirmation new password
  *               required: true
  *     responses:
  *       200:

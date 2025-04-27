@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as userService from "../services/userService";
 import { assertAuthenticated } from "../lib/assertions";
-import { type UpdateUserDTO } from "../lib/dtos/users.dto";
+import { type UpdateUserDTO } from "../lib/dtos/user.dto";
 
 export async function updateProfileImage(req: Request, res: Response) {
   assertAuthenticated(req);

@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { user } from "../db/schemas/user";
 import { eq, and, isNull } from "drizzle-orm";
-import { type UpdateUserDTO } from "../lib/dtos/users.dto";
+import { type UpdateUserDTO } from "../lib/dtos/user.dto";
 import { account } from "../db/schemas/account";
 import { type TokenPayload } from "google-auth-library";
 import { first } from "lodash";

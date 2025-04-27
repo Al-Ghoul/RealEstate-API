@@ -1,17 +1,8 @@
 import { Request, Response } from "express";
-import { type CreateUserDTO } from "../lib/dtos/users.dto";
+import { type CreateUserDTO } from "../lib/dtos/user.dto";
 import {
-  type RequestResetCodeDTO,
   type LoginUserDTO,
   type RefreshTokenInputDTO,
-  type VerifyUserDTO,
-  type PasswordResetDTO,
-  type ChangePasswordDTO,
-  type LoginWithFacebookDTO,
-  type LinkAccountDTO,
-  type UnlinkAccountDTO,
-  type SetPasswordDTO,
-  type LoginWithGoogleDTO,
 } from "../lib/dtos/auth.dto";
 import * as userService from "../services/userService";
 import { DatabaseError } from "pg";
@@ -29,6 +20,19 @@ import {
   getGoogleUserData,
 } from "../lib/auth";
 import { assertAuthenticated } from "../lib/assertions";
+import { type VerifyUserDTO } from "../lib/dtos/verify.dto";
+import { type RequestResetCodeDTO } from "../lib/dtos/reset.dto";
+import {
+  type SetPasswordDTO,
+  type ChangePasswordDTO,
+  type PasswordResetDTO,
+} from "../lib/dtos/password.dto";
+import {
+  type UnlinkAccountDTO,
+  type LinkAccountDTO,
+  type LoginWithFacebookDTO,
+  type LoginWithGoogleDTO,
+} from "../lib/dtos/account.dto";
 
 export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
@@ -463,7 +467,7 @@ export async function resetUserPassword(req: Request, res: Response) {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(input.newPassword, 10);
+    const hashedPassword = await bcrypt.hash(input.password, 10);
     await userService.updateUserPassword(resetCode.userId, hashedPassword);
     await verificationCodeService.useVerificationCode(resetCode.id);
 
@@ -554,7 +558,7 @@ export async function changePassword(req: Request, res: Response) {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(input.newPassword, 10);
+    const hashedPassword = await bcrypt.hash(input.password, 10);
     await userService.updateUserPassword(req.user.id, hashedPassword);
     res.status(200).json({
       status: "success",
@@ -756,7 +760,7 @@ export async function setPassword(req: Request, res: Response) {
   assertAuthenticated(req);
   const input = req.body as SetPasswordDTO;
   try {
-    const password = await bcrypt.hash(input.newPassword, 10);
+    const password = await bcrypt.hash(input.password, 10);
     await userService.updateUserPassword(req.user.id, password);
     res.status(200).json({
       status: "success",

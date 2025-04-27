@@ -3,7 +3,7 @@ import { isAuthenticated } from "../middlewares/authMiddleware";
 import * as userController from "../controllers/userController";
 import { upload } from "../lib/storage";
 import { schemaValidatorMiddleware } from "../middlewares/schemaValidatorMiddleware";
-import { updateUserDTO } from "../lib/dtos/users.dto";
+import { updateUserDTO } from "../lib/dtos/user.dto";
 
 const router = Router();
 
