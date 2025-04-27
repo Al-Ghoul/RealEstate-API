@@ -243,6 +243,7 @@ router.post(
  */
 router.post(
   "/refresh",
+  isAuthenticated,
   schemaValidatorMiddleware(refreshTokenInputDTO),
   authController.refreshUserToken,
 );
