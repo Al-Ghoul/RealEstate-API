@@ -6,11 +6,11 @@
   inherit (inputs.nixng) nglib;
   real-estate-api-image = let
     real-estate-api-build =
-      (inputs.nixpkgs.callPackage ../../tests/real-estate-api-pkg.nix
-        {
-          inherit (inputs) nixpkgs;
-          src = inputs.self + /app;
-        })
+      inputs
+      .cells
+      .repo
+      .packages
+      .backend
       .overrideAttrs
       {
         inherit (inputs) nixpkgs;

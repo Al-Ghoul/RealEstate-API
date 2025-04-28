@@ -4,11 +4,11 @@
 }: let
   pkgs = inputs.nixpkgs;
   real-estate-api-build =
-    (pkgs.callPackage ./real-estate-api-pkg.nix
-      {
-        nixpkgs = pkgs;
-        src = inputs.self + /app;
-      })
+    inputs
+    .cells
+    .repo
+    .packages
+    .backend
     .overrideAttrs {
       doCheck = false;
       installPhase = ''

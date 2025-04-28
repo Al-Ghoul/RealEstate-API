@@ -2,11 +2,7 @@
   inputs,
   cell,
 }: let
-  inherit (inputs) nixpkgs self;
-  real-estate-api = nixpkgs.callPackage ./real-estate-api-pkg.nix {
-    inherit nixpkgs;
-    src = self + /app;
-  };
+  real-estate-api = inputs.cells.repo.packages.backend;
 in {
   type-checks-job = real-estate-api.overrideAttrs {
     name = "Type Check Job";

@@ -33,6 +33,8 @@
 
         (runnables "jobs" {ci.build = true;})
         (nixostests "nixos" {ci.run = true;})
+
+        (installables "packages")
       ];
     };
 }
