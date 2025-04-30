@@ -4,6 +4,7 @@ import { app } from "../../app";
 import { redis } from "../../clients/redis";
 import { db } from "../../db";
 import { user } from "../../db/schemas/user";
+import { profile } from "../../db/schemas/profile";
 
 const basicUser = {
   email: "johndoe@example.com",
@@ -39,13 +40,10 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     expect(response.body).toMatchObject({
       status: "success",
       statusCode: 201,
-      message: "User created successfully",
+      message: "User was created successfully",
       data: {
         id: expect.any(String),
         email: basicUser.email,
-        firstName: basicUser.firstName,
-        lastName: basicUser.lastName,
-        image: expect.any(String),
         emailVerified: expect.toBeStringOrNull(),
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
@@ -69,7 +67,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     expect(response.body).toMatchObject({
       status: "success",
       statusCode: 200,
-      message: "Login successful",
+      message: "Login was successful",
       data: {
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
@@ -77,7 +75,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     });
   });
 
-  it("POST /api/auth/refresh with a valid refresh token refreshes a user token", async () => {
+  it("POST /api/auth/me/refresh with a valid refresh token refreshes a user token", async () => {
     const input = {
       email: basicUser.email,
       password: basicUser.password,
@@ -93,7 +91,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     const refreshToken = response.body.data.refreshToken;
 
     const response2 = await request(app)
-      .post("/api/auth/refresh")
+      .post("/api/auth/me/refresh")
       .send({ refreshToken })
       .set("Authorization", `Bearer ${response.body.data.accessToken}`)
       .set("Accept", "application/json")
@@ -103,7 +101,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     expect(response2.body).toMatchObject({
       status: "success",
       statusCode: 200,
-      message: "Refreshed token successfully",
+      message: "Tokens were refreshed successfully",
       data: {
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
@@ -111,7 +109,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     });
   });
 
-  it("POST /api/auth/logout logs out a user", async () => {
+  it("POST /api/auth/me/logout logs out a user", async () => {
     const input = {
       email: basicUser.email,
       password: basicUser.password,
@@ -125,7 +123,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
       .expect(200);
 
     const response2 = await request(app)
-      .post("/api/auth/logout")
+      .post("/api/auth/me/logout")
       .set("Authorization", `Bearer ${response.body.data.accessToken}`)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
@@ -134,11 +132,11 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     expect(response2.body).toMatchObject({
       status: "success",
       statusCode: 200,
-      message: "Logout successful",
+      message: "Logout was successful",
     });
   });
 
-  it("POST /api/auth/change-password with valid data changes a user password", async () => {
+  it("POST /api/auth/me/change-password with valid data changes a user password", async () => {
     const input = {
       email: basicUser.email,
       password: basicUser.password,
@@ -157,7 +155,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
       confirmPassword: "newPassword",
     };
     const response2 = await request(app)
-      .post("/api/auth/change-password")
+      .post("/api/auth/me/change-password")
       .send(input2)
       .set("Authorization", `Bearer ${response.body.data.accessToken}`)
       .set("Accept", "application/json")
@@ -194,13 +192,10 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     expect(response2.body).toMatchObject({
       status: "success",
       statusCode: 200,
-      message: "User found successfully",
+      message: "User was retrieved successfully",
       data: {
         id: expect.any(String),
         email: basicUser.email,
-        firstName: basicUser.firstName,
-        lastName: basicUser.lastName,
-        image: expect.any(String),
         emailVerified: expect.toBeStringOrNull(),
         hasPassword: expect.any(Boolean),
         createdAt: expect.any(String),
@@ -232,7 +227,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     expect(response2.body).toMatchObject({
       status: "success",
       statusCode: 200,
-      message: "Accounts retrieved successfully",
+      message: "Accounts were retrieved successfully",
       data: expect.any(Array),
     });
   });
