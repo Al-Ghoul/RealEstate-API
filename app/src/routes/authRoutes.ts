@@ -27,26 +27,25 @@ const router = Router();
  *     tags: [Auth]
  *     responses:
  *       400:
- *         description: Bad request
+ *         description: Input validation error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       409:
- *         description: The user already exists
+ *         description: Email already used
  *         content:
  *           application/json:
  *             schema:
  *                $ref: '#/components/schemas/GenericResponse'
- *
  *       500:
- *         description: Internal server error
+ *         description: Internal server error or Unidentified database error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       201:
- *         description: The user was successfully created
+ *         description: User was created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -54,8 +53,8 @@ const router = Router();
  *                 - $ref: '#/components/schemas/GenericResponse'
  *                 - type: object
  *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
+ *                     data:
+ *                      $ref: '#/components/schemas/User'
  *     requestBody:
  *       required: true
  *       content:
@@ -129,7 +128,6 @@ router.post(
  *                 required: false
  *                 pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
  *                 maxLength: 255
- *                 minLength: 2
  *                 title: The email of the user
  *               password:
  *                 type: string
@@ -142,7 +140,7 @@ router.post(
  *                 title: The password of the user
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Login was successful
  *         content:
  *           application/json:
  *             schema:
@@ -161,20 +159,26 @@ router.post(
  *                    type: string
  *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
  *                    description: The refresh token of the user
+ *       400:
+ *         description: Input validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
  *       401:
  *         description: Invalid credentials
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
- *       500:
- *         description: Internal server error
+ *       403:
+ *         description: This user is associated with a social login
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
- *       400:
- *         description: Bad request
+ *       500:
+ *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
@@ -188,10 +192,12 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/refresh:
+ * /api/auth/me/refresh:
  *   post:
- *     summary: Refresh a user token
- *     tags: [Auth]
+ *     summary: Refresh current user's tokens
+ *     tags: [Auth | Me]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -204,7 +210,7 @@ router.post(
  *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
  *     responses:
  *       200:
- *         description: Refresh successful
+ *         description: Tokens were refreshed successfully
  *         content:
  *           application/json:
  *             schema:
@@ -224,17 +230,23 @@ router.post(
  *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
  *                    description: The refresh token of the user
  *       400:
- *         description: Bad request
+ *         description: Input validation failed
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       401:
- *         description: Invalid or expired token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
+ *        description: Missing authorization token, Invalid refresh token
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *       403:
+ *        description: Token has been revoked, Invalid Token or Refresh token is blacklisted
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
  *       500:
  *         description: Internal server error
  *         content:
@@ -243,7 +255,7 @@ router.post(
  *               $ref: '#/components/schemas/GenericResponse'
  */
 router.post(
-  "/refresh",
+  "/me/refresh",
   isAuthenticated,
   schemaValidatorMiddleware(refreshTokenInputDTO),
   authController.refreshUserToken,
@@ -251,15 +263,15 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/logout:
+ * /api/auth/me/logout:
  *   post:
- *     summary: Logout a user
- *     tags: [Auth]
+ *     summary: Logout current user
+ *     tags: [Auth | Me]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Logout successful
+ *         description: Logout was successful
  *         content:
  *           application/json:
  *             schema:
@@ -272,8 +284,8 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       403:
- *         description: Invalid or expired token
- *         content:
+ *        description: Token has been revoked or Invalid Token
+ *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
@@ -284,25 +296,25 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  */
-router.post("/logout", isAuthenticated, authController.logoutUser);
+router.post("/me/logout", isAuthenticated, authController.logoutUser);
 
 /**
  * @swagger
- * /api/auth/request-email-verification-code:
+ * /api/auth/me/request-email-verification-code:
  *   post:
- *     summary: Request verification code
- *     tags: [Auth]
+ *     summary: Request verification code for current user
+ *     tags: [Auth | Me]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *      200:
- *        description: Verification code sent
+ *        description: Verification code was sent successfully
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Bad request
+ *        description: Input validation failed or verification code already sent
  *        content:
  *          application/json:
  *            schema:
@@ -314,36 +326,36 @@ router.post("/logout", isAuthenticated, authController.logoutUser);
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Invalid, expired token or user does not have an email
+ *        description: Token has been revoked, Invalid Token or User does not have an email
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      404:
- *        description: User not found
+ *        description: User not found or already verified
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      500:
- *        description: Internal server error
+ *        description: Internal server error or Verification code could not be sent
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  */
 router.post(
-  "/request-email-verification-code",
+  "/me/request-email-verification-code",
   isAuthenticated,
   authController.requestEmailVerificationCode,
 );
 
 /**
  * @swagger
- * /api/auth/verify:
+ * /api/auth/me/verify:
  *   post:
- *     summary: Verify user
- *     tags: [Auth]
+ *     summary: Verify current user
+ *     tags: [Auth | Me]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -360,7 +372,7 @@ router.post(
  *                 required: true
  *     responses:
  *      200:
- *        description: User verified
+ *        description: User was verified successfully
  *        content:
  *          application/json:
  *            schema:
@@ -372,7 +384,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Invalid or expired token
+ *        description: Token has been revoked or Invalid Token
  *        content:
  *          application/json:
  *            schema:
@@ -391,7 +403,7 @@ router.post(
  *              $ref: '#/components/schemas/GenericResponse'
  */
 router.post(
-  "/verify",
+  "/me/verify",
   isAuthenticated,
   schemaValidatorMiddleware(verifyUserDTO),
   authController.verifyUser,
@@ -417,7 +429,7 @@ router.post(
  *                 description: The email of the user
  *     responses:
  *      200:
- *        description: Verification code sent
+ *        description: Password reset code was sent successfully
  *        content:
  *          application/json:
  *            schema:
@@ -429,7 +441,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Bad request
+ *        description: Input validation failed or Reset code already sent
  *        content:
  *          application/json:
  *            schema:
@@ -483,19 +495,19 @@ router.post(
  *                 required: true
  *     responses:
  *      200:
- *        description: Password reset successful
+ *        description: Password was reset successfully
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Bad request
+ *        description: Input validation failed
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      404:
- *        description: Invalid or expired reset code
+ *        description: Reset code expired or invalid
  *        content:
  *          application/json:
  *            schema:
@@ -515,10 +527,10 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/change-password:
+ * /api/auth/me/change-password:
  *  post:
- *    summary: Change user password
- *    tags: [Auth]
+ *    summary: Change current user's password
+ *    tags: [Auth | Me]
  *    security:
  *      - bearerAuth: []
  *    requestBody:
@@ -545,13 +557,13 @@ router.post(
  *                required: true
  *    responses:
  *      200:
- *        description: Password changed successfully
+ *        description: Password was changed successfully
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Current password is incorrect or passwords do not match
+ *        description: Input validation failed or Password is incorrect
  *        content:
  *          application/json:
  *            schema:
@@ -563,13 +575,13 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Invalid, expired token or user does not have a password
+ *        description: Token has been revoked, Invalid Token or User has no password
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      404:
- *        description: User not found
+ *        description: User was not found
  *        content:
  *          application/json:
  *            schema:
@@ -582,7 +594,7 @@ router.post(
  *              $ref: '#/components/schemas/GenericResponse'
  */
 router.post(
-  "/change-password",
+  "/me/change-password",
   isAuthenticated,
   schemaValidatorMiddleware(changePasswordDTO),
   authController.changePassword,
@@ -590,15 +602,79 @@ router.post(
 
 /**
  * @swagger
+ * /api/auth/me/set-password:
+ *   post:
+ *     summary: Set current user's password
+ *     tags: [Auth | Me]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *             password:
+ *               type: string
+ *               example: 12345678
+ *               description: The new password
+ *               required: true
+ *             confirmPassword:
+ *               type: string
+ *               example: 12345678
+ *               description: The confirmation new password
+ *               required: true
+ *     responses:
+ *       200:
+ *         description: Password was set successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       400:
+ *         description: Input validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       401:
+ *         description: Missing authorization token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       403:
+ *         description: Token has been revoked or Invalid Token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GenericResponse'
+ *       500:
+ *       description: Internal server error
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ */
+router.post(
+  "/me/set-password",
+  isAuthenticated,
+  schemaValidatorMiddleware(setPasswordDTO),
+  authController.setPassword,
+);
+
+/**
+ * @swagger
  * /api/auth/me:
  *   get:
- *     summary: Get logged in user
- *     tags: [Auth]
+ *     summary: Get current user's data
+ *     tags: [Auth | Me]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *      200:
- *        description: Logged in user
+ *        description: User was retrieved successfully
  *        content:
  *         application/json:
  *           schema:
@@ -622,13 +698,13 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Invalid authorization header
+ *        description: Token has been revoked or Invalid Token
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      404:
- *        description: User not found
+ *        description: User was not found
  *        content:
  *          application/json:
  *            schema:
@@ -646,7 +722,7 @@ router.get("/me", isAuthenticated, authController.getCurrentUser);
  * @swagger
  * /api/auth/facebook:
  *   post:
- *     summary: Login with Facebook
+ *     summary: Login or Register with Facebook
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -660,7 +736,7 @@ router.get("/me", isAuthenticated, authController.getCurrentUser);
  *                 required: true
  *     responses:
  *       200:
- *         description: User logged in successfully
+ *         description: User has logged in successfully
  *         content:
  *           application/json:
  *             schema:
@@ -680,7 +756,7 @@ router.get("/me", isAuthenticated, authController.getCurrentUser);
  *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
  *                    description: The refresh token of the user
  *       201:
- *         description: User created and logged in successfully
+ *         description: User was created and logged in successfully
  *         content:
  *           application/json:
  *             schema:
@@ -700,19 +776,19 @@ router.get("/me", isAuthenticated, authController.getCurrentUser);
  *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
  *                    description: The refresh token of the user
  *       400:
- *        description: Bad request
+ *        description: Input validation failed
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       409:
- *        description: The associated email already exists
+ *        description: The associated email is already in use
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       500:
- *        description: Internal server error
+ *        description: Internal server error or Unidentified database error
  *        content:
  *          application/json:
  *            schema:
@@ -728,7 +804,7 @@ router.post(
  * @swagger
  * /api/auth/google:
  *   post:
- *     summary: Login with Google
+ *     summary: Login or Register with Google
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -742,7 +818,7 @@ router.post(
  *                 required: true
  *     responses:
  *       200:
- *         description: User logged in successfully
+ *         description: User has logged in successfully
  *         content:
  *           application/json:
  *             schema:
@@ -762,7 +838,7 @@ router.post(
  *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
  *                    description: The refresh token of the user
  *       201:
- *         description: User created and logged in successfully
+ *         description: User was created and logged in successfully
  *         content:
  *           application/json:
  *             schema:
@@ -782,19 +858,19 @@ router.post(
  *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
  *                    description: The refresh token of the user
  *       400:
- *        description: Bad request
+ *        description: Input validation failed
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       409:
- *        description: The associated email already exists
+ *        description: The associated email is already in use
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       500:
- *        description: Internal server error
+ *        description: Internal server error or Unidentified database error
  *        content:
  *          application/json:
  *            schema:
@@ -808,10 +884,10 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/accounts/link:
+ * /api/auth/me/accounts/link:
  *   post:
- *     summary: Link user account
- *     tags: [Auth]
+ *     summary: Link an account to the current user
+ *     tags: [Auth | Accounts]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -831,14 +907,14 @@ router.post(
  *                 required: true
  *                 enum: [google, facebook]
  *     responses:
- *      200:
- *        description: User account linked
+ *      201:
+ *        description: Account was linked successfully
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Bad request
+ *        description: Input validation failed or Account could not be linked
  *        content:
  *          application/json:
  *            schema:
@@ -850,32 +926,32 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Invalid or expired token
+ *        description: Token has been revoked or Invalid Token
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      404:
- *        description: User not found
+ *        description: User was not found
  *        content:
  *        application/json:
  *          schema:
  *            $ref: '#/components/schemas/GenericResponse'
  *      409:
- *        description: The associated email or provider already exists
+ *        description: The associated email is already in use
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      500:
- *        description: Internal server error
+ *        description: Internal server error or Unidentified database error
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  */
 router.post(
-  "/accounts/link",
+  "/me/accounts/link",
   isAuthenticated,
   schemaValidatorMiddleware(linkAccountDTO),
   authController.linkAccount,
@@ -883,10 +959,10 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/accounts/unlink/{provider}:
+ * /api/auth/me/accounts/unlink/{provider}:
  *   delete:
- *     summary: Unlink user account
- *     tags: [Auth]
+ *     summary: Unlink current user's selected provider's account
+ *     tags: [Auth | Accounts]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -898,13 +974,13 @@ router.post(
  *        required: true
  *     responses:
  *      200:
- *        description: User account unlinked
+ *        description: Account was unlinked successfully
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Bad request
+ *        description: Input validation failed or User has no password
  *        content:
  *          application/json:
  *            schema:
@@ -916,13 +992,13 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Invalid or expired token
+ *        description: Token has been revoked or Invalid Token
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      404:
- *        description: User not found
+ *        description: User was not found or Account was not found
  *        content:
  *          application/json:
  *            schema:
@@ -935,73 +1011,9 @@ router.post(
  *              $ref: '#/components/schemas/GenericResponse'
  */
 router.delete(
-  "/accounts/unlink/:provider",
+  "/me/accounts/unlink/:provider",
   isAuthenticated,
   authController.unlinkAccount,
-);
-
-/**
- * @swagger
- * /api/auth/set-password:
- *   post:
- *     summary: Set user password
- *     tags: [Auth]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *             password:
- *               type: string
- *               example: 12345678
- *               description: The new password
- *               required: true
- *             confirmPassword:
- *               type: string
- *               example: 12345678
- *               description: The confirmation new password
- *               required: true
- *     responses:
- *       200:
- *         description: Password set successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       400:
- *         description: Bad request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       401:
- *         description: Missing authorization token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       403:
- *         description: Invalid or expired token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       500:
- *       description: Internal server error
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/GenericResponse'
- */
-router.post(
-  "/set-password",
-  isAuthenticated,
-  schemaValidatorMiddleware(setPasswordDTO),
-  authController.setPassword,
 );
 
 /**
@@ -1009,12 +1021,12 @@ router.post(
  * /api/auth/me/accounts:
  *   get:
  *     summary: Get user accounts
- *     tags: [Auth]
+ *     tags: [Auth | Accounts]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: User accounts retrieved successfully
+ *         description: Accounts were retrieved successfully
  *         content:
  *           application/json:
  *            schema:
@@ -1034,7 +1046,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       403:
- *        description: Invalid or expired token
+ *        description: Token has been revoked or Invalid Token
  *        content:
  *          application/json:
  *            schema:
