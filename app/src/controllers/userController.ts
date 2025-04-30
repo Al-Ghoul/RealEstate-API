@@ -10,7 +10,7 @@ export async function updateProfileImage(req: Request, res: Response) {
     res.status(400).json({
       status: "error",
       statusCode: 400,
-      message: "No file uploaded",
+      message: "No image provided",
       details: "Please upload a file",
     });
     return;
@@ -29,7 +29,7 @@ export async function updateProfileImage(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Profile image updated successfully",
+      message: "Profile image was updated successfully",
       data: { blurHash },
     });
   } catch {
@@ -52,7 +52,7 @@ export async function updateUser(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "User updated successfully",
+      message: "User was updated successfully",
       data: user,
     });
   } catch {

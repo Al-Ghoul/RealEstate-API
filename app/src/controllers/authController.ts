@@ -36,20 +36,18 @@ import {
 
 export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
-  const hashedPassword = await bcrypt.hash(input.password, 10);
+  input.password = await bcrypt.hash(input.password, 10);
   try {
-    const user = (
-      await userService.createUser({
-        ...input,
-        password: hashedPassword,
-        image: `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${input.firstName}${input.lastName}`,
-      })
-    )[0];
+    const imageURI = `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${input.firstName}${input.lastName}`;
+    const user = await userService.createUser({
+      ...input,
+      image: imageURI,
+    });
     res.status(201).json({
       status: "success",
       statusCode: 201,
       data: user,
-      message: "User created successfully",
+      message: "User was created successfully",
     });
   } catch (error) {
     if (error instanceof DatabaseError) {
@@ -57,16 +55,23 @@ export async function registerUser(req: Request, res: Response) {
         res.status(409).json({
           status: "error",
           statusCode: 409,
-          message: "Email or first and last names already used",
-          details: "Please use a different email or first and last names",
+          message: "Email already used",
+          details: "Please use a different email",
         });
         return;
       }
+      res.status(500).json({
+        status: "error",
+        statusCode: 500,
+        message: "Unidentified database error",
+        details: "Something went wrong, please try again later",
+      });
+      return;
     }
     res.status(500).json({
       status: "error",
       statusCode: 500,
-      message: "Database error",
+      message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
   }
@@ -85,9 +90,9 @@ export async function loginUser(req: Request, res: Response) {
             status: "error",
             statusCode: 403,
             message:
-              "This email is associated with a social login. Please sign in with your social provider (e.g., Google, Facebook).",
+              "This user is associated with a social login. Please sign in with your social provider (e.g., Google, Facebook)",
             details:
-              "Please sign in with your social provider (e.g. Google, Facebook).",
+              "Please sign in with your social provider (e.g. Google, Facebook)",
           });
         }
         return;
@@ -107,7 +112,7 @@ export async function loginUser(req: Request, res: Response) {
       res.status(200).json({
         status: "success",
         statusCode: 200,
-        message: "Login successful",
+        message: "Login was successful",
         data: generateJWTTokens(user),
       });
       return;
@@ -130,48 +135,16 @@ export async function loginUser(req: Request, res: Response) {
   });
 }
 
-export async function logoutUser(req: Request, res: Response) {
-  try {
-    const accessToken = req.headers.authorization?.split(" ")[1] as string;
-    const { exp } = jwt.decode(accessToken) as { exp: number };
-    await redis.setEx(
-      `blacklist:${accessToken}`,
-      exp - Math.floor(Date.now() / 1000),
-      "1",
-    );
-    res.status(200).json({
-      status: "success",
-      statusCode: 200,
-      message: "Logout successful",
-    });
-  } catch {
-    res.status(500).json({
-      status: "error",
-      statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
-    });
-  }
-}
-
 export async function refreshUserToken(req: Request, res: Response) {
   const { refreshToken } = req.body as RefreshTokenInputDTO;
-
-  if (!refreshToken) {
-    res.status(403).json({
-      status: "error",
-      statusCode: 403,
-      message: "Invalid refresh token",
-    });
-    return;
-  }
 
   const isBlacklisted = await redis.get(`blacklist:${refreshToken}`);
   if (isBlacklisted) {
     res.status(403).json({
       status: "error",
       statusCode: 403,
-      message: "Invalid refresh token",
+      message: "Refresh token is blacklisted",
+      details: "Please provide a valid refresh token",
     });
     return;
   }
@@ -192,6 +165,7 @@ export async function refreshUserToken(req: Request, res: Response) {
       return;
     }
 
+    // TODO: blacklist the associated access token
     await redis.setEx(
       `blacklist:${refreshToken}`,
       exp - Math.floor(Date.now() / 1000),
@@ -201,7 +175,7 @@ export async function refreshUserToken(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Refreshed token successfully",
+      message: "Tokens were refreshed successfully",
       data: generateJWTTokens({ id }),
     });
   } catch (error) {
@@ -217,6 +191,30 @@ export async function refreshUserToken(req: Request, res: Response) {
       status: "error",
       statusCode: 500,
       message: "Internal server error",
+    });
+  }
+}
+
+export async function logoutUser(req: Request, res: Response) {
+  try {
+    const accessToken = req.headers.authorization?.split(" ")[1] as string;
+    const { exp } = jwt.decode(accessToken) as { exp: number };
+    await redis.setEx(
+      `blacklist:${accessToken}`,
+      exp - Math.floor(Date.now() / 1000),
+      "1",
+    );
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Logout was successful",
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
     });
   }
 }
@@ -243,7 +241,7 @@ export async function requestEmailVerificationCode(
     if (!user.email) {
       res.status(403).json({
         status: "error",
-        statusCode: 404,
+        statusCode: 403,
         message: "User does not have an email",
         details: "Please set your email to request a verification code",
       });
@@ -296,7 +294,7 @@ export async function requestEmailVerificationCode(
       res.status(500).json({
         status: "error",
         statusCode: 500,
-        message: "Email not sent",
+        message: "Verification code could not be sent",
         details: "Please try again later",
       });
       return;
@@ -305,7 +303,7 @@ export async function requestEmailVerificationCode(
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Email was sent successfully",
+      message: "Verification code was sent",
     });
   } catch {
     res.status(500).json({
@@ -330,7 +328,7 @@ export async function verifyUser(req: Request, res: Response) {
       res.status(404).json({
         status: "error",
         statusCode: 404,
-        message: "Verification code not found or expired",
+        message: "Invalid or expired verification code",
         details: "Please provide a valid verification code",
       });
       return;
@@ -342,7 +340,7 @@ export async function verifyUser(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "User verified successfully",
+      message: "User was verified successfully",
     });
   } catch {
     res.status(500).json({
@@ -374,7 +372,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
     if (!user.email) {
       res.status(403).json({
         status: "error",
-        statusCode: 404,
+        statusCode: 403,
         message: "User does not have an email",
         details: "Please set your email to request a verification code",
       });
@@ -435,7 +433,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Email was sent successfully",
+      message: "Password reset code was sent successfully",
     });
   } catch {
     res.status(500).json({
@@ -484,39 +482,6 @@ export async function resetUserPassword(req: Request, res: Response) {
   }
 }
 
-export async function getCurrentUser(req: Request, res: Response) {
-  assertAuthenticated(req);
-  try {
-    const user = await userService.getUserById(req.user.id);
-    if (!user) {
-      res.status(404).json({
-        status: "error",
-        statusCode: 404,
-        message: "User not found",
-        details: "User with provided id not found",
-      });
-      return;
-    }
-    const finalUser = { ...user, hasPassword: !!user.password } as User & {
-      hasPassword: boolean;
-    };
-    delete finalUser.password;
-    res.status(200).json({
-      status: "success",
-      statusCode: 200,
-      message: "User found successfully",
-      data: finalUser,
-    });
-  } catch {
-    res.status(500).json({
-      status: "error",
-      statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
-    });
-  }
-}
-
 export async function changePassword(req: Request, res: Response) {
   assertAuthenticated(req);
   const input = req.body as ChangePasswordDTO;
@@ -527,7 +492,7 @@ export async function changePassword(req: Request, res: Response) {
       res.status(404).json({
         status: "error",
         statusCode: 404,
-        message: "User not found",
+        message: "User was not found",
         details: "User with provided id not found",
       });
       return;
@@ -536,9 +501,9 @@ export async function changePassword(req: Request, res: Response) {
     if (!user.password) {
       res.status(403).json({
         status: "error",
-        statusCode: 400,
+        statusCode: 403,
         message: "User has no password",
-        details: "Please set your password to change your password",
+        details: "Please set your password",
       });
       return;
     }
@@ -552,7 +517,7 @@ export async function changePassword(req: Request, res: Response) {
       res.status(400).json({
         status: "error",
         statusCode: 400,
-        message: "Current password is incorrect",
+        message: "Password is incorrect",
         details: "Please try again later",
       });
       return;
@@ -575,30 +540,87 @@ export async function changePassword(req: Request, res: Response) {
   }
 }
 
+export async function setPassword(req: Request, res: Response) {
+  assertAuthenticated(req);
+  const input = req.body as SetPasswordDTO;
+  try {
+    const password = await bcrypt.hash(input.password, 10);
+    await userService.updateUserPassword(req.user.id, password);
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "Password was set successfully",
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+  }
+}
+
+export async function getCurrentUser(req: Request, res: Response) {
+  assertAuthenticated(req);
+  try {
+    const user = await userService.getUserById(req.user.id);
+    if (!user) {
+      res.status(404).json({
+        status: "error",
+        statusCode: 404,
+        message: "User was not found",
+        details: "User with provided id not found",
+      });
+      return;
+    }
+    const finalUser = { ...user, hasPassword: !!user.password } as User & {
+      hasPassword: boolean;
+    };
+    // @ts-ignore
+    delete finalUser.password;
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "User was retrieved successfully",
+      data: finalUser,
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+  }
+}
+
 export async function loginWithFacebook(req: Request, res: Response) {
   const { accessToken } = req.body as LoginWithFacebookDTO;
   try {
     const fbUserData = await getFacebookUserData(accessToken);
-    let user = await userService.getUserByProviderAndId(
-      "facebook",
-      fbUserData.id,
-    );
+    {
+      const user = await userService.getUserByProviderAndId(
+        "facebook",
+        fbUserData.id,
+      );
 
-    if (user) {
-      res.status(200).json({
-        status: "success",
-        statusCode: 200,
-        message: "Login successful",
-        data: generateJWTTokens(user as User),
-      });
-      return;
+      if (user) {
+        res.status(200).json({
+          status: "success",
+          statusCode: 200,
+          message: "User has logged in successfully",
+          data: generateJWTTokens(user as User),
+        });
+        return;
+      }
     }
 
-    user = await userService.createUserByFacebook(fbUserData);
-    res.status(200).json({
+    const user = await userService.createUserByFacebook(fbUserData);
+    res.status(201).json({
       status: "success",
       statusCode: 201,
-      message: "Login successful",
+      message: "User was created and logged in successfully",
       data: generateJWTTokens(user as User),
     });
   } catch (err) {
@@ -607,11 +629,19 @@ export async function loginWithFacebook(req: Request, res: Response) {
         res.status(409).json({
           status: "error",
           statusCode: 409,
-          message: "Email or account with provider already in use",
-          details: "Please either use another account or provider",
+          message: "The associated email is already in use",
+          details: "Please use another account",
         });
         return;
       }
+
+      res.status(500).json({
+        status: "error",
+        statusCode: 500,
+        message: "Unidentified database error",
+        details: "Something went wrong, please try again later",
+      });
+      return;
     }
     res.status(500).json({
       status: "error",
@@ -622,17 +652,54 @@ export async function loginWithFacebook(req: Request, res: Response) {
   }
 }
 
-export async function getAccounts(req: Request, res: Response) {
-  assertAuthenticated(req);
+export async function loginWithGoogle(req: Request, res: Response) {
+  const { idToken } = req.body as LoginWithGoogleDTO;
   try {
-    const accounts = await userService.getAccountsByUserId(req.user.id);
-    res.status(200).json({
+    const googleUserData = await getGoogleUserData(idToken);
+    {
+      const user = await userService.getUserByProviderAndId(
+        "google",
+        googleUserData?.sub as string,
+      );
+
+      if (user) {
+        res.status(200).json({
+          status: "error",
+          statusCode: 200,
+          message: "User has logged in successfully",
+          data: generateJWTTokens(user as User),
+        });
+        return;
+      }
+    }
+
+    const user = await userService.createUserByGoogle(googleUserData);
+    res.status(201).json({
       status: "success",
-      statusCode: 200,
-      message: "Accounts retrieved successfully",
-      data: accounts,
+      statusCode: 201,
+      message: "User was created and logged in successfully",
+      data: generateJWTTokens(user as User),
     });
-  } catch {
+  } catch (err) {
+    if (err instanceof DatabaseError) {
+      if (err.code === "23505") {
+        res.status(409).json({
+          status: "error",
+          statusCode: 409,
+          message: "The associated account is already in use",
+          details: "Please use another account",
+        });
+        return;
+      }
+
+      res.status(500).json({
+        status: "error",
+        statusCode: 500,
+        message: "Unidentified database error",
+        details: "Something went wrong, please try again later",
+      });
+      return;
+    }
     res.status(500).json({
       status: "error",
       statusCode: 500,
@@ -653,7 +720,7 @@ export async function linkAccount(req: Request, res: Response) {
       res.status(404).json({
         status: "error",
         statusCode: 404,
-        message: "User not found",
+        message: "User was not found",
         details: "User with provided id not found",
       });
       return;
@@ -682,8 +749,8 @@ export async function linkAccount(req: Request, res: Response) {
 
     res.status(201).json({
       status: "success",
-      statusCode: 200,
-      message: "Account linked successfully",
+      statusCode: 201,
+      message: "Account was linked successfully",
       data: account,
     });
   } catch (error) {
@@ -692,11 +759,19 @@ export async function linkAccount(req: Request, res: Response) {
         res.status(409).json({
           status: "error",
           statusCode: 409,
-          message: "Email or account with provider already in use",
-          details: "Please either use another account or provider",
+          message: "The associated account is already in use",
+          details: "Please use another account",
         });
         return;
       }
+
+      res.status(500).json({
+        status: "error",
+        statusCode: 500,
+        message: "Unidentified database error",
+        details: "Something went wrong, please try again later",
+      });
+      return;
     }
     res.status(500).json({
       status: "error",
@@ -716,7 +791,7 @@ export async function unlinkAccount(req: Request, res: Response) {
       res.status(404).json({
         status: "error",
         statusCode: 404,
-        message: "User not found",
+        message: "User was not found",
         details: "User with provided id not found",
       });
       return;
@@ -735,15 +810,15 @@ export async function unlinkAccount(req: Request, res: Response) {
       res.status(404).json({
         status: "error",
         statusCode: 404,
-        message: "Account with provider not found",
-        details: "Please check your provider and try again",
+        message: "Account was not found",
+        details: "Please try with another account",
       });
       return;
     }
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Account unlinked successfully",
+      message: "Account was unlinked successfully",
     });
   } catch {
     res.status(500).json({
@@ -755,66 +830,17 @@ export async function unlinkAccount(req: Request, res: Response) {
   }
 }
 
-export async function setPassword(req: Request, res: Response) {
+export async function getAccounts(req: Request, res: Response) {
   assertAuthenticated(req);
-  const input = req.body as SetPasswordDTO;
   try {
-    const password = await bcrypt.hash(input.password, 10);
-    await userService.updateUserPassword(req.user.id, password);
+    const accounts = await userService.getAccountsByUserId(req.user.id);
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Password set successfully",
+      message: "Accounts were retrieved successfully",
+      data: accounts,
     });
   } catch {
-    res.status(500).json({
-      status: "error",
-      statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
-    });
-  }
-}
-
-export async function loginWithGoogle(req: Request, res: Response) {
-  const { idToken } = req.body as LoginWithGoogleDTO;
-  let user = null;
-  try {
-    const googleUserData = await getGoogleUserData(idToken);
-    user = await userService.getUserByProviderAndId(
-      "google",
-      googleUserData?.sub as string,
-    );
-    user = await userService.createUserByGoogle(googleUserData);
-
-    if (!user) {
-      res.status(400).json({
-        status: "error",
-        statusCode: 400,
-        message: "User could not be retrieved nor created",
-        details: "Please try again later",
-      });
-      return;
-    }
-
-    res.status(200).json({
-      status: "success",
-      statusCode: 200,
-      message: "Login successful",
-      data: generateJWTTokens(user as User),
-    });
-  } catch (err) {
-    if (err instanceof DatabaseError) {
-      if (err.code === "23505") {
-        res.status(409).json({
-          status: "error",
-          statusCode: 409,
-          message: "Email or account with provider already in use",
-          details: "Please either use another account or provider",
-        });
-        return;
-      }
-    }
     res.status(500).json({
       status: "error",
       statusCode: 500,
