@@ -1,9 +1,11 @@
 import { notification } from "../db/schemas/notification";
 import { user } from "../db/schemas/user";
 import { verificationCode } from "../db/schemas/verificationCode";
+import { profile } from "../db/schemas/profile";
 
 declare global {
-  type User = typeof user.$inferInsert;
+  type User = typeof user.$inferSelect;
+  type Profile = typeof profile.$inferInsert;
   type CodeType = (typeof verificationCode.$inferSelect)["type"];
   type NotificationType = typeof notification.$inferSelect;
 
