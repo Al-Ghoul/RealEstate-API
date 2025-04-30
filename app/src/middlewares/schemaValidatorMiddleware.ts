@@ -14,7 +14,7 @@ export const schemaValidatorMiddleware = (schema: z.ZodSchema) => {
         res.status(400).json({
           status: "error",
           statusCode: 400,
-          message: "Validation failed",
+          message: "Input validation failed",
           errors: errors.map((error) => {
             return { path: error.path[0], message: error.message };
           }),
