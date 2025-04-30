@@ -1,6 +1,7 @@
 import multer from "multer";
 import path from "path";
 import { assertAuthenticated } from "./assertions";
+import { randomBytes } from "crypto";
 
 const storage = multer.diskStorage({
   destination: (_, __, cb) => {
@@ -12,7 +13,8 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     assertAuthenticated(req);
     const ext = path.extname(file.originalname);
-    cb(null, `pfp-${req.user.id}${ext}`);
+    const randomString = randomBytes(8).toString("hex");
+    cb(null, `pfp-${req.user.id}-${randomString}${ext}`);
   },
 });
 
