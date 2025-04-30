@@ -27,7 +27,7 @@ export const verificationCode = pgTable("verification_code", {
   ...timestamps,
 });
 
-export const verificationCodesRelations = relations(
+export const verificationCodeRelations = relations(
   verificationCode,
   ({ one }) => ({
     user: one(user, {
