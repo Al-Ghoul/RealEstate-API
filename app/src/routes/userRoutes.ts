@@ -9,7 +9,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/users/me/profile-image:
+ * /api/users/me/profile/image:
  *   put:
  *     summary: Update profile image
  *     tags: [Users]
@@ -29,14 +29,46 @@ const router = Router();
  *                 description: The profile image file
  *     responses:
  *       200:
- *         description: Profile image updated successfully
+ *         description: Profile image was updated successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
+ *              allOf:
+ *                - $ref: '#/components/schemas/GenericResponse'
+ *                - type: object
+ *              properties:
+ *                data:
+ *                  type: object
+ *                  properties:
+ *                    blurHash:
+ *                      type: string
+ *       400:
+ *         description: No image provided
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ *       401:
+ *         description: Missing authorization token
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ *       403:
+ *         description: Token has been revoked or Invalid Token
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
  */
 router.put(
-  "/me/profile-image",
+  "/me/profile/image",
   isAuthenticated,
   upload.single("image"),
   userController.updateProfileImage,
@@ -58,7 +90,7 @@ router.put(
  *             $ref: '#/components/schemas/User'
  *     responses:
  *       200:
- *         description: User updated successfully
+ *         description: User was updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -70,7 +102,7 @@ router.put(
  *           schema:
  *             $ref: '#/components/schemas/GenericResponse'
  *       403:
- *         description: Invalid or expired token
+ *         description: Token has been revoked or Invalid Token
  *         content:
  *          application/json:
  *           schema:
