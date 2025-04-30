@@ -12,7 +12,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Validation failed",
+      message: "Input validation failed",
     });
   });
 
@@ -25,13 +25,13 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Validation failed",
+      message: "Input validation failed",
     });
   });
 
-  it("POST /api/auth/logout returns 401 unauthorized", async () => {
+  it("POST /api/auth/me/logout returns 401 unauthorized", async () => {
     const response = await request(app)
-      .post("/api/auth/logout")
+      .post("/api/auth/me/logout")
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -43,9 +43,9 @@ describe("Check for auth endpoints existence", () => {
     });
   });
 
-  it("POST /api/auth/refresh returns 401 with unauthorized", async () => {
+  it("POST /api/auth/me/refresh returns 401 with unauthorized", async () => {
     const response = await request(app)
-      .post("/api/auth/refresh")
+      .post("/api/auth/me/refresh")
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -57,9 +57,9 @@ describe("Check for auth endpoints existence", () => {
     });
   });
 
-  it("POST /api/auth/request-email-verification-code returns 401 unauthorized", async () => {
+  it("POST /api/auth/me/request-email-verification-code returns 401 unauthorized", async () => {
     const response = await request(app)
-      .post("/api/auth/request-email-verification-code")
+      .post("/api/auth/me/request-email-verification-code")
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -71,9 +71,9 @@ describe("Check for auth endpoints existence", () => {
     });
   });
 
-  it("POST /api/auth/verify returns 401 unauthorized", async () => {
+  it("POST /api/auth/me/verify returns 401 unauthorized", async () => {
     const response = await request(app)
-      .post("/api/auth/verify")
+      .post("/api/auth/me/verify")
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -94,7 +94,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Validation failed",
+      message: "Input validation failed",
     });
   });
 
@@ -107,13 +107,13 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Validation failed",
+      message: "Input validation failed",
     });
   });
 
-  it("POST /api/auth/change-password returns 401 unauthorized", async () => {
+  it("POST /api/auth/me/change-password returns 401 unauthorized", async () => {
     const response = await request(app)
-      .post("/api/auth/change-password")
+      .post("/api/auth/me/change-password")
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -148,7 +148,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Validation failed",
+      message: "Input validation failed",
     });
   });
 
@@ -161,13 +161,13 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Validation failed",
+      message: "Input validation failed",
     });
   });
 
-  it("POST /api/auth/accounts/link returns 401 unauthorized", async () => {
+  it("POST /api/auth/me/accounts/link returns 401 unauthorized", async () => {
     const response = await request(app)
-      .post("/api/auth/accounts/link")
+      .post("/api/auth/me/accounts/link")
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -179,9 +179,9 @@ describe("Check for auth endpoints existence", () => {
     });
   });
 
-  it("DELETE /api/auth/accounts/unlink/:provider with facebook returns 401 unauthorized", async () => {
+  it("DELETE /api/auth/me/accounts/unlink/:provider with facebook returns 401 unauthorized", async () => {
     const response = await request(app)
-      .delete("/api/auth/accounts/unlink/facebook")
+      .delete("/api/auth/me/accounts/unlink/facebook")
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -193,9 +193,9 @@ describe("Check for auth endpoints existence", () => {
     });
   });
 
-  it("POST /api/auth/set-password returns 401 unauthorized", async () => {
+  it("POST /api/auth/me/set-password returns 401 unauthorized", async () => {
     const response = await request(app)
-      .post("/api/auth/set-password")
+      .post("/api/auth/me/set-password")
       .expect("Content-Type", /json/)
       .expect(401);
 

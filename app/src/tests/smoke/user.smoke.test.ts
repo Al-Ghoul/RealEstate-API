@@ -17,9 +17,23 @@ describe("Check for user endpoints existence", () => {
     });
   });
 
-  it("PUT /api/users/me returns 401 unauthorized", async () => {
+  it("PATCH /api/users/me/profile returns 401 unauthorized", async () => {
     const response = await request(app)
-      .put("/api/users/me/profile-image")
+      .patch("/api/users/me/profile")
+      .expect("Content-Type", /json/)
+      .expect(401);
+
+    expect(response.body).toMatchObject({
+      status: "error",
+      statusCode: 401,
+      message: "Access Denied",
+      details: "Missing authorization token",
+    });
+  });
+
+  it("PUT /api/users/me/profile/image returns 401 unauthorized", async () => {
+    const response = await request(app)
+      .put("/api/users/me/profile/image")
       .expect("Content-Type", /json/)
       .expect(401);
 
