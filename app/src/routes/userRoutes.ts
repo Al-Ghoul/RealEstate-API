@@ -11,7 +11,7 @@ const router = Router();
  * @swagger
  * /api/users/me/profile/image:
  *   put:
- *     summary: Update profile image
+ *     summary: Update current user profile's image
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -78,7 +78,7 @@ router.put(
  * @swagger
  * /api/users/me:
  *   patch:
- *     summary: Update user
+ *     summary: Update current user's data
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []

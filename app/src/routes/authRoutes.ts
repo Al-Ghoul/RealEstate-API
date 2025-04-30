@@ -1020,7 +1020,7 @@ router.delete(
  * @swagger
  * /api/auth/me/accounts:
  *   get:
- *     summary: Get user accounts
+ *     summary: Get current user's accounts
  *     tags: [Auth | Accounts]
  *     security:
  *       - bearerAuth: []
