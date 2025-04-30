@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1745773521157,
+      "when": 1745985611944,
       "tag": "0000_initial",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1745951317503,
-      "tag": "0001_add_profile_table",
       "breakpoints": true
     }
   ]
