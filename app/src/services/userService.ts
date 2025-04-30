@@ -88,8 +88,8 @@ export async function getUserById(id: string) {
   );
 }
 
-export async function updateUserImage(id: string, image: string) {
-  return db.update(user).set({ image }).where(eq(user.id, id));
+export async function updateUserProfileImage(userId: string, image: string) {
+  return db.update(profile).set({ image }).where(eq(user.id, userId));
 }
 
 export async function updateUser(id: string, input: UpdateUserDTO) {

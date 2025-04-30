@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as userService from "../services/userService";
 import { assertAuthenticated } from "../lib/assertions";
 import { type UpdateUserDTO } from "../lib/dtos/user.dto";
+import { generateBlurHash } from "../lib/blurHashGenerator";
 
 export async function updateProfileImage(req: Request, res: Response) {
   assertAuthenticated(req);
@@ -15,7 +16,8 @@ export async function updateProfileImage(req: Request, res: Response) {
     return;
   }
 
-  await userService.updateUserImage(
+  const blurHash = await generateBlurHash(req.file.path);
+  await userService.updateUserProfileImage(
     req.user.id,
     // TODO: change this to use an env var
     `${req.protocol}://${
@@ -28,6 +30,7 @@ export async function updateProfileImage(req: Request, res: Response) {
       status: "success",
       statusCode: 200,
       message: "Profile image updated successfully",
+      data: { blurHash },
     });
   } catch {
     res.status(500).json({
