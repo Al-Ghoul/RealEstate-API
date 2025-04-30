@@ -39,7 +39,6 @@ export async function updateProfileImage(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
 
@@ -63,6 +62,5 @@ export async function updateUser(req: Request, res: Response) {
       message: "Internal server error",
       details: "Something went wrong, please try again later",
     });
-    return;
   }
 }
