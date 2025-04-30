@@ -1,26 +1,55 @@
 import { db } from "../db";
 import { user } from "../db/schemas/user";
 import { eq, and, isNull } from "drizzle-orm";
-import { type UpdateUserDTO } from "../lib/dtos/user.dto";
+import {
+  type UpdateUserProfileDTO,
+  type CreateUserDTO,
+  type UpdateUserDTO,
+} from "../lib/dtos/user.dto";
 import { account } from "../db/schemas/account";
 import { type TokenPayload } from "google-auth-library";
 import { first } from "lodash";
 import { lower } from "../db/columns.helpers";
+import { profile } from "../db/schemas/profile";
 
-export async function createUser(input: Omit<User, "id">) {
-  return db
+export async function createUser(
+  input: CreateUserDTO & Pick<Profile, "image">,
+) {
+  const [createdUser] = await db
     .insert(user)
-    .values({ ...input })
+    .values({
+      email: input.email,
+      password: input.password,
+    })
     .returning({
       id: user.id,
       email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      image: user.image,
       emailVerified: user.emailVerified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });
+
+  if (!createdUser) throw new Error("User was not created");
+
+  await db
+    .insert(profile)
+    .values({
+      userId: createdUser.id,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      image: input.image,
+    })
+    .returning({
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      bio: profile.bio,
+      image: profile.image,
+      imageBlurHash: profile.imageBlurHash,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
+
+  return createdUser;
 }
 
 export async function getUser(email: string) {
@@ -30,9 +59,6 @@ export async function getUser(email: string) {
         id: user.id,
         password: user.password,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        image: user.image,
         emailVerified: user.emailVerified,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -43,15 +69,34 @@ export async function getUser(email: string) {
   );
 }
 
+export async function getUserProfile(userId: User["id"]) {
+  return first(
+    await db
+      .select({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        bio: profile.bio,
+        image: profile.image,
+        imageBlurHash: profile.imageBlurHash,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      })
+      .from(profile)
+      .where(eq(profile.userId, userId))
+      .limit(1),
+  );
+}
+
 export async function getUnVerifiedUserById(id: string) {
   return first(
     await db
       .select({
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
+        firstName: profile.firstName,
       })
       .from(user)
+      .leftJoin(profile, eq(user.id, profile.userId))
       .where(and(eq(user.id, id), isNull(user.emailVerified)))
       .limit(1),
   );
@@ -64,26 +109,23 @@ export async function verifyUser(id: string) {
     .where(eq(user.id, id));
 }
 
-export async function updateUserPassword(id: string, password: string) {
-  return await db.update(user).set({ password }).where(eq(user.id, id));
+export async function updateUserPassword(userId: User["id"], password: string) {
+  return await db.update(user).set({ password }).where(eq(user.id, userId));
 }
 
-export async function getUserById(id: string) {
+export async function getUserById(userId: User["id"]) {
   return first(
     await db
       .select({
         id: user.id,
         email: user.email,
         password: user.password,
-        firstName: user.firstName,
-        lastName: user.lastName,
         emailVerified: user.emailVerified,
-        image: user.image,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       })
       .from(user)
-      .where(eq(user.id, id))
+      .where(eq(user.id, userId))
       .limit(1),
   );
 }
@@ -92,8 +134,8 @@ export async function updateUserProfileImage(userId: string, image: string) {
   return db.update(profile).set({ image }).where(eq(user.id, userId));
 }
 
-export async function updateUser(id: string, input: UpdateUserDTO) {
-  const [currentUser] = await db.select().from(user).where(eq(user.id, id));
+export async function updateUser(userId: User["id"], input: UpdateUserDTO) {
+  const [currentUser] = await db.select().from(user).where(eq(user.id, userId));
   const isEmailChanging = input.email && input.email !== currentUser.email;
   return first(
     await db
@@ -102,14 +144,36 @@ export async function updateUser(id: string, input: UpdateUserDTO) {
         ...input,
         emailVerified: isEmailChanging ? null : undefined,
       })
-      .where(eq(user.id, id))
+      .where(eq(user.id, userId))
       .returning({
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        image: user.image,
         emailVerified: user.emailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      }),
+  );
+}
+
+export async function updateUserProfile(
+  userId: User["id"],
+  input: UpdateUserProfileDTO,
+) {
+  return first(
+    await db
+      .update(profile)
+      .set({
+        firstName: input.firstName,
+        lastName: input.lastName,
+        bio: input.bio,
+      })
+      .where(eq(profile.userId, userId))
+      .returning({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        bio: profile.bio,
+        image: profile.image,
+        imageBlurHash: profile.imageBlurHash,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       }),
@@ -127,13 +191,19 @@ export async function getAccountsByUserId(id: string) {
     .where(eq(account.userId, id));
 }
 
-export async function getUserByProviderAndId(provider: string, id: string) {
+export async function getUserByProviderAndId(
+  provider: string,
+  userId: User["id"],
+) {
   return first(
     await db
       .select({ id: user.id, email: user.email })
       .from(account)
       .where(
-        and(eq(account.providerAccountId, id), eq(account.provider, provider)),
+        and(
+          eq(account.providerAccountId, userId),
+          eq(account.provider, provider),
+        ),
       )
       .leftJoin(user, eq(user.id, account.userId))
       .limit(1),
@@ -164,13 +234,28 @@ export async function createUserByFacebook(fbUserData: FacebookUser) {
   const [createdUser] = await db
     .insert(user)
     .values({
-      firstName,
-      lastName,
-      image: picture.data.url,
       email: email,
       emailVerified: email ? new Date() : null,
     })
     .returning({ id: user.id, email: user.email });
+
+  if (!createdUser) throw new Error("User was not created");
+
+  const [createdProfile] = await db
+    .insert(profile)
+    .values({
+      userId: createdUser.id,
+      firstName,
+      lastName,
+      image: picture.data.url,
+    })
+    .returning({
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      bio: profile.bio,
+      image: profile.image,
+      imageBlurHash: profile.imageBlurHash,
+    });
 
   await linkAccount(createdUser.id, "facebook", id);
 
@@ -184,23 +269,37 @@ export async function unLinkAccount(provider: string, userId: string) {
 }
 
 export async function createUserByGoogle(data: TokenPayload | undefined) {
-  if (!data) return null;
+  if (!data) throw new Error("No user data");
   const [firstName, lastName] = data.name?.split(" ") ?? [null, null];
 
   const [createdUser] = await db
     .insert(user)
     .values({
-      firstName: firstName || data.given_name || null,
-      lastName,
-      image:
-        data.picture ||
-        `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${
-          data.name || data.sub
-        }`,
       email: data.email || null,
       emailVerified: data.email_verified ? new Date() : null,
     })
     .returning({ id: user.id, email: user.email });
+
+  if (!createdUser) throw new Error("User was not created");
+
+  const imageURI = `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${
+    data.name || data.sub
+  }`;
+  await db
+    .insert(profile)
+    .values({
+      userId: createdUser.id,
+      firstName: firstName ?? data.given_name ?? null,
+      lastName,
+      image: data.picture ?? imageURI,
+    })
+    .returning({
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      bio: profile.bio,
+      image: profile.image,
+      imageBlurHash: profile.imageBlurHash,
+    });
 
   await linkAccount(createdUser.id, "google", data.sub);
 

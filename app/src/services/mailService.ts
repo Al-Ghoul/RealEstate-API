@@ -26,7 +26,7 @@ export const renderPugTemplate = (
 };
 
 export const sendEmail = async (
-  user: Partial<User>,
+  user: Pick<User, "email"> & Pick<Profile, "firstName">,
   subject: string,
   html: string,
 ) => {

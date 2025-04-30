@@ -17,6 +17,7 @@ export async function updateProfileImage(req: Request, res: Response) {
   }
 
   const blurHash = await generateBlurHash(req.file.path);
+
   await userService.updateUserProfileImage(
     req.user.id,
     // TODO: change this to use an env var
@@ -54,6 +55,26 @@ export async function updateUser(req: Request, res: Response) {
       statusCode: 200,
       message: "User was updated successfully",
       data: user,
+    });
+  } catch {
+    res.status(500).json({
+      status: "error",
+      statusCode: 500,
+      message: "Internal server error",
+      details: "Something went wrong, please try again later",
+    });
+  }
+}
+
+export async function updateUserProfile(req: Request, res: Response) {
+  assertAuthenticated(req);
+  try {
+    const profile = await userService.updateUserProfile(req.user.id, req.body);
+    res.status(200).json({
+      status: "success",
+      statusCode: 200,
+      message: "User profile was updated successfully",
+      data: profile,
     });
   } catch {
     res.status(500).json({
