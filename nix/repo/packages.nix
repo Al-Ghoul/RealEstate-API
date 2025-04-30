@@ -14,6 +14,6 @@ in {
 
     dontNpmBuild = true;
     npmPackFlags = ["--ignore-scripts"];
-    npmDepsHash = "sha256-KrIJb1rzOCzDHbczvzbTvFpQWTf6UED64r6Idzw8CBM=";
+    npmDepsHash = "sha256-01DPkFEOM5a2E5vikBtQSTizUqrMURQDb8OaxJu1oLI=";
   };
 }
