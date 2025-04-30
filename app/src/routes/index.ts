@@ -15,10 +15,11 @@
  *    User:
  *      type: object
  *      properties:
- *        firstName:
+ *        id:
  *          type: string
- *        lastName:
- *           type: string
+ *          readOnly: true
+ *          format: uuid
+ *          description: The user ID
  *        email:
  *           type: string
  *        emailVerified:
@@ -26,15 +27,42 @@
  *          type: string
  *          format: date-time
  *          default: null
- *        image:
- *          readOnly: true
- *          type: string
  *        createdAt:
  *           readOnly: true
+ *           required: false
  *           type: string
  *           format: date-time
  *        updatedAt:
  *          readOnly: true
+ *          required: false
+ *          type: string
+ *          format: date-time
+ *    Profile:
+ *      type: object
+ *      properties:
+ *        firstName:
+ *         type: string
+ *         description: The first name of the user
+ *        lastName:
+ *          type: string
+ *          description: The last name of the user
+ *        bio:
+ *          type: string
+ *          description: The bio of the user
+ *        image:
+ *          type: string
+ *          description: The image URI of the user
+ *        imageBlurHash:
+ *          type: string
+ *          description: The image's blur hash
+ *        createdAt:
+ *           readOnly: true
+ *           required: false
+ *           type: string
+ *           format: date-time
+ *        updatedAt:
+ *          readOnly: true
+ *          required: false
  *          type: string
  *          format: date-time
  *    GenericResponse:
