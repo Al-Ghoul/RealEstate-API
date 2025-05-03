@@ -8,7 +8,7 @@ import {
 } from "../lib/dtos/user.dto";
 import { account } from "../db/schemas/account";
 import { type TokenPayload } from "google-auth-library";
-import { first } from "lodash";
+import { first } from "lodash-es";
 import { lower } from "../db/columns.helpers";
 import { profile } from "../db/schemas/profile";
 
@@ -28,8 +28,6 @@ export async function createUser(
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });
-
-  if (!createdUser) throw new Error("User was not created");
 
   await db
     .insert(profile)
@@ -78,8 +76,8 @@ export async function getUserProfile(userId: User["id"]) {
         bio: profile.bio,
         image: profile.image,
         imageBlurHash: profile.imageBlurHash,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        createdAt: profile.createdAt,
+        updatedAt: profile.updatedAt,
       })
       .from(profile)
       .where(eq(profile.userId, userId))
@@ -130,8 +128,14 @@ export async function getUserById(userId: User["id"]) {
   );
 }
 
-export async function updateUserProfileImage(userId: string, image: string) {
-  return db.update(profile).set({ image }).where(eq(user.id, userId));
+export async function updateUserProfileImage(
+  userId: string,
+  input: Pick<Profile, "image" | "imageBlurHash">,
+) {
+  return db
+    .update(profile)
+    .set({ image: input.image, imageBlurHash: input.imageBlurHash })
+    .where(eq(profile.userId, userId));
 }
 
 export async function updateUser(userId: User["id"], input: UpdateUserDTO) {
@@ -239,9 +243,7 @@ export async function createUserByFacebook(fbUserData: FacebookUser) {
     })
     .returning({ id: user.id, email: user.email });
 
-  if (!createdUser) throw new Error("User was not created");
-
-  const [createdProfile] = await db
+  await db
     .insert(profile)
     .values({
       userId: createdUser.id,
@@ -279,8 +281,6 @@ export async function createUserByGoogle(data: TokenPayload | undefined) {
       emailVerified: data.email_verified ? new Date() : null,
     })
     .returning({ id: user.id, email: user.email });
-
-  if (!createdUser) throw new Error("User was not created");
 
   const imageURI = `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${
     data.name || data.sub
