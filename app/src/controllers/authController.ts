@@ -1,14 +1,12 @@
-import { Request, Response } from "express";
+import { type Request, type Response } from "express";
 import { type CreateUserDTO } from "../lib/dtos/user.dto";
 import {
   type LoginUserDTO,
   type RefreshTokenInputDTO,
 } from "../lib/dtos/auth.dto";
 import * as userService from "../services/userService";
-import { DatabaseError } from "pg";
-import bcrypt from "bcrypt";
 import { env } from "../env";
-import jwt, { JsonWebTokenError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import * as verificationCodeService from "../services/verificationCodeService";
 import { generateCode } from "../lib/codeGenerator";
 import * as mailService from "../services/mailService";
@@ -33,10 +31,17 @@ import {
   type LoginWithFacebookDTO,
   type LoginWithGoogleDTO,
 } from "../lib/dtos/account.dto";
+import pg from "pg";
+
+const { DatabaseError } = pg;
+const JsonWebTokenError = jwt.JsonWebTokenError;
 
 export async function registerUser(req: Request, res: Response) {
   const input = req.body as CreateUserDTO;
-  input.password = await bcrypt.hash(input.password, 10);
+  input.password = await Bun.password.hash(input.password, {
+    algorithm: "bcrypt",
+    cost: 4,
+  });
   try {
     const imageURI = `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${input.firstName}${input.lastName}`;
     const user = await userService.createUser({
@@ -98,7 +103,11 @@ export async function loginUser(req: Request, res: Response) {
         return;
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      const isPasswordValid = await Bun.password.verify(
+        password,
+        user.password,
+      );
+
       if (!isPasswordValid) {
         res.status(401).json({
           status: "error",
@@ -463,7 +472,10 @@ export async function resetUserPassword(req: Request, res: Response) {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(input.password, 10);
+    const hashedPassword = await Bun.password.hash(input.password, {
+      algorithm: "bcrypt",
+      cost: 4,
+    });
     await userService.updateUserPassword(resetCode.userId, hashedPassword);
     await verificationCodeService.useVerificationCode(resetCode.id);
 
@@ -508,7 +520,7 @@ export async function changePassword(req: Request, res: Response) {
       return;
     }
 
-    const passwordMatch = await bcrypt.compare(
+    const passwordMatch = await Bun.password.verify(
       input.currentPassword,
       user.password,
     );
@@ -523,7 +535,10 @@ export async function changePassword(req: Request, res: Response) {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(input.password, 10);
+    const hashedPassword = await Bun.password.hash(input.password, {
+      algorithm: "bcrypt",
+      cost: 4,
+    });
     await userService.updateUserPassword(req.user.id, hashedPassword);
     res.status(200).json({
       status: "success",
@@ -544,46 +559,25 @@ export async function setPassword(req: Request, res: Response) {
   assertAuthenticated(req);
   const input = req.body as SetPasswordDTO;
   try {
-    const password = await bcrypt.hash(input.password, 10);
+    const user = await userService.getUserById(req.user.id);
+    if (user?.password) {
+      res.status(400).json({
+        status: "error",
+        statusCode: 400,
+        message: "User already has a password",
+        details: "Please try again later",
+      });
+      return;
+    }
+    const password = await Bun.password.hash(input.password, {
+      algorithm: "bcrypt",
+      cost: 4,
+    });
     await userService.updateUserPassword(req.user.id, password);
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "Password was set successfully",
-    });
-  } catch {
-    res.status(500).json({
-      status: "error",
-      statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
-    });
-  }
-}
-
-export async function getCurrentUser(req: Request, res: Response) {
-  assertAuthenticated(req);
-  try {
-    const user = await userService.getUserById(req.user.id);
-    if (!user) {
-      res.status(404).json({
-        status: "error",
-        statusCode: 404,
-        message: "User was not found",
-        details: "User with provided id not found",
-      });
-      return;
-    }
-    const finalUser = { ...user, hasPassword: !!user.password } as User & {
-      hasPassword: boolean;
-    };
-    // @ts-ignore
-    delete finalUser.password;
-    res.status(200).json({
-      status: "success",
-      statusCode: 200,
-      message: "User was retrieved successfully",
-      data: finalUser,
     });
   } catch {
     res.status(500).json({
