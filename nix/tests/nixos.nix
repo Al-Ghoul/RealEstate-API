@@ -40,7 +40,7 @@ in {
 
         environment.systemPackages = [
           real-estate-api-build
-          pkgs.nodejs
+          pkgs.bun
         ];
 
         services.postgresql = {
