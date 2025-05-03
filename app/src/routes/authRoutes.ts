@@ -192,12 +192,10 @@ router.post(
 
 /**
  * @swagger
- * /api/auth/me/refresh:
+ * /api/auth/refresh:
  *   post:
  *     summary: Refresh current user's tokens
- *     tags: [Auth | Me]
- *     security:
- *       - bearerAuth: []
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -236,13 +234,13 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       401:
- *        description: Missing authorization token, Invalid refresh token
+ *        description: Invalid refresh token
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       403:
- *        description: Token has been revoked, Invalid Token or Refresh token is blacklisted
+ *        description: Refresh token is blacklisted
  *        content:
  *          application/json:
  *            schema:
@@ -255,8 +253,7 @@ router.post(
  *               $ref: '#/components/schemas/GenericResponse'
  */
 router.post(
-  "/me/refresh",
-  isAuthenticated,
+  "/refresh",
   schemaValidatorMiddleware(refreshTokenInputDTO),
   authController.refreshUserToken,
 );
@@ -663,60 +660,6 @@ router.post(
   schemaValidatorMiddleware(setPasswordDTO),
   authController.setPassword,
 );
-
-/**
- * @swagger
- * /api/auth/me:
- *   get:
- *     summary: Get current user's data
- *     tags: [Auth | Me]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *      200:
- *        description: User was retrieved successfully
- *        content:
- *         application/json:
- *           schema:
- *             allOf:
- *               - $ref: '#/components/schemas/GenericResponse'
- *               - type: object
- *             properties:
- *              data:
- *                type: object
- *                allOf:
- *                - $ref: '#/components/schemas/User'
- *                properties:
- *                  hasPassword:
- *                    type: boolean
- *                    example: true
- *                    description: Whether the user has a password
- *      401:
- *        description: Missing authorization header
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      403:
- *        description: Token has been revoked or Invalid Token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      404:
- *        description: User was not found
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
-router.get("/me", isAuthenticated, authController.getCurrentUser);
 
 /**
  * @swagger
