@@ -9,70 +9,57 @@ const router = Router();
 
 /**
  * @swagger
- * /api/users/me/profile/image:
- *   put:
- *     summary: Update current user profile's image
+ * /api/users/me:
+ *   get:
+ *     summary: Get current user's data
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               image:
- *                 type: string
- *                 format: binary
- *                 required: true
- *                 description: The profile image file
  *     responses:
- *       200:
- *         description: Profile image was updated successfully
- *         content:
- *           application/json:
- *             schema:
- *              allOf:
- *                - $ref: '#/components/schemas/GenericResponse'
- *                - type: object
- *              properties:
- *                data:
- *                  type: object
- *                  properties:
- *                    blurHash:
- *                      type: string
- *       400:
- *         description: No image provided
- *         content:
- *          application/json:
+ *      200:
+ *        description: User was retrieved successfully
+ *        content:
+ *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/GenericResponse'
- *       401:
- *         description: Missing authorization token
- *         content:
+ *             allOf:
+ *               - $ref: '#/components/schemas/GenericResponse'
+ *               - type: object
+ *             properties:
+ *              data:
+ *                type: object
+ *                allOf:
+ *                - $ref: '#/components/schemas/User'
+ *                properties:
+ *                  hasPassword:
+ *                    type: boolean
+ *                    example: true
+ *                    description: Whether the user has a password
+ *      401:
+ *        description: Missing authorization header
+ *        content:
  *          application/json:
- *           schema:
- *             $ref: '#/components/schemas/GenericResponse'
- *       403:
- *         description: Token has been revoked or Invalid Token
- *         content:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      403:
+ *        description: Token has been revoked or Invalid Token
+ *        content:
  *          application/json:
- *           schema:
- *             $ref: '#/components/schemas/GenericResponse'
- *       500:
- *         description: Internal server error
- *         content:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      404:
+ *        description: User was not found
+ *        content:
  *          application/json:
- *           schema:
- *             $ref: '#/components/schemas/GenericResponse'
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      500:
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
  */
-router.put(
-  "/me/profile/image",
-  isAuthenticated,
-  upload.single("image"),
-  userController.updateProfileImage,
-);
+router.get("/me", isAuthenticated, userController.getCurrentUser);
 
 /**
  * @swagger
@@ -118,7 +105,54 @@ router.patch(
   "/me",
   isAuthenticated,
   schemaValidatorMiddleware(updateUserDTO),
-  userController.updateUser,
+  userController.updateCurrentUser,
+);
+
+/**
+ * @swagger
+ * /api/users/me/profile:
+ *   get:
+ *     summary: Get current user's profile
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile was retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *              allOf:
+ *                - $ref: '#/components/schemas/GenericResponse'
+ *                - type: object
+ *              properties:
+ *                data:
+ *                  type: object
+ *                  allOf:
+ *                    - $ref: '#/components/schemas/Profile'
+ *       401:
+ *         description: Missing authorization token
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ *       403:
+ *         description: Token has been revoked or Invalid Token
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ */
+router.get(
+  "/me/profile",
+  isAuthenticated,
+  userController.getCurrentUserProfile,
 );
 
 /**
@@ -178,7 +212,74 @@ router.patch(
   "/me/profile",
   isAuthenticated,
   schemaValidatorMiddleware(updateUserProfileDTO),
-  userController.updateUserProfile,
+  userController.updateCurrentUserProfile,
+);
+
+/**
+ * @swagger
+ * /api/users/me/profile/image:
+ *   put:
+ *     summary: Update current user profile's image
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 required: true
+ *                 description: The profile image file
+ *     responses:
+ *       200:
+ *         description: Profile image was updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *              allOf:
+ *                - $ref: '#/components/schemas/GenericResponse'
+ *                - type: object
+ *              properties:
+ *                data:
+ *                  type: object
+ *                  properties:
+ *                    blurHash:
+ *                      type: string
+ *       400:
+ *         description: No image provided, Invalid mime type or Unable to upload image
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ *       401:
+ *         description: Missing authorization token
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ *       403:
+ *         description: Token has been revoked or Invalid Token
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *          application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/GenericResponse'
+ */
+router.put(
+  "/me/profile/image",
+  isAuthenticated,
+  upload.single("image"),
+  userController.updateCurrentUserProfileImage,
 );
 
 export default router;

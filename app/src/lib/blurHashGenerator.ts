@@ -1,8 +1,8 @@
 import { encode } from "blurhash";
 import sharp from "sharp";
 
-export async function generateBlurHash(imagePath: string): Promise<string> {
-  const image = sharp(imagePath);
+export async function generateBlurHash(buffer: Buffer): Promise<string> {
+  const image = sharp(buffer);
 
   const { data, info } = await image
     .ensureAlpha() // Ensure RGBA format

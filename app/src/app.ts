@@ -6,6 +6,12 @@ import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 import swaggerUi from "swagger-ui-express";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import { errorHandlerMiddleware } from "./middlewares/errorHandlerMiddleware";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const app = express();
 
@@ -45,3 +51,5 @@ app.use(
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+
+app.use(errorHandlerMiddleware);
