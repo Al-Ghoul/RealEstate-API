@@ -4,6 +4,7 @@ import { app } from "../../app";
 import { redis } from "../../clients/redis";
 import { db } from "../../db";
 import { user } from "../../db/schemas/user";
+import { createUser } from "../lib";
 
 const basicUser = {
   email: "johndoe@example.com",
@@ -14,13 +15,43 @@ const basicUser = {
 };
 
 describe("Check for user endpoints inputs and outputs ", () => {
-  it("PATCH /api/users/me with an existing user changes user's data", async () => {
-    await request(app)
-      .post("/api/auth/register")
-      .send(basicUser)
+  it("GET /api/users/me with an existing user return user's data", async () => {
+    const input = {
+      email: basicUser.email,
+      password: basicUser.password,
+    };
+    await createUser(basicUser);
+    const response = await request(app)
+      .post("/api/auth/login")
+      .send(input)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
-      .expect(201);
+      .expect(200);
+
+    const response2 = await request(app)
+      .get("/api/users/me")
+      .set("Authorization", `Bearer ${response.body.data.accessToken}`)
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200);
+
+    expect(response2.body).toMatchObject({
+      status: "success",
+      statusCode: 200,
+      message: "User was retrieved successfully",
+      data: {
+        id: expect.any(String),
+        email: basicUser.email,
+        emailVerified: null,
+        hasPassword: expect.any(Boolean),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      },
+    });
+  });
+
+  it("PATCH /api/users/me with an existing user changes user's data", async () => {
+    await createUser(basicUser);
 
     const input = {
       email: basicUser.email,
@@ -51,7 +82,43 @@ describe("Check for user endpoints inputs and outputs ", () => {
       data: {
         id: expect.any(String),
         email: input2.email,
-        emailVerified: expect.toBeStringOrNull(),
+        emailVerified: null,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      },
+    });
+  });
+
+  it("GET /api/users/me/profile with an existing user return user's data", async () => {
+    const input = {
+      email: basicUser.email,
+      password: basicUser.password,
+    };
+    await createUser(basicUser);
+    const response = await request(app)
+      .post("/api/auth/login")
+      .send(input)
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200);
+
+    const response2 = await request(app)
+      .get("/api/users/me/profile")
+      .set("Authorization", `Bearer ${response.body.data.accessToken}`)
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200);
+
+    expect(response2.body).toMatchObject({
+      status: "success",
+      statusCode: 200,
+      message: "User profile was retrieved successfully",
+      data: {
+        firstName: basicUser.firstName,
+        lastName: basicUser.lastName,
+        bio: null,
+        image: expect.any(String),
+        imageBlurHash: null,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
       },
@@ -98,8 +165,8 @@ describe("Check for user endpoints inputs and outputs ", () => {
         firstName: input2.firstName,
         lastName: input2.lastName,
         bio: input2.bio,
-        image: expect.toBeStringOrNull(),
-        imageBlurHash: expect.toBeStringOrNull(),
+        image: expect.any(String),
+        imageBlurHash: null,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
       },
@@ -107,7 +174,6 @@ describe("Check for user endpoints inputs and outputs ", () => {
   });
 });
 
-afterAll(async () => {
-  await redis.disconnect();
+afterEach(async () => {
   await db.delete(user).execute();
 });

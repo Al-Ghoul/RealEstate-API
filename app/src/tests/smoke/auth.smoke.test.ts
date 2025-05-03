@@ -1,6 +1,5 @@
 import request from "supertest";
 import { app } from "../../app";
-import { redis } from "../../clients/redis";
 
 describe("Check for auth endpoints existence", () => {
   it("POST /api/auth/register returns 400 with validation error", async () => {
@@ -43,17 +42,16 @@ describe("Check for auth endpoints existence", () => {
     });
   });
 
-  it("POST /api/auth/me/refresh returns 401 with unauthorized", async () => {
+  it("POST /api/auth/refresh returns 400 with validation error", async () => {
     const response = await request(app)
-      .post("/api/auth/me/refresh")
+      .post("/api/auth/refresh")
       .expect("Content-Type", /json/)
-      .expect(401);
+      .expect(400);
 
     expect(response.body).toMatchObject({
       status: "error",
-      statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      statusCode: 400,
+      message: "Input validation failed",
     });
   });
 
@@ -114,20 +112,6 @@ describe("Check for auth endpoints existence", () => {
   it("POST /api/auth/me/change-password returns 401 unauthorized", async () => {
     const response = await request(app)
       .post("/api/auth/me/change-password")
-      .expect("Content-Type", /json/)
-      .expect(401);
-
-    expect(response.body).toMatchObject({
-      status: "error",
-      statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
-    });
-  });
-
-  it("GET /api/auth/me returns 401 unauthorized", async () => {
-    const response = await request(app)
-      .get("/api/auth/me")
       .expect("Content-Type", /json/)
       .expect(401);
 
@@ -220,8 +204,4 @@ describe("Check for auth endpoints existence", () => {
       details: "Missing authorization token",
     });
   });
-});
-
-afterAll(async () => {
-  await redis.disconnect();
 });

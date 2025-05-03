@@ -4,23 +4,7 @@ import { app } from "../../app";
 import { redis } from "../../clients/redis";
 import { db } from "../../db";
 import { user } from "../../db/schemas/user";
-import { profile } from "../../db/schemas/profile";
-
-const basicUser = {
-  email: "johndoe@example.com",
-  firstName: "John",
-  lastName: "Doe",
-  password: "password",
-  confirmPassword: "password",
-};
-
-const createUser = async (input: typeof basicUser) =>
-  request(app)
-    .post("/api/auth/register")
-    .send(input)
-    .set("Accept", "application/json")
-    .expect("Content-Type", /json/)
-    .expect(201);
+import { basicUser, createUser } from "../lib";
 
 // NOTE: The following endpoints need some mocks, so I won't test them yet
 // /request-email-verification-code
@@ -44,7 +28,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
       data: {
         id: expect.any(String),
         email: basicUser.email,
-        emailVerified: expect.toBeStringOrNull(),
+        emailVerified: null,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
       },
@@ -75,7 +59,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     });
   });
 
-  it("POST /api/auth/me/refresh with a valid refresh token refreshes a user token", async () => {
+  it("POST /api/auth/refresh with a valid refresh token refreshes a user token", async () => {
     const input = {
       email: basicUser.email,
       password: basicUser.password,
@@ -91,7 +75,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     const refreshToken = response.body.data.refreshToken;
 
     const response2 = await request(app)
-      .post("/api/auth/me/refresh")
+      .post("/api/auth/refresh")
       .send({ refreshToken })
       .set("Authorization", `Bearer ${response.body.data.accessToken}`)
       .set("Accept", "application/json")
@@ -169,41 +153,6 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     });
   });
 
-  it("GET /api/auth/me with an existing user return user's data", async () => {
-    const input = {
-      email: basicUser.email,
-      password: basicUser.password,
-    };
-    await createUser(basicUser);
-    const response = await request(app)
-      .post("/api/auth/login")
-      .send(input)
-      .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(200);
-
-    const response2 = await request(app)
-      .get("/api/auth/me")
-      .set("Authorization", `Bearer ${response.body.data.accessToken}`)
-      .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(200);
-
-    expect(response2.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
-      message: "User was retrieved successfully",
-      data: {
-        id: expect.any(String),
-        email: basicUser.email,
-        emailVerified: expect.toBeStringOrNull(),
-        hasPassword: expect.any(Boolean),
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-      },
-    });
-  });
-
   it("GET /api/auth/me/accounts with an existing user return user's accounts", async () => {
     const input = {
       email: basicUser.email,
@@ -235,8 +184,4 @@ describe("Check for auth endpoints inputs and outputs ", () => {
 
 afterEach(async () => {
   await db.delete(user).execute();
-});
-
-afterAll(async () => {
-  await redis.disconnect();
 });
