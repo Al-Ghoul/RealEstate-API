@@ -1,13 +1,13 @@
-import { Request, Response, NextFunction } from "express";
+import { type Request, type Response, type NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../env";
 import { redis } from "../clients/redis";
 
-export const isAuthenticated = async (
+export async function isAuthenticated(
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+) {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
@@ -44,4 +44,4 @@ export const isAuthenticated = async (
       statusCode: 403,
     });
   }
-};
+}

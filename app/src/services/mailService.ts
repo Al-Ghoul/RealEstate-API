@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import path from "path";
-import pug, { Options } from "pug";
+import pug, { type Options } from "pug";
 import { env } from "../env";
 
 const transporter = nodemailer.createTransport({
