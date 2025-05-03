@@ -142,7 +142,8 @@ export async function updateCurrentUserProfileImage(
   const uploadDir =
     process.env.UPLOAD_PATH ||
     path.join(__dirname, "../../public/uploads/profile-images/");
-  const filePath = `${uploadDir}${Date.now().toString()}-${originalname}`;
+  const fileName = `${Date.now().toString()}-${originalname}`;
+  const filePath = `${uploadDir}${fileName}`;
   await fs.writeFile(filePath, buffer);
 
   try {
@@ -153,7 +154,7 @@ export async function updateCurrentUserProfileImage(
       {
         image: `${req.protocol}://${
           req.get("host") ?? "localhost"
-        }/public/uploads/profile-images/${req.file.filename}`,
+        }/public/uploads/profile-images/${fileName}`,
         imageBlurHash: blurHash,
       },
     );
