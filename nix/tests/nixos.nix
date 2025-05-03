@@ -10,7 +10,12 @@
     .packages
     .backend
     .overrideAttrs {
-      doCheck = false;
+      phases = [
+        "unpackPhase"
+        "configurePhase"
+        "installPhase"
+      ];
+
       installPhase = ''
         runHook preInstall
 
@@ -70,11 +75,10 @@ in {
       machine.wait_for_open_port(6379)
       machine.wait_for_open_port(5433)
 
-      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && npm run db:applymigrations")
+      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && bun db:applymigrations")
 
-      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && npm run test:smoke")
+      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && bun test")
 
-      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && npm run test:integration")
       machine.shutdown()
     '';
   };

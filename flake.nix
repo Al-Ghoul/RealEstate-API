@@ -2,7 +2,7 @@
   description = "This is a real estate monolithic fullstack application";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-24.05";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     std = {
       url = "github:divnix/std";
       inputs = {
@@ -15,14 +15,27 @@
       url = "github:Al-Ghoul/NixNG";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    bun2nix = {
+      url = "github:baileyluTCD/bun2nix";
+    };
   };
 
   nixConfig = {
-    extra-trusted-public-keys = "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=";
-    extra-substituters = "https://devenv.cachix.org";
+    extra-substituters = [
+      "https://cache.nixos.org"
+      "https://cache.garnix.io"
+    ];
+    extra-trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+    ];
   };
 
-  outputs = {std, ...} @ inputs:
+  outputs = {
+    std,
+    self,
+    ...
+  } @ inputs:
     std.growOn {
       inherit inputs;
       cellsFrom = ./nix;

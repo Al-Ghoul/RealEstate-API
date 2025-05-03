@@ -19,6 +19,10 @@ in
       ];
 
       commands = [
+        {
+          package =
+            inputs.bun2nix.packages.default;
+        }
         {package = inputs.nixpkgs.bun;}
       ];
     };

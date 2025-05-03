@@ -6,12 +6,20 @@
 in {
   type-checks-job = real-estate-api.overrideAttrs {
     name = "Type Check Job";
+    phases = [
+      "unpackPhase"
+      "configurePhase"
+      "checkPhase"
+      "installPhase"
+    ];
+    doCheck = true;
     checkPhase = ''
       runHook preCheck
-
-      npx tsc --noEmit
-
+      bunx tsc --noEmit
       runHook postCheck
+    '';
+    installPhase = ''
+      mkdir $out
     '';
     meta = {
       description = "A job that runs type checks on the source";
@@ -19,12 +27,20 @@ in {
   };
   lint-job = real-estate-api.overrideAttrs {
     name = "Lint Job";
+    phases = [
+      "unpackPhase"
+      "configurePhase"
+      "checkPhase"
+      "installPhase"
+    ];
+    doCheck = true;
     checkPhase = ''
       runHook preCheck
-
-      npm run lint
-
+      bun lint
       runHook postCheck
+    '';
+    installPhase = ''
+      mkdir $out
     '';
     meta = {
       description = "A job that runs linter on the source";

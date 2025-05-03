@@ -2,18 +2,14 @@
   inputs,
   cell,
 }: let
-  inherit (inputs) self nixpkgs;
+  inherit (inputs) self bun2nix;
 in {
-  backend = nixpkgs.buildNpmPackage rec {
+  backend = bun2nix.lib.mkBunDerivation rec {
     pname = "RealEstate-Backend";
     src = self + /app;
     inherit ((builtins.fromJSON (builtins.readFile "${src}/package.json"))) version;
-
-    doDist = false;
-    dontFixup = true;
-
-    dontNpmBuild = true;
-    npmPackFlags = ["--ignore-scripts"];
-    npmDepsHash = "sha256-01DPkFEOM5a2E5vikBtQSTizUqrMURQDb8OaxJu1oLI=";
+    buildFlags = ["--compile" "--minify" "--sourcemap" "--format=esm"];
+    bunNix = self + /bun.nix;
+    index = "src/server.ts";
   };
 }
