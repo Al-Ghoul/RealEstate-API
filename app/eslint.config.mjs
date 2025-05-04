@@ -15,9 +15,7 @@ export default [
       "babel.config.js",
       "src/db/dropDatabase.ts",
       "jest.d.ts",
-      "buildMailTemplates.ts",
       "generateOpenaiDocs.ts",
-      "src/lib/mailTemplates.ts"
     ],
   },
   pluginJs.configs.recommended,

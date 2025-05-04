@@ -7,7 +7,6 @@
     "start": "./RealEstate-API",
     "build": " bun build --compile --minify --sourcemap ./src/server.ts --format=esm --outfile RealEstate-API",
     "build:docs": "bun generateOpenaiDocs.ts",
-    "build:mail-templates": "bun buildMailTemplates.ts",
     "dev": "bun --watch src/server.ts",
     "lint": "eslint .",
     "db:push": "dotenv -e ./.env.development.local -- drizzle-kit push",
