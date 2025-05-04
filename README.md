@@ -2,13 +2,11 @@
 
 This is a WIP real state API.
 
+[![Dev Workflow](https://github.com/Al-Ghoul/RealEstate-API/actions/workflows/dev.yaml/badge.svg?branch=develop)](https://github.com/Al-Ghoul/RealEstate-API/actions/workflows/dev.yaml)
+
 ## Motivation
 
 The purpose of this API is to provide a backend for a real estate app. The app will allow users to search for properties, view property details, and make reservations for properties.
-
-## Build status
-
-[![Dev Workflow](https://github.com/Al-Ghoul/RealEstate-API/actions/workflows/dev.yaml/badge.svg?branch=develop)](https://github.com/Al-Ghoul/RealEstate-API/actions/workflows/dev.yaml)
 
 ## Screenshots
 
