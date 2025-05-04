@@ -304,6 +304,8 @@ export async function requestEmailVerificationCode(
         message: "Verification code could not be sent",
         details: "Please try again later",
       });
+
+      await verificationCodeService.deleteVerificationCodeByCode(code);
       return;
     }
 
@@ -431,6 +433,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
         message: "Email was not sent",
         details: "Please try again later",
       });
+      await verificationCodeService.deleteVerificationCodeByCode(code);
       return;
     }
 

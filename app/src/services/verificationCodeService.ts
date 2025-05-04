@@ -4,8 +4,8 @@ import { verificationCode } from "../db/schemas/verificationCode";
 import { and, eq, gt, isNull } from "drizzle-orm";
 
 export async function getVerCodeByUserIdAndType(
-  userId: string,
-  type: NonNullable<CodeType>,
+  userId: User["id"],
+  type: Code["type"],
 ) {
   return first(
     await db
@@ -27,8 +27,8 @@ export async function getVerCodeByUserIdAndType(
 
 export async function createVerificationCode(
   user: Partial<User>,
-  code: string,
-  type: NonNullable<CodeType>,
+  code: Code["code"],
+  type: Code["type"],
 ) {
   return db.insert(verificationCode).values({
     code,
@@ -39,8 +39,8 @@ export async function createVerificationCode(
 }
 
 export async function getUnUsedVerCodeByCodeAndUserId(
-  code: string,
-  userId: string,
+  code: Code["code"],
+  userId: User["id"],
 ) {
   return db
     .select({
@@ -68,8 +68,8 @@ export async function useVerificationCode(id: number) {
 }
 
 export async function getVerCodeByCodeAndType(
-  code: string,
-  type: NonNullable<CodeType>,
+  code: Code["code"],
+  type: Code["type"],
 ) {
   return first(
     await db
@@ -88,4 +88,8 @@ export async function getVerCodeByCodeAndType(
       )
       .limit(1),
   );
+}
+
+export async function deleteVerificationCodeByCode(code: Code["code"]) {
+  return db.delete(verificationCode).where(eq(verificationCode.code, code));
 }
