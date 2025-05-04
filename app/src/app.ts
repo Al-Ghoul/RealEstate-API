@@ -1,52 +1,50 @@
 import express from "express";
-import path from "path";
-import { env } from "process";
+import { join, resolve } from "path";
 import swaggerJSDoc from "swagger-jsdoc";
 import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 import swaggerUi from "swagger-ui-express";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 import { errorHandlerMiddleware } from "./middlewares/errorHandlerMiddleware";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import {
+  assignLogId,
+  errorLogger,
+  accessLogger,
+} from "./middlewares/morganLoggerMiddleware";
+import { env } from "process";
 
 export const app = express();
 
-const swaggerOptions = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "API Documentation",
-      version: "1.0.0",
-      description: "Express API with Swagger integration",
+if (env.NODE_ENV === "development") {
+  const swaggerOptions = {
+    definition: {
+      openapi: "3.0.0",
+      info: {
+        title: "RealEstate API",
+        version: "1.0.0",
+        description: "RealEstate API documentation",
+      },
     },
-  },
-  apis: [
-    path.resolve(
-      __dirname,
-      env.NODE_ENV === "development" ? "./routes/*.ts" : "./routes/*.js",
-    ),
-  ],
-};
+    apis: [resolve(__dirname, "./routes/*.ts")],
+  };
 
-const swaggerDocs = swaggerJSDoc(swaggerOptions);
-const theme = new SwaggerTheme();
-const options = {
-  customCss:
-    theme.getBuffer(SwaggerThemeNameEnum.DARK) +
-    ".swagger-ui .topbar { display: none }",
-  explorer: false,
-};
+  const swaggerDocs = swaggerJSDoc(swaggerOptions);
+  const theme = new SwaggerTheme();
+  const options = {
+    customCss:
+      theme.getBuffer(SwaggerThemeNameEnum.DARK) +
+      ".swagger-ui .topbar { display: none }",
+    explorer: false,
+  };
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, options));
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, options));
+}
 
-app.use(
-  "/public",
-  express.static(process.env.PUBLIC_PATH || path.join(__dirname, "../public/")),
-);
+app.use(errorLogger);
+app.use(assignLogId);
+app.use(accessLogger);
+
+app.use("/public", express.static(join(process.cwd(), "public")));
 
 app.use(express.json());
 app.use("/api/auth", authRoutes);
