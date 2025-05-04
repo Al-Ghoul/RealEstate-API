@@ -1236,6 +1236,12 @@
     url = "https://registry.npmjs.org/@types/bun/-/bun-1.2.11.tgz";
     hash = "sha512-ZLbbI91EmmGwlWTRWuV6J19IUiUC5YQ3TCEuSHI3usIP75kuoA8/0PVF+LTrbEnVc8JIhpElWOxv1ocI1fJBbw==";
   };
+  "@types/compression" = {
+    out_path = "@types/compression";
+    name = "@types/compression@1.7.5";
+    url = "https://registry.npmjs.org/@types/compression/-/compression-1.7.5.tgz";
+    hash = "sha512-AAQvK5pxMpaT+nDvhHrsBhLSYG5yQdtkaJE1WYieSNY2mVFKAgmU4ks65rkZD5oqnGCFLyQpUr1CqI4DmUMyDg==";
+  };
   "@types/connect" = {
     out_path = "@types/connect";
     name = "@types/connect@3.4.38";
@@ -1472,6 +1478,12 @@
     name = "accepts@2.0.0";
     url = "https://registry.npmjs.org/accepts/-/accepts-2.0.0.tgz";
     hash = "sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==";
+  };
+  "accepts/negotiator" = {
+    out_path = "accepts/node_modules/negotiator";
+    name = "negotiator@1.0.0";
+    url = "https://registry.npmjs.org/negotiator/-/negotiator-1.0.0.tgz";
+    hash = "sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==";
   };
   "acorn" = {
     out_path = "acorn";
@@ -1742,6 +1754,30 @@
     name = "component-emitter@1.3.1";
     url = "https://registry.npmjs.org/component-emitter/-/component-emitter-1.3.1.tgz";
     hash = "sha512-T0+barUSQRTUQASh8bx02dl+DhF54GtIDY13Y3m9oWTklKbb3Wv974meRpeZ3lp1JpLVECWWNHC4vaG2XHXouQ==";
+  };
+  "compressible" = {
+    out_path = "compressible";
+    name = "compressible@2.0.18";
+    url = "https://registry.npmjs.org/compressible/-/compressible-2.0.18.tgz";
+    hash = "sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==";
+  };
+  "compression" = {
+    out_path = "compression";
+    name = "compression@1.8.0";
+    url = "https://registry.npmjs.org/compression/-/compression-1.8.0.tgz";
+    hash = "sha512-k6WLKfunuqCYD3t6AsuPGvQWaKwuLLh2/xHNcX4qE+vIfDNXpSqnrhwA7O53R7WVQUnt8dVAIW+YHr7xTgOgGA==";
+  };
+  "compression/debug" = {
+    out_path = "compression/node_modules/debug";
+    name = "debug@2.6.9";
+    url = "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz";
+    hash = "sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==";
+  };
+  "compression/debug/ms" = {
+    out_path = "compression/node_modules/debug/node_modules/ms";
+    name = "ms@2.0.0";
+    url = "https://registry.npmjs.org/ms/-/ms-2.0.0.tgz";
+    hash = "sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==";
   };
   "concat-map" = {
     out_path = "concat-map";
@@ -2849,9 +2885,9 @@
   };
   "negotiator" = {
     out_path = "negotiator";
-    name = "negotiator@1.0.0";
-    url = "https://registry.npmjs.org/negotiator/-/negotiator-1.0.0.tgz";
-    hash = "sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==";
+    name = "negotiator@0.6.4";
+    url = "https://registry.npmjs.org/negotiator/-/negotiator-0.6.4.tgz";
+    hash = "sha512-myRT3DiWPHqho5PrJaIRyaMv2kgYf0mUVgBNOYMuCH5Ki1yEiQaf/ZJuQ62nvpc44wL5WDbTX7yGJi1Neevw8w==";
   };
   "node-fetch" = {
     out_path = "node-fetch";
