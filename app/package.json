@@ -11,7 +11,7 @@
     "db:push": "dotenv -e ./.env.development.local -- drizzle-kit push",
     "db:makemigrations": "dotenv -e ./.env.development.local -- drizzle-kit generate",
     "db:applymigrations": "dotenv -e ./.env.development.local -- drizzle-kit migrate",
-    "db:studio": "dotenv -e ./.env.development.local -- drizzle-kit studio",
+    "db:studio": "dotenv -e ./.env.development.local -- npx drizzle-kit studio",
     "db:reset": "bun ./src/db/dropDatabase.ts"
   },
   "repository": {
