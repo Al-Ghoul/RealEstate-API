@@ -1,0 +1,9 @@
+smol = true
+logLevel = "debug"
+telemetry = false
+
+[test]
+smol = true
+
+[run]
+bun = true
