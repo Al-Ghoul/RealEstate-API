@@ -75,7 +75,9 @@ in {
 
       machine.succeed("cd /run/current-system/sw/bin/real-estate-api && bun db:applymigrations")
 
-      machine.succeed("cd /run/current-system/sw/bin/real-estate-api && bun test")
+      machine.succeed("mkdir /log")
+
+      machine.succeed("bun test --env-file /run/current-system/sw/bin/real-estate-api/.env.test /run/current-system/sw/bin/real-estate-api")
 
       machine.shutdown()
     '';
