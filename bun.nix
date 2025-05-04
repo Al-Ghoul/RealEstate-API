@@ -1368,6 +1368,12 @@
     url = "https://registry.npmjs.org/@types/range-parser/-/range-parser-1.2.7.tgz";
     hash = "sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==";
   };
+  "@types/response-time" = {
+    out_path = "@types/response-time";
+    name = "@types/response-time@2.3.8";
+    url = "https://registry.npmjs.org/@types/response-time/-/response-time-2.3.8.tgz";
+    hash = "sha512-7qGaNYvdxc0zRab8oHpYx7AW17qj+G0xuag1eCrw3M2VWPJQ/HyKaaghWygiaOUl0y9x7QGQwppDpqLJ5V9pzw==";
+  };
   "@types/send" = {
     out_path = "@types/send";
     name = "@types/send@0.17.4";
@@ -3347,6 +3353,12 @@
     name = "resolve-pkg-maps@1.0.0";
     url = "https://registry.npmjs.org/resolve-pkg-maps/-/resolve-pkg-maps-1.0.0.tgz";
     hash = "sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==";
+  };
+  "response-time" = {
+    out_path = "response-time";
+    name = "response-time@2.3.3";
+    url = "https://registry.npmjs.org/response-time/-/response-time-2.3.3.tgz";
+    hash = "sha512-SsjjOPHl/FfrTQNgmc5oen8Hr1Jxpn6LlHNXxCIFdYMHuK1kMeYMobb9XN3mvxaGQm3dbegqYFMX4+GDORfbWg==";
   };
   "reusify" = {
     out_path = "reusify";
