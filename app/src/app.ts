@@ -13,8 +13,11 @@ import {
 } from "./middlewares/morganLoggerMiddleware";
 import { env } from "process";
 import compression from "compression";
+import responseTime from "response-time";
 
 export const app = express();
+app.use(responseTime());
+
 app.use(compression());
 
 if (env.NODE_ENV === "development") {
