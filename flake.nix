@@ -11,10 +11,6 @@
         nixago.url = "github:nix-community/nixago";
       };
     };
-    nixng = {
-      url = "github:Al-Ghoul/NixNG";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     bun2nix = {
       url = "github:baileyluTCD/bun2nix";
     };
@@ -31,17 +27,13 @@
     ];
   };
 
-  outputs = {
-    std,
-    self,
-    ...
-  } @ inputs:
+  outputs = {std, ...} @ inputs:
     std.growOn {
       inherit inputs;
       cellsFrom = ./nix;
       cellBlocks = with std.blockTypes; [
         (devshells "shells")
-        (arion "arion-compose")
+        (arion "docker-compose")
         (nixago "configs")
 
         (runnables "jobs" {ci.build = true;})
