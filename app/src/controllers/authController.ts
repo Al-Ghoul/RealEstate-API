@@ -32,6 +32,7 @@ import {
   type LoginWithGoogleDTO,
 } from "../lib/dtos/account.dto";
 import pg from "pg";
+import { EMAIL_VERIFICATION, PASSWORD_RESET } from "../lib/mailTemplates";
 
 const { DatabaseError } = pg;
 const JsonWebTokenError = jwt.JsonWebTokenError;
@@ -279,10 +280,7 @@ export async function requestEmailVerificationCode(
       "EMAIL_VERIFICATION",
     );
 
-    const content = mailService.renderPugTemplate("EMAIL_VERIFICATION", {
-      user,
-      code,
-    });
+    const content = EMAIL_VERIFICATION({ user, code });
 
     const emailSent = await mailService.sendEmail(
       user,
@@ -410,10 +408,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
       "PASSWORD_RESET",
     );
 
-    const content = mailService.renderPugTemplate("PASSWORD_RESET", {
-      user,
-      code,
-    });
+    const content = PASSWORD_RESET({ user, code });
 
     const emailSent = await mailService.sendEmail(
       user,
