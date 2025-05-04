@@ -8,7 +8,7 @@ import {
 import { generateBlurHash } from "../lib/blurHashGenerator";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
-import path from "path";
+import { join } from "path";
 
 export async function getCurrentUser(req: Request, res: Response) {
   assertAuthenticated(req);
@@ -139,9 +139,7 @@ export async function updateCurrentUserProfileImage(
     return;
   }
 
-  const uploadDir =
-    process.env.UPLOAD_PATH ||
-    path.join(__dirname, "../../public/uploads/profile-images/");
+  const uploadDir = join(process.cwd(), "public/uploads/profile-images/");
   const fileName = `${Date.now().toString()}-${originalname}`;
   const filePath = `${uploadDir}${fileName}`;
   await fs.writeFile(filePath, buffer);
