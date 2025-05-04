@@ -2,7 +2,7 @@
   inputs,
   cell,
 }: let
-  real-estate-api = inputs.cells.repo.packages.backend;
+  inherit (inputs.cells.repo.packages) real-estate-api;
 in {
   type-checks-job = real-estate-api.overrideAttrs {
     name = "Type Check Job";

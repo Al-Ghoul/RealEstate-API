@@ -5,8 +5,8 @@ We use nix to build, containerize the project and its related services, and Ario
 Images:
 
 1. real-estate-api - The Real Estate API.
-1. real-estate-postgres-service - Postgres service that hosts the database.
-1. real-estate-redis-service - Redis service that hosts the cache.
+1. real-estate-postgres - Postgres service that hosts the database.
+1. real-estate-redis - Redis service that hosts the cache.
 
 the aforementioned images are built from the source code and create the following services:
 
@@ -40,9 +40,6 @@ FACEBOOK_APP_ID=XXXXXXXXXXXXXXX
 FACEBOOK_APP_SECRET=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 GOOGLE_CLIENT_ID=XXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=XXXXXX-XXXX-XXXXXXXXXXXXXXXXXXXXXXX
-# File upload settings
-UPLOAD_PATH=/bin/real-estate-backend/public/uploads/profile-images
-PUBLIC_PATH=/bin/real-estate-backend/public
 ```
 
 ## Reference

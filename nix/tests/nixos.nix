@@ -8,7 +8,7 @@
     .cells
     .repo
     .packages
-    .backend
+    .real-estate-api
     .overrideAttrs {
       phases = [
         "unpackPhase"
@@ -19,9 +19,7 @@
       installPhase = ''
         runHook preInstall
 
-        mkdir -p $out/bin
-
-        mkdir $out/bin/real-estate-api
+        mkdir -p $out/bin/real-estate-api
 
         cp -r . $out/bin/real-estate-api
 
