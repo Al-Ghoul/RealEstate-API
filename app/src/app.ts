@@ -12,8 +12,10 @@ import {
   accessLogger,
 } from "./middlewares/morganLoggerMiddleware";
 import { env } from "process";
+import compression from "compression";
 
 export const app = express();
+app.use(compression());
 
 if (env.NODE_ENV === "development") {
   const swaggerOptions = {
