@@ -6,7 +6,7 @@ import { profile } from "../db/schemas/profile";
 declare global {
   type User = typeof user.$inferSelect;
   type Profile = typeof profile.$inferInsert;
-  type CodeType = (typeof verificationCode.$inferSelect)["type"];
+  type Code = typeof verificationCode.$inferSelect;
   type NotificationType = typeof notification.$inferSelect;
 
   interface FacebookDebugTokenResponse {
