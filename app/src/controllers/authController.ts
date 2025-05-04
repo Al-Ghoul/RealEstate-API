@@ -32,7 +32,8 @@ import {
   type LoginWithGoogleDTO,
 } from "../lib/dtos/account.dto";
 import pg from "pg";
-import { EMAIL_VERIFICATION, PASSWORD_RESET } from "../lib/mailTemplates";
+import { EMAIL_VERIFICATION, PASSWORD_RESET } from "../lib/templates";
+import pug from "pug";
 
 const { DatabaseError } = pg;
 const JsonWebTokenError = jwt.JsonWebTokenError;
@@ -280,12 +281,13 @@ export async function requestEmailVerificationCode(
       "EMAIL_VERIFICATION",
     );
 
-    const content = EMAIL_VERIFICATION({ user, code });
+    const compiledFunction = pug.compile(EMAIL_VERIFICATION);
+    const htmlContent = compiledFunction({ user, code });
 
     const emailSent = await mailService.sendEmail(
       user,
       "Verify your email",
-      content,
+      htmlContent,
     );
 
     await notificationService.createNotification({
@@ -293,7 +295,7 @@ export async function requestEmailVerificationCode(
       recipient: user.email,
       subject: "Verify your email",
       type: "EMAIL",
-      message: content,
+      message: htmlContent,
       isSent: emailSent,
     });
 
@@ -410,19 +412,20 @@ export async function requestPasswordReset(req: Request, res: Response) {
       "PASSWORD_RESET",
     );
 
-    const content = PASSWORD_RESET({ user, code });
+    const compiledFunction = pug.compile(PASSWORD_RESET);
+    const htmlContent = compiledFunction({ user, code });
 
     const emailSent = await mailService.sendEmail(
       user,
       "Password reset code",
-      content,
+      htmlContent,
     );
     await notificationService.createNotification({
       userId: user.id,
       recipient: user.email,
       subject: "Password reset code",
       type: "EMAIL",
-      message: content,
+      message: htmlContent,
       isSent: emailSent,
     });
 
