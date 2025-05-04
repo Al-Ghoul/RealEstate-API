@@ -6,6 +6,7 @@
   "scripts": {
     "start": "bun dist/server.js",
     "build": "bun build ./src/app.ts --outdir ./dist/ --target bun",
+    "build:docs": "bun generateOpenaiDocs.ts",
     "dev": "bun --watch src/server.ts",
     "lint": "eslint .",
     "db:push": "dotenv -e ./.env.development.local -- drizzle-kit push",
