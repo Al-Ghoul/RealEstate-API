@@ -14,7 +14,7 @@ morgan.token("id", function getId(req: Request) {
 });
 
 morgan.token("response-time", (_: Request, res: Response) => {
-  return (res.getHeader("X-Response-Time") as string) ?? "-";
+  return (res.getHeader("X-Response-Time") as string | undefined) ?? "-";
 });
 
 const accessLogStream = createStream("access.log", {
