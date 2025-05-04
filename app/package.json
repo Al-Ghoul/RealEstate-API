@@ -4,8 +4,8 @@
   "description": "A real state API",
   "type": "module",
   "scripts": {
-    "start": "bun dist/server.js",
-    "build": "bun build ./src/app.ts --outdir ./dist/ --target bun",
+    "start": "./RealEstate-API",
+    "build": " bun build --compile --minify --sourcemap ./src/server.ts --format=esm --outfile RealEstate-API",
     "build:docs": "bun generateOpenaiDocs.ts",
     "build:mail-templates": "bun buildMailTemplates.ts",
     "dev": "bun --watch src/server.ts",
