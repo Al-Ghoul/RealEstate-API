@@ -66,7 +66,6 @@ const router = Router();
  *                 type: string
  *                 example: 9YsD0@example.com
  *                 description: The email of the user
- *                 required: true
  *                 pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
  *                 maxLength: 255
  *                 minLength: 2
@@ -75,7 +74,6 @@ const router = Router();
  *                 type: string
  *                 example: password
  *                 description: The password of the user
- *                 required: true
  *                 pattern: ^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$
  *                 maxLength: 255
  *                 minLength: 8
@@ -84,7 +82,6 @@ const router = Router();
  *                 type: string
  *                 example: password
  *                 description: The password of the user
- *                 required: true
  *               firstName:
  *                 type: string
  *                 example: John
@@ -125,7 +122,6 @@ router.post(
  *                 type: string
  *                 example: 9YsD0@example.com
  *                 description: The email of the user
- *                 required: false
  *                 pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
  *                 maxLength: 255
  *                 title: The email of the user
@@ -133,7 +129,6 @@ router.post(
  *                 type: string
  *                 example: password
  *                 description: The password of the user
- *                 required: true
  *                 pattern: ^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$
  *                 maxLength: 255
  *                 minLength: 8
@@ -272,7 +267,6 @@ router.post(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
  *               $ref: '#/components/schemas/GenericResponse'
  *       401:
  *         description: Missing authorization token
@@ -366,7 +360,6 @@ router.post(
  *                 type: string
  *                 example: 123456
  *                 description: The verification code
- *                 required: true
  *     responses:
  *      200:
  *        description: User was verified successfully
@@ -421,7 +414,6 @@ router.post(
  *             properties:
  *               email:
  *                 type: string
- *                 required: false
  *                 example: 6bVJt@example.com
  *                 description: The email of the user
  *     responses:
@@ -479,17 +471,14 @@ router.post(
  *                 type: string
  *                 example: 123456
  *                 description: The verification code
- *                 required: true
  *               password:
  *                 type: string
  *                 example: 12345678
  *                 description: The new password
- *                 required: true
  *               confirmPassword:
  *                 type: string
  *                 example: 12345678
  *                 description: The confirmation of new password
- *                 required: true
  *     responses:
  *      200:
  *        description: Password was reset successfully
@@ -541,17 +530,14 @@ router.post(
  *                type: string
  *                example: 12345678
  *                description: The current password
- *                required: true
  *              password:
  *                type: string
  *                example: 12345678
  *                description: The new password
- *                required: true
  *              confirmPassword:
  *                type: string
  *                example: 12345678
  *                description: The confirmation of the new password
- *                required: true
  *    responses:
  *      200:
  *        description: Password was changed successfully
@@ -612,16 +598,14 @@ router.post(
  *           schema:
  *             type: object
  *             properties:
- *             password:
- *               type: string
- *               example: 12345678
- *               description: The new password
- *               required: true
- *             confirmPassword:
- *               type: string
- *               example: 12345678
- *               description: The confirmation new password
- *               required: true
+ *              password:
+ *                type: string
+ *                example: 12345678
+ *                description: The new password
+ *              confirmPassword:
+ *                type: string
+ *                example: 12345678
+ *                description: The confirmation new password
  *     responses:
  *       200:
  *         description: Password was set successfully
@@ -648,8 +632,8 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       500:
- *       description: Internal server error
- *       content:
+ *        description: Internal server error
+ *        content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/GenericResponse'
@@ -676,7 +660,6 @@ router.post(
  *             properties:
  *               accessToken:
  *                 type: string
- *                 required: true
  *     responses:
  *       200:
  *         description: User has logged in successfully
@@ -758,7 +741,6 @@ router.post(
  *             properties:
  *               idToken:
  *                 type: string
- *                 required: true
  *     responses:
  *       200:
  *         description: User has logged in successfully
@@ -843,11 +825,9 @@ router.post(
  *               accessToken:
  *                 type: string
  *                 description: The access token of the account to link
- *                 required: true
  *               provider:
  *                 type: string
  *                 description: The provider of the account to link
- *                 required: true
  *                 enum: [google, facebook]
  *     responses:
  *      201:
@@ -877,9 +857,9 @@ router.post(
  *      404:
  *        description: User was not found
  *        content:
- *        application/json:
- *          schema:
- *            $ref: '#/components/schemas/GenericResponse'
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
  *      409:
  *        description: The associated email is already in use
  *        content:
@@ -980,7 +960,6 @@ router.delete(
  *                    data:
  *                      type: array
  *                      items:
- *                        type: object
  *                        $ref: '#/components/schemas/Account'
  *       401:
  *        description: Missing authorization token

@@ -233,7 +233,6 @@ router.patch(
  *               image:
  *                 type: string
  *                 format: binary
- *                 required: true
  *                 description: The profile image file
  *     responses:
  *       200:

@@ -29,12 +29,10 @@
  *          default: null
  *        createdAt:
  *           readOnly: true
- *           required: false
  *           type: string
  *           format: date-time
  *        updatedAt:
  *          readOnly: true
- *          required: false
  *          type: string
  *          format: date-time
  *    Profile:
@@ -57,12 +55,10 @@
  *          description: The image's blur hash
  *        createdAt:
  *           readOnly: true
- *           required: false
  *           type: string
  *           format: date-time
  *        updatedAt:
  *          readOnly: true
- *          required: false
  *          type: string
  *          format: date-time
  *    GenericResponse:
@@ -71,25 +67,20 @@
  *        status:
  *          type: string
  *          description: The status of the response
- *          required: true
  *          title: The status of the response
  *        statusCode:
  *          type: number
  *          description: The status code of the response
- *          required: true
  *          title: The status code of the response
  *        message:
  *          type: string
  *          description: The error message
- *          required: false
  *          title: The error message
  *        details:
  *          type: string
  *          description: The error details
- *          required: false
  *          title: The error details
  *        errors:
- *          required: false
  *          title: The error messages
  *          type: array
  *          items:
@@ -98,12 +89,10 @@
  *              path:
  *                type: string
  *                description: The path of the error
- *                required: true
  *                title: The path of the error
  *              message:
  *                type: string
  *                description: The error message
- *                required: true
  *                title: The error message
  *    Account:
  *      type: object
@@ -111,17 +100,14 @@
  *        userId:
  *          type: string
  *          description: The id of the user
- *          required: true
  *          title: The id of the user
  *        provider:
  *          type: string
  *          enum: [google, facebook]
  *          description: The provider of the account
- *          required: true
  *          title: The provider of the account
  *        providerAccountId:
  *          type: string
  *          description: The id of the account
- *          required: true
  *          title: The id of the account
  */
