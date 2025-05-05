@@ -19,12 +19,12 @@ morgan.token("response-time", (_: Request, res: Response) => {
 
 const accessLogStream = createStream("access.log", {
   interval: "1d",
-  path: join(process.cwd(), "log"),
+  path: join(process.cwd(), "log/http"),
 });
 
 const errorLogStream = createStream("error.log", {
   interval: "1d",
-  path: join(process.cwd(), "log"),
+  path: join(process.cwd(), "log/http"),
 });
 
 const logFormat = `:id :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version :status :res[content-length] ":referrer" ":user-agent :response-time"`;
