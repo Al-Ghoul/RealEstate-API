@@ -6,7 +6,7 @@
   "scripts": {
     "start": "./RealEstate-API",
     "build": " bun build --compile --minify --sourcemap ./src/server.ts --format=esm --outfile RealEstate-API",
-    "build:docs": "bun generateOpenaiDocs.ts",
+    "generate:api-docs": "bun generateOpenaiDocs.ts",
     "dev": "bun --watch src/server.ts",
     "lint": "eslint .",
     "db:push": "dotenv -e ./.env.development.local -- drizzle-kit push",

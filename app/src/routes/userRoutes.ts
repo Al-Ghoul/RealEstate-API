@@ -41,13 +41,7 @@ const router = Router();
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Token has been revoked or Invalid Token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      404:
- *        description: User was not found
+ *        description: Invalid, expired or revoked access token
  *        content:
  *          application/json:
  *            schema:
@@ -89,7 +83,7 @@ router.get("/me", isAuthenticated, userController.getCurrentUser);
  *           schema:
  *             $ref: '#/components/schemas/GenericResponse'
  *       403:
- *         description: Token has been revoked or Invalid Token
+ *         description: Invalid, expired or revoked access token
  *         content:
  *          application/json:
  *           schema:
@@ -137,7 +131,7 @@ router.patch(
  *           schema:
  *             $ref: '#/components/schemas/GenericResponse'
  *       403:
- *         description: Token has been revoked or Invalid Token
+ *         description: Invalid, expired or revoked access token
  *         content:
  *          application/json:
  *           schema:
@@ -196,7 +190,7 @@ router.get(
  *           schema:
  *             $ref: '#/components/schemas/GenericResponse'
  *       403:
- *         description: Token has been revoked or Invalid Token
+ *         description: Invalid, expired or revoked access token
  *         content:
  *          application/json:
  *           schema:
@@ -262,7 +256,7 @@ router.patch(
  *           schema:
  *             $ref: '#/components/schemas/GenericResponse'
  *       403:
- *         description: Token has been revoked or Invalid Token
+ *         description: Invalid, expired or revoked access token
  *         content:
  *          application/json:
  *           schema:

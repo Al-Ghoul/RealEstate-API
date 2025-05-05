@@ -26,6 +26,17 @@ const router = Router();
  *     summary: Create a new user
  *     tags: [Auth]
  *     responses:
+ *       201:
+ *         description: User was created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/GenericResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                      $ref: '#/components/schemas/User'
  *       400:
  *         description: Input validation error
  *         content:
@@ -39,22 +50,11 @@ const router = Router();
  *             schema:
  *                $ref: '#/components/schemas/GenericResponse'
  *       500:
- *         description: Internal server error or Unidentified database error
+ *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
- *       201:
- *         description: User was created successfully
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/GenericResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                      $ref: '#/components/schemas/User'
  *     requestBody:
  *       required: true
  *       content:
@@ -167,7 +167,7 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       403:
- *         description: This user is associated with a social login
+ *         description: This user is associated with a social login and has no password
  *         content:
  *           application/json:
  *             schema:
@@ -189,7 +189,7 @@ router.post(
  * @swagger
  * /api/auth/refresh:
  *   post:
- *     summary: Refresh current user's tokens
+ *     summary: Refresh user's tokens
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -235,7 +235,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       403:
- *        description: Refresh token is blacklisted
+ *        description: Invalid, expired or revoked refresh token
  *        content:
  *          application/json:
  *            schema:
@@ -269,13 +269,13 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       401:
- *         description: Missing authorization token
+ *         description: Missing or Invalid authorization token
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       403:
- *        description: Token has been revoked or Invalid Token
+ *        description: Invalid, expired or revoked access token
  *        content:
  *          application/json:
  *            schema:
@@ -305,7 +305,7 @@ router.post("/me/logout", isAuthenticated, authController.logoutUser);
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Input validation failed or verification code already sent
+ *        description: Input validation failed or User has no email
  *        content:
  *          application/json:
  *            schema:
@@ -317,19 +317,25 @@ router.post("/me/logout", isAuthenticated, authController.logoutUser);
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Token has been revoked, Invalid Token or User does not have an email
+ *        description: Invalid, expired or revoked access token
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
- *      404:
- *        description: User not found or already verified
+ *      409:
+ *        description: User already verified
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      500:
- *        description: Internal server error or Verification code could not be sent
+ *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      503:
+ *        description: Verification code email could not be sent
  *        content:
  *          application/json:
  *            schema:
@@ -374,12 +380,12 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Token has been revoked or Invalid Token
+ *        description: Invalid, expired or revoked access token
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
- *      404:
+ *      422:
  *        description: Invalid or expired verification code
  *        content:
  *          application/json:
@@ -418,31 +424,25 @@ router.post(
  *                 description: The email of the user
  *     responses:
  *      200:
- *        description: Password reset code was sent successfully
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      403:
- *        description: User does not have an email
+ *        description: If email exists in our records, a password reset code will be sent
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Input validation failed or Reset code already sent
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      404:
- *        description: User not found
+ *        description: Input validation failed, User does not have an email or Password Reset code already sent
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      500:
  *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
+ *      503:
+ *        description: Password reset code email could not be sent
  *        content:
  *          application/json:
  *            schema:
@@ -487,13 +487,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Input validation failed
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      404:
- *        description: Reset code expired or invalid
+ *        description: Input validation failed or Invalid/Expired reset code
  *        content:
  *          application/json:
  *            schema:
@@ -558,13 +552,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Token has been revoked, Invalid Token or User has no password
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      404:
- *        description: User was not found
+ *        description: Invalid, expired, revoked access token or Password is not set
  *        content:
  *          application/json:
  *            schema:
@@ -626,11 +614,17 @@ router.post(
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
  *       403:
- *         description: Token has been revoked or Invalid Token
+ *         description: Invalid, expired or revoked access token
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/GenericResponse'
+ *       409:
+ *        description: Password is already set
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/GenericResponse'
  *       500:
  *        description: Internal server error
  *        content:
@@ -714,7 +708,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       500:
- *        description: Internal server error or Unidentified database error
+ *        description: Internal server error
  *        content:
  *          application/json:
  *            schema:
@@ -795,7 +789,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       500:
- *        description: Internal server error or Unidentified database error
+ *        description: Internal server error
  *        content:
  *          application/json:
  *            schema:
@@ -849,13 +843,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Token has been revoked or Invalid Token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      404:
- *        description: User was not found
+ *        description: Invalid, expired or revoked access token
  *        content:
  *          application/json:
  *            schema:
@@ -903,7 +891,7 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      400:
- *        description: Input validation failed or User has no password
+ *        description: Input validation failed
  *        content:
  *          application/json:
  *            schema:
@@ -915,13 +903,13 @@ router.post(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      403:
- *        description: Token has been revoked or Invalid Token
+ *        description: Invalid, expired, revoked access token or Password is not set
  *        content:
  *          application/json:
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *      404:
- *        description: User was not found or Account was not found
+ *        description: Account was not found
  *        content:
  *          application/json:
  *            schema:
@@ -968,7 +956,7 @@ router.delete(
  *            schema:
  *              $ref: '#/components/schemas/GenericResponse'
  *       403:
- *        description: Token has been revoked or Invalid Token
+ *        description: Invalid, expired or revoked access token
  *        content:
  *          application/json:
  *            schema:
