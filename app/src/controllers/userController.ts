@@ -9,32 +9,63 @@ import { generateBlurHash } from "../lib/blurHashGenerator";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
 import { join } from "path";
+import { logger } from "../lib/logger";
 
 export async function getCurrentUser(req: Request, res: Response) {
   assertAuthenticated(req);
+
   try {
     const user = await userService.getUserById(req.user.id);
     if (!user) {
-      res.status(404).json({
-        status: "error",
-        statusCode: 404,
+      logger.warn({
+        router: req.originalUrl,
         message: "User was not found",
-        details: "User with provided id not found",
+        info: {
+          requestId: req.id,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
       });
-      return;
+
+      throw new Error("User was not found");
     }
+
     const finalUser = { ...user, hasPassword: !!user.password } as User & {
       hasPassword: boolean;
     };
-    // @ts-expect-error TS complains about this, but we MUST delete it...
+    // @ts-expect-error TS complains about this, but we can and MUST delete it...
     delete finalUser.password;
+
+    logger.info({
+      router: req.originalUrl,
+      message: "User was retrieved successfully",
+      info: {
+        requestId: req.id,
+        userId: req.user.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "User was retrieved successfully",
       data: finalUser,
     });
-  } catch {
+  } catch (error) {
+    logger.error({
+      router: req.originalUrl,
+      message: "Internal server error",
+      info: {
+        requestId: req.id,
+        error: error,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(500).json({
       status: "error",
       statusCode: 500,
@@ -51,13 +82,36 @@ export async function updateCurrentUser(req: Request, res: Response) {
       req.user.id,
       req.body as UpdateUserDTO,
     );
+
+    logger.info({
+      router: req.originalUrl,
+      message: "User was updated successfully",
+      info: {
+        requestId: req.id,
+        userId: req.user.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "User was updated successfully",
       data: user,
     });
-  } catch {
+  } catch (error) {
+    logger.error({
+      router: req.originalUrl,
+      message: "Internal server error",
+      info: {
+        error: error,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(500).json({
       status: "error",
       statusCode: 500,
@@ -69,15 +123,39 @@ export async function updateCurrentUser(req: Request, res: Response) {
 
 export async function getCurrentUserProfile(req: Request, res: Response) {
   assertAuthenticated(req);
+
   try {
     const profile = await userService.getUserProfile(req.user.id);
+
+    logger.info({
+      router: req.originalUrl,
+      message: "User profile was retrieved successfully",
+      info: {
+        requestId: req.id,
+        userId: req.user.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "User profile was retrieved successfully",
       data: profile,
     });
-  } catch {
+  } catch (error) {
+    logger.error({
+      router: req.originalUrl,
+      message: "Internal server error",
+      info: {
+        error: error,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(500).json({
       status: "error",
       statusCode: 500,
@@ -94,13 +172,36 @@ export async function updateCurrentUserProfile(req: Request, res: Response) {
       req.user.id,
       req.body as UpdateUserProfileDTO,
     );
+
+    logger.info({
+      router: req.originalUrl,
+      message: "User profile was updated successfully",
+      info: {
+        userId: req.user.id,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "User profile was updated successfully",
       data: profile,
     });
-  } catch {
+  } catch (error) {
+    logger.error({
+      router: req.originalUrl,
+      message: "Internal server error",
+      info: {
+        error: error,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(500).json({
       status: "error",
       statusCode: 500,
@@ -117,6 +218,17 @@ export async function updateCurrentUserProfileImage(
   assertAuthenticated(req);
 
   if (!req.file) {
+    logger.warn({
+      router: req.originalUrl,
+      message: "No image provided",
+      info: {
+        userId: req.user.id,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(400).json({
       status: "error",
       statusCode: 400,
@@ -130,6 +242,17 @@ export async function updateCurrentUserProfileImage(
   const fileType = await fileTypeFromBuffer(buffer);
   const allowed = ["image/jpeg", "image/png", "image/webp"];
   if (!fileType || !allowed.includes(fileType.mime)) {
+    logger.warn({
+      router: req.originalUrl,
+      message: "Invalid mime type",
+      info: {
+        userId: req.user.id,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(400).json({
       status: "error",
       statusCode: 400,
@@ -157,13 +280,35 @@ export async function updateCurrentUserProfileImage(
       },
     );
 
+    logger.info({
+      router: req.originalUrl,
+      message: "Profile image was updated successfully",
+      info: {
+        userId: req.user.id,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(200).json({
       status: "success",
       statusCode: 200,
       message: "Profile image was updated successfully",
       data: { blurHash },
     });
-  } catch {
+  } catch (error) {
+    logger.error({
+      router: req.originalUrl,
+      message: "Internal server error",
+      info: {
+        error: error,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
     res.status(500).json({
       status: "error",
       statusCode: 500,
