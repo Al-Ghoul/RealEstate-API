@@ -80,6 +80,8 @@
     "swagger-jsdoc": "6.2.8",
     "swagger-themes": "1.4.3",
     "swagger-ui-express": "5.0.1",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
     "zod": "3.24.2"
   }
 }
