@@ -33,10 +33,14 @@ declare global {
 
   namespace Express {
     interface Request {
-      id?: string;
-      user?: { id: string };
+      id: string;
+      user?: Pick<User, "id">;
     }
   }
 }
 
-export {};
+declare module "jsonwebtoken" {
+  interface JwtPayload {
+    token_type: "access" | "refresh";
+  }
+}

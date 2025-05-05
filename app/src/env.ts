@@ -5,6 +5,7 @@ const envSchema = z.object({
   TOKEN_ISSUER: z.string(),
   JWT_SECRET: z.string(),
   JWT_KEY: z.string(),
+  TOKEN_AUDIENCE: z.string(),
   GMAIL_USER: z.string(),
   GMAIL_PASSWORD: z.string(),
   FACEBOOK_APP_ID: z.string(),

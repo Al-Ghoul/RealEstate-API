@@ -1,6 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { env } from "../env";
 import jwt from "jsonwebtoken";
+import { randomUUIDv7 } from "bun";
 
 export async function getFacebookUserData(
   accessToken: string,
@@ -60,24 +61,22 @@ export async function getGoogleUserData(idToken: string) {
   return payload;
 }
 
-export function generateJWTTokens(user: Partial<User>) {
-  const accessToken = jwt.sign(
-    { id: user.id, email: user.email, type: "access" },
-    env.JWT_SECRET,
-    {
-      expiresIn: "1h",
-      issuer: env.TOKEN_ISSUER,
-    },
-  );
+export function generateJWTTokens(userId: User["id"]) {
+  const accessToken = jwt.sign({ token_type: "access" }, env.JWT_SECRET, {
+    keyid: randomUUIDv7(),
+    issuer: env.TOKEN_ISSUER,
+    subject: userId,
+    audience: "RealEstate:Mobile",
+    expiresIn: "15m",
+  });
 
-  const refreshToken = jwt.sign(
-    {
-      id: user.id,
-      type: "refresh",
-    },
-    env.JWT_SECRET,
-    { expiresIn: "7d", issuer: env.TOKEN_ISSUER },
-  );
+  const refreshToken = jwt.sign({ token_type: "refresh" }, env.JWT_SECRET, {
+    keyid: randomUUIDv7(),
+    issuer: env.TOKEN_ISSUER,
+    subject: userId,
+    audience: "RealEstate:Mobile",
+    expiresIn: "7d",
+  });
 
   return { accessToken, refreshToken };
 }
