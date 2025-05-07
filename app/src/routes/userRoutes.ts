@@ -15,6 +15,11 @@ const router = Router();
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *      - in: header
+ *        name: Accept-Language
+ *        schema:
+ *         $ref: '#/components/parameters/Accept-Language'
  *     responses:
  *      200:
  *        description: User was retrieved successfully
@@ -63,6 +68,11 @@ router.get("/me", isAuthenticated, userController.getCurrentUser);
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *      - in: header
+ *        name: Accept-Language
+ *        schema:
+ *         $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -110,6 +120,11 @@ router.patch(
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *      - in: header
+ *        name: Accept-Language
+ *        schema:
+ *         $ref: '#/components/parameters/Accept-Language'
  *     responses:
  *       200:
  *         description: User profile was retrieved successfully
@@ -157,6 +172,11 @@ router.get(
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *      - in: header
+ *        name: Accept-Language
+ *        schema:
+ *         $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -217,6 +237,11 @@ router.patch(
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *      - in: header
+ *        name: Accept-Language
+ *        schema:
+ *         $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:

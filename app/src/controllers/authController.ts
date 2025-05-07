@@ -35,16 +35,20 @@ import pg from "pg";
 import { EMAIL_VERIFICATION, PASSWORD_RESET } from "../lib/templates";
 import pug from "pug";
 import { logger } from "../lib/logger";
+import L from "../i18n/i18n-node";
+import type { Locales } from "../i18n/i18n-types";
 
 const { DatabaseError } = pg;
 const JsonWebTokenError = jwt.JsonWebTokenError;
 
 export async function registerUser(req: Request, res: Response) {
+  const lang = req.locale.language as Locales;
   const input = req.body as CreateUserDTO;
   input.password = await Bun.password.hash(input.password, {
     algorithm: "bcrypt",
     cost: 4,
   });
+
   try {
     const imageURI = `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${input.firstName}${input.lastName}`;
     const user = await userService.createUser({
@@ -67,7 +71,7 @@ export async function registerUser(req: Request, res: Response) {
       status: "success",
       statusCode: 201,
       data: user,
-      message: "User was created successfully",
+      message: L[lang].REIGSTER_SUCCESS(),
     });
   } catch (error) {
     if (error instanceof DatabaseError) {
@@ -85,8 +89,8 @@ export async function registerUser(req: Request, res: Response) {
         res.status(409).json({
           status: "error",
           statusCode: 409,
-          message: "Email already used",
-          details: "Please use a different email",
+          message: L[lang].EMAIL_ALREADY_USED(),
+          details: L[lang].EMAIL_ALREADY_USED_DETAILS(),
         });
 
         return;
@@ -105,16 +109,19 @@ export async function registerUser(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function loginUser(req: Request, res: Response) {
+  const lang = req.locale.language as Locales;
   const { password, email } = req.body as LoginUserDTO;
+
   try {
     const user = await userService.getUser(email);
 
@@ -132,8 +139,8 @@ export async function loginUser(req: Request, res: Response) {
       res.status(401).json({
         status: "error",
         statusCode: 401,
-        message: "Invalid credentials",
-        details: "Please check your email and password and try again",
+        message: L[lang].INVALID_CREDENTIALS(),
+        details: L[lang].INVALID_CREDENTIALS_DETAILS(),
       });
       return;
     }
@@ -155,10 +162,8 @@ export async function loginUser(req: Request, res: Response) {
         res.status(403).json({
           status: "error",
           statusCode: 403,
-          message:
-            "This user is associated with a social login and has no password",
-          details:
-            "Please sign in with your social provider (e.g. Google, Facebook)",
+          message: L[lang].USER_CAN_ONLY_LOGIN_WITH_LINKED_ACCOUNT,
+          details: L[lang].USER_CAN_ONLY_LOGIN_WITH_LINKED_ACCOUNT_DETAILS(),
         });
       }
 
@@ -166,7 +171,6 @@ export async function loginUser(req: Request, res: Response) {
     }
 
     const isPasswordValid = await Bun.password.verify(password, user.password);
-
     if (!isPasswordValid) {
       logger.warn({
         route: req.originalUrl,
@@ -182,8 +186,8 @@ export async function loginUser(req: Request, res: Response) {
       res.status(401).json({
         status: "error",
         statusCode: 401,
-        message: "Invalid credentials",
-        details: "Please check your email and password and try again",
+        message: L[lang].INVALID_CREDENTIALS(),
+        details: L[lang].INVALID_CREDENTIALS_DETAILS(),
       });
 
       return;
@@ -203,7 +207,7 @@ export async function loginUser(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Login was successful",
+      message: L[lang].LOGIN_SUCCESS(),
       data: generateJWTTokens(user.id),
     });
   } catch (error) {
@@ -219,15 +223,17 @@ export async function loginUser(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function refreshUserToken(req: Request, res: Response) {
+  const lang = req.locale.language as Locales;
   const { refreshToken } = req.body as RefreshTokenInputDTO;
 
   try {
@@ -254,8 +260,8 @@ export async function refreshUserToken(req: Request, res: Response) {
       res.status(403).json({
         status: "error",
         statusCode: 403,
-        message: "Invalid refresh token",
-        details: "Please provide a valid refresh token",
+        message: L[lang].INVALID_REFRESH_TOKEN(),
+        details: L[lang].INVALID_REFRESH_TOKEN_DETAILS(),
       });
 
       return;
@@ -276,8 +282,8 @@ export async function refreshUserToken(req: Request, res: Response) {
       res.status(403).json({
         status: "error",
         statusCode: 403,
-        message: "Refresh token is revoked",
-        details: "Please provide a valid refresh token",
+        message: L[lang].REVOKED_REFRESH_TOKEN(),
+        details: L[lang].REVOKED_REFRESH_TOKEN_DETAILS(),
       });
 
       return;
@@ -304,7 +310,7 @@ export async function refreshUserToken(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Tokens were refreshed successfully",
+      message: L[lang].TOKENS_REFRESHED_SUCCESSFULLY(),
       data: generateJWTTokens(sub),
     });
   } catch (error) {
@@ -322,8 +328,8 @@ export async function refreshUserToken(req: Request, res: Response) {
       res.status(401).json({
         status: "error",
         statusCode: 401,
-        message: "Invalid refresh token",
-        details: "Please provide a valid refresh token",
+        message: L[lang].INVALID_REFRESH_TOKEN(),
+        details: L[lang].INVALID_REFRESH_TOKEN_DETAILS(),
       });
 
       return;
@@ -341,14 +347,18 @@ export async function refreshUserToken(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function logoutUser(req: Request, res: Response) {
+  const lang = req.locale.language as Locales;
+
   try {
     const accessToken = req.headers.authorization?.split(" ")[1] as string;
     const { header, payload } = jwt.verify(accessToken, env.JWT_SECRET, {
@@ -374,8 +384,8 @@ export async function logoutUser(req: Request, res: Response) {
       res.status(403).json({
         status: "error",
         statusCode: 403,
-        message: "Invalid access token",
-        details: "Please provide a valid access token",
+        message: L[lang].INVALID_ACCESS_TOKEN(),
+        details: L[lang].INVALID_ACCESS_TOKEN_DETAILS(),
       });
 
       return;
@@ -401,7 +411,7 @@ export async function logoutUser(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Logout was successful",
+      message: L[lang].LOGOUT_SUCCESS(),
     });
   } catch (error) {
     logger.error({
@@ -416,10 +426,11 @@ export async function logoutUser(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
@@ -429,6 +440,7 @@ export async function requestEmailVerificationCode(
   res: Response,
 ) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
 
   try {
     const user = await userService.getUnVerifiedUserById(req.user.id);
@@ -448,8 +460,8 @@ export async function requestEmailVerificationCode(
       res.status(409).json({
         status: "error",
         statusCode: 409,
-        message: "User already verified",
-        details: "Can not send a verification code to a verified user",
+        message: L[lang].CAN_NOT_SEND_VERIFICATION_CODE(),
+        details: L[lang].USER_ALREADY_VERIFIED_DETAILS(),
       });
 
       return;
@@ -470,8 +482,8 @@ export async function requestEmailVerificationCode(
       res.status(400).json({
         status: "error",
         statusCode: 400,
-        message: "User does not have an email",
-        details: "Please set your email to request a verification code",
+        message: L[lang].USER_DOES_NOT_HAVE_AN_EMAIL(),
+        details: L[lang].USER_DOES_NOT_HAVE_AN_EMAIL_DETAILS(),
       });
 
       return;
@@ -497,8 +509,8 @@ export async function requestEmailVerificationCode(
       res.status(400).json({
         status: "error",
         statusCode: 400,
-        message: "Verification code already sent",
-        details: "Please try again later",
+        message: L[lang].VERIFICATION_CODE_ALREADY_SENT(),
+        details: L[lang].VERIFICATION_CODE_ALREADY_SENT_DETAILS(),
       });
 
       return;
@@ -544,8 +556,8 @@ export async function requestEmailVerificationCode(
       res.status(503).json({
         status: "error",
         statusCode: 503,
-        message: "Verification code email could not be sent",
-        details: "Please try again later",
+        message: L[lang].VERIFICATION_CODE_COULD_NOT_BE_SENT(),
+        details: L[lang].VERIFICATION_CODE_COULD_NOT_BE_SENT_DETAILS(),
       });
 
       await verificationCodeService.deleteVerificationCodeByCode(code);
@@ -566,7 +578,7 @@ export async function requestEmailVerificationCode(
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Verification code was sent successfully",
+      message: L[lang].VERIFICATION_CODE_SENT_SUCCESSFULLY(),
     });
   } catch (error) {
     logger.error({
@@ -582,18 +594,19 @@ export async function requestEmailVerificationCode(
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function verifyUser(req: Request, res: Response) {
-  const { code } = req.body as VerifyUserDTO;
-
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
+  const { code } = req.body as VerifyUserDTO;
 
   try {
     const verificationCode =
@@ -616,8 +629,8 @@ export async function verifyUser(req: Request, res: Response) {
       res.status(422).json({
         status: "error",
         statusCode: 422,
-        message: "Invalid or expired verification code",
-        details: "Please provide a valid verification code",
+        message: L[lang].INVALID_OR_EXPIRED_VERIFICATION_CODE(),
+        details: L[lang].INVALID_OR_EXPIRED_VERIFICATION_CODE_DETAILS(),
       });
 
       return;
@@ -640,7 +653,7 @@ export async function verifyUser(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "User was verified successfully",
+      message: L[lang].USER_VERIFICATION_SUCCESS(),
     });
   } catch (error) {
     logger.error({
@@ -656,15 +669,17 @@ export async function verifyUser(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function requestPasswordReset(req: Request, res: Response) {
+  const lang = req.locale.language as Locales;
   const input = req.body as RequestResetCodeDTO;
 
   try {
@@ -685,8 +700,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
       res.status(200).json({
         status: "success",
         statusCode: 200,
-        message:
-          "If email exists in our records, a password reset code will be sent",
+        message: L[lang].PASSWORD_RESET_CODE_SENT_SUCCESSFULLY(),
       });
 
       return;
@@ -706,8 +720,8 @@ export async function requestPasswordReset(req: Request, res: Response) {
       res.status(400).json({
         status: "error",
         statusCode: 400,
-        message: "User does not have an email",
-        details: "Please set your email to request a verification code",
+        message: L[lang].USER_DOES_NOT_HAVE_AN_EMAIL(),
+        details: L[lang].USER_DOES_NOT_HAVE_AN_EMAIL_DETAILS(),
       });
 
       return;
@@ -732,8 +746,8 @@ export async function requestPasswordReset(req: Request, res: Response) {
       res.status(400).json({
         status: "error",
         statusCode: 400,
-        message: "Reset code already sent",
-        details: "Please try again later",
+        message: L[lang].PASSWORD_RESET_CODE_ALREADY_SENT(),
+        details: L[lang].PASSWORD_RESET_CODE_ALREADY_SENT_DETAILS(),
       });
 
       return;
@@ -777,8 +791,8 @@ export async function requestPasswordReset(req: Request, res: Response) {
       res.status(503).json({
         status: "error",
         statusCode: 503,
-        message: "Password reset email was not sent",
-        details: "Please try again later",
+        message: L[lang].PASSWORD_RESET_CODE_COULD_NOT_BE_SENT(),
+        details: L[lang].PASSWORD_RESET_CODE_COULD_NOT_BE_SENT_DETAILS(),
       });
 
       await verificationCodeService.deleteVerificationCodeByCode(code);
@@ -798,8 +812,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message:
-        "If email exists in our records, a password reset code will be sent",
+      message: L[lang].PASSWORD_RESET_CODE_SENT_SUCCESSFULLY(),
     });
   } catch (error) {
     logger.error({
@@ -814,15 +827,17 @@ export async function requestPasswordReset(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function resetUserPassword(req: Request, res: Response) {
+  const lang = req.locale.language as Locales;
   const input = req.body as PasswordResetDTO;
 
   try {
@@ -844,8 +859,8 @@ export async function resetUserPassword(req: Request, res: Response) {
       res.status(400).json({
         status: "error",
         statusCode: 400,
-        message: "Invalid or expired reset code",
-        details: "Please provide a valid reset code",
+        message: L[lang].INVALID_OR_EXPIRED_PASSWORD_RESET_CODE(),
+        details: L[lang].INVALID_OR_EXPIRED_PASSWORD_RESET_CODE_DETAILS(),
       });
 
       return;
@@ -872,7 +887,7 @@ export async function resetUserPassword(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Password was reset successfully",
+      message: L[lang].PASSWORD_RESET_SUCCESS(),
     });
   } catch (error) {
     logger.error({
@@ -887,16 +902,19 @@ export async function resetUserPassword(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function changePassword(req: Request, res: Response) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
+
   const input = req.body as ChangePasswordDTO;
   try {
     const user = await userService.getUserById(req.user.id);
@@ -931,8 +949,8 @@ export async function changePassword(req: Request, res: Response) {
       res.status(403).json({
         status: "error",
         statusCode: 403,
-        message: "Password is not set",
-        details: "Please set your password",
+        message: L[lang].PASSWORD_NOT_SET(),
+        details: L[lang].PASSWORD_NOT_SET_DETAILS(),
       });
 
       return;
@@ -958,8 +976,8 @@ export async function changePassword(req: Request, res: Response) {
       res.status(400).json({
         status: "error",
         statusCode: 400,
-        message: "Password is incorrect",
-        details: "PLease provide correct password",
+        message: L[lang].PASSWORD_INCORRECT(),
+        details: L[lang].PASSWORD_INCORRECT_DETAILS(),
       });
 
       return;
@@ -985,7 +1003,7 @@ export async function changePassword(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Password was changed successfully",
+      message: L[lang].PASSWORD_CHANGE_SUCCESS(),
     });
   } catch (error) {
     logger.error({
@@ -1001,16 +1019,18 @@ export async function changePassword(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function setPassword(req: Request, res: Response) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
   const input = req.body as SetPasswordDTO;
   try {
     const user = await userService.getUserById(req.user.id);
@@ -1045,8 +1065,8 @@ export async function setPassword(req: Request, res: Response) {
       res.status(409).json({
         status: "error",
         statusCode: 409,
-        message: "User already has a password",
-        details: "Please try again later",
+        message: L[lang].PASSWORD_ALREADY_SET(),
+        details: L[lang].PASSWORD_ALREADY_SET_DETAILS(),
       });
 
       return;
@@ -1071,7 +1091,7 @@ export async function setPassword(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Password was set successfully",
+      message: L[lang].PASSWORD_SET_SUCCESS(),
     });
   } catch (error) {
     logger.error({
@@ -1087,15 +1107,17 @@ export async function setPassword(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function loginWithFacebook(req: Request, res: Response) {
+  const lang = req.locale.language as Locales;
   const { accessToken } = req.body as LoginWithFacebookDTO;
   try {
     const fbUserData = await getFacebookUserData(accessToken);
@@ -1120,7 +1142,7 @@ export async function loginWithFacebook(req: Request, res: Response) {
         res.status(200).json({
           status: "success",
           statusCode: 200,
-          message: "User has logged in successfully",
+          message: L[lang].LOGIN_SUCCESS(),
           data: generateJWTTokens(user.id as string),
         });
 
@@ -1144,7 +1166,7 @@ export async function loginWithFacebook(req: Request, res: Response) {
     res.status(201).json({
       status: "success",
       statusCode: 201,
-      message: "User was created and logged in successfully",
+      message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
       data: generateJWTTokens(user.id),
     });
   } catch (error) {
@@ -1164,8 +1186,8 @@ export async function loginWithFacebook(req: Request, res: Response) {
         res.status(409).json({
           status: "error",
           statusCode: 409,
-          message: "The associated email is already in use",
-          details: "Please use another account",
+          message: L[lang].ASSOCIATED_EMAIL_ALREADY_USED(),
+          details: L[lang].ASSOCIATED_EMAIL_ALREADY_USED_DETAILS(),
         });
 
         return;
@@ -1184,15 +1206,17 @@ export async function loginWithFacebook(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function loginWithGoogle(req: Request, res: Response) {
+  const lang = req.locale.language as Locales;
   const { idToken } = req.body as LoginWithGoogleDTO;
   try {
     const googleUserData = await getGoogleUserData(idToken);
@@ -1217,7 +1241,7 @@ export async function loginWithGoogle(req: Request, res: Response) {
         res.status(200).json({
           status: "error",
           statusCode: 200,
-          message: "User has logged in successfully",
+          message: L[lang].LOGIN_SUCCESS(),
           data: generateJWTTokens(user.id as string),
         });
 
@@ -1241,7 +1265,7 @@ export async function loginWithGoogle(req: Request, res: Response) {
     res.status(201).json({
       status: "success",
       statusCode: 201,
-      message: "User was created and logged in successfully",
+      message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
       data: generateJWTTokens(user.id),
     });
   } catch (error) {
@@ -1261,8 +1285,8 @@ export async function loginWithGoogle(req: Request, res: Response) {
         res.status(409).json({
           status: "error",
           statusCode: 409,
-          message: "The associated account is already in use",
-          details: "Please use another account",
+          message: L[lang].ASSOCIATED_EMAIL_ALREADY_USED(),
+          details: L[lang].ASSOCIATED_EMAIL_ALREADY_USED_DETAILS(),
         });
 
         return;
@@ -1281,16 +1305,18 @@ export async function loginWithGoogle(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function linkAccount(req: Request, res: Response) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
   const input = req.body as LinkAccountDTO;
   const { provider } = input;
   let providerAccountId = null;
@@ -1331,8 +1357,8 @@ export async function linkAccount(req: Request, res: Response) {
         res.status(400).json({
           status: "error",
           statusCode: 400,
-          message: "Account could not be linked",
-          details: "Please try again later",
+          message: L[lang].ACCOUNT_COULD_NOT_BE_LINKED(),
+          details: L[lang].ACCOUNT_COULD_NOT_BE_LINKED_DETAILS(),
         });
 
         return;
@@ -1359,7 +1385,7 @@ export async function linkAccount(req: Request, res: Response) {
     res.status(201).json({
       status: "success",
       statusCode: 201,
-      message: "Account was linked successfully",
+      message: L[lang].ACCOUNT_LINK_SUCCESS(),
       data: account,
     });
   } catch (error) {
@@ -1397,16 +1423,18 @@ export async function linkAccount(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function unlinkAccount(req: Request, res: Response) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
   const { provider } = req.params as UnlinkAccountDTO;
   try {
     const user = await userService.getUserById(req.user.id);
@@ -1440,8 +1468,8 @@ export async function unlinkAccount(req: Request, res: Response) {
       res.status(403).json({
         status: "error",
         statusCode: 403,
-        message: "Password is not set",
-        details: "Please set your password to unlink your account",
+        message: L[lang].PASSWORD_NOT_SET(),
+        details: L[lang].PASSWORD_NOT_SET_DETAILS(),
       });
 
       return;
@@ -1462,8 +1490,8 @@ export async function unlinkAccount(req: Request, res: Response) {
       res.status(404).json({
         status: "error",
         statusCode: 404,
-        message: "Account was not found",
-        details: "Please try with another account",
+        message: L[lang].ACCOUNT_NOT_FOUND(),
+        details: null,
       });
 
       return;
@@ -1483,7 +1511,7 @@ export async function unlinkAccount(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Account was unlinked successfully",
+      message: L[lang].ACCOUNT_UNLINK_SUCCESS(),
     });
   } catch (error) {
     logger.error({
@@ -1499,16 +1527,18 @@ export async function unlinkAccount(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function getAccounts(req: Request, res: Response) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
   try {
     const accounts = await userService.getAccountsByUserId(req.user.id);
     logger.info({
@@ -1525,7 +1555,7 @@ export async function getAccounts(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Accounts were retrieved successfully",
+      message: L[lang].ACCOUNTS_RETRIEVED_SUCCESSFULLY(),
       data: accounts,
     });
   } catch (error) {
@@ -1542,10 +1572,11 @@ export async function getAccounts(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }

@@ -1,30 +1,35 @@
 import { type Request, type Response, type NextFunction } from "express";
 import multer from "multer";
+import type { Locales } from "../i18n/i18n-types";
+import L from "../i18n/i18n-node";
 
 export function errorHandlerMiddleware(
   err: Error | multer.MulterError | null,
-  _: Request,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) {
+  const lang = req.locale.language as Locales;
+
   if (err) {
     if (err instanceof multer.MulterError) {
       res.status(400).json({
+        requestId: req.id,
         status: "error",
         statusCode: 400,
-        message: `Multer error: ${err.message}`,
-        details: "Unable to upload image",
+        message: L[lang].UNABLE_TO_UPLOAD_IMAGE(),
+        details: L[lang].UNABLE_TO_UPLOAD_IMAGE_DETAILS(),
       });
-      return;
     } else if (err instanceof Error) {
       res.status(400).json({
+        requestId: req.id,
         status: "error",
         statusCode: 400,
-        message: `Error: ${err.message}`,
-        details: "Please upload an image",
+        message: L[lang].UNABLE_TO_UPLOAD_IMAGE(),
+        details: L[lang].UNABLE_TO_UPLOAD_IMAGE_DETAILS(),
       });
-      return;
     }
+    return;
   }
 
   next(err);

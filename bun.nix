@@ -1278,6 +1278,12 @@
     url = "https://registry.npmjs.org/@types/express/-/express-5.0.1.tgz";
     hash = "sha512-UZUw8vjpWFXuDnjFTh7/5c2TWDlQqeXHi6hcN7F2XSVT5P+WmUnnbFS3KA6Jnc6IsEqI2qCVu2bK0R0J4A8ZQQ==";
   };
+  "@types/express-locale" = {
+    out_path = "@types/express-locale";
+    name = "@types/express-locale@2.0.4";
+    url = "https://registry.npmjs.org/@types/express-locale/-/express-locale-2.0.4.tgz";
+    hash = "sha512-TQszxkmCrXsn6JWA1Gb1anYZZRVlfFLkb6Wz8Cl4m8msqgyyMHCSovLVplI6+jjzg8RhFkCnABX5SG2aOzhhcQ==";
+  };
   "@types/express-serve-static-core" = {
     out_path = "@types/express-serve-static-core";
     name = "@types/express-serve-static-core@5.0.6";
@@ -2177,6 +2183,12 @@
     name = "express@5.1.0";
     url = "https://registry.npmjs.org/express/-/express-5.1.0.tgz";
     hash = "sha512-DT9ck5YIRU+8GYzzU5kT3eHGA5iL+1Zd0EutOmTE9Dtk+Tvuzd23VBU+ec7HPNSTxXYO55gPV/hq4pSBJDjFpA==";
+  };
+  "express-locale" = {
+    out_path = "express-locale";
+    name = "express-locale@2.0.2";
+    url = "https://registry.npmjs.org/express-locale/-/express-locale-2.0.2.tgz";
+    hash = "sha512-z1hRa5iOwlgcM2iGpho3Mwq6DKv0534h1Ts2g2/Gct72g/YSrYSsSCHejLGjAT+hGoZOFcDUovmCkM+6YcQ4iQ==";
   };
   "extend" = {
     out_path = "extend";
@@ -3788,6 +3800,15 @@
     name = "typedarray@0.0.6";
     url = "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz";
     hash = "sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==";
+  };
+  "typesafe-i18n" = {
+    out_path = "typesafe-i18n";
+    binaries = {
+      "typesafe-i18n" = "../typesafe-i18n/cli/typesafe-i18n.mjs";
+    };
+    name = "typesafe-i18n@5.26.2";
+    url = "https://registry.npmjs.org/typesafe-i18n/-/typesafe-i18n-5.26.2.tgz";
+    hash = "sha512-2QAriFmiY5JwUAJtG7yufoE/XZ1aFBY++wj7YFS2yo89a3jLBfKoWSdq5JfQYk1V2BS7V2c/u+KEcaCQoE65hw==";
   };
   "typescript" = {
     out_path = "typescript";

@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import { env } from "../env";
 import { redis } from "../clients/redis";
 import { logger } from "../lib/logger";
+import type { Locales } from "../i18n/i18n-types";
+import L from "../i18n/i18n-node";
 
 export async function isAuthenticated(
   req: Request,
@@ -10,6 +12,7 @@ export async function isAuthenticated(
   next: NextFunction,
 ) {
   const token = req.headers.authorization?.split(" ")[1];
+  const lang = req.locale.language as Locales;
 
   if (!token) {
     logger.warn({
@@ -25,8 +28,8 @@ export async function isAuthenticated(
     res.status(401).json({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: L[lang].ACCESS_DENIED(),
+      details: L[lang].MISSING_AUTHORIZATION_TOKEN_DETAILS(),
     });
 
     return;
@@ -56,8 +59,8 @@ export async function isAuthenticated(
       res.status(403).json({
         status: "error",
         statusCode: 403,
-        message: "Invalid Token",
-        details: "Please re-login",
+        message: L[lang].INVALID_ACCESS_TOKEN(),
+        details: L[lang].INVALID_ACCESS_TOKEN_DETAILS(),
       });
 
       return;
@@ -79,8 +82,8 @@ export async function isAuthenticated(
       res.status(403).json({
         status: "error",
         statusCode: 403,
-        message: "Token has been revoked",
-        details: "Please re-login",
+        message: L[lang].REVOKED_ACCESS_TOKEN(),
+        details: L[lang].REVOKED_ACCESS_TOKEN_DETAILS(),
       });
 
       return;
@@ -103,8 +106,8 @@ export async function isAuthenticated(
     res.status(401).json({
       status: "error",
       statusCode: 401,
-      message: "Invalid Token",
-      details: "Please re-login",
+      message: L[lang].INVALID_ACCESS_TOKEN(),
+      details: L[lang].INVALID_ACCESS_TOKEN_DETAILS(),
     });
   }
 }

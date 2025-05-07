@@ -25,6 +25,11 @@ const router = Router();
  *   post:
  *     summary: Create a new user
  *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     responses:
  *       201:
  *         description: User was created successfully
@@ -111,6 +116,11 @@ router.post(
  *   post:
  *     summary: Login a user
  *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -191,6 +201,11 @@ router.post(
  *   post:
  *     summary: Refresh user's tokens
  *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -259,6 +274,11 @@ router.post(
  *   post:
  *     summary: Logout current user
  *     tags: [Auth | Me]
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -297,6 +317,11 @@ router.post("/me/logout", isAuthenticated, authController.logoutUser);
  *     tags: [Auth | Me]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     responses:
  *      200:
  *        description: Verification code was sent successfully
@@ -355,6 +380,11 @@ router.post(
  *     tags: [Auth | Me]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -411,6 +441,11 @@ router.post(
  *   post:
  *     summary: Request password reset code
  *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -460,6 +495,11 @@ router.post(
  *   post:
  *     summary: Reset user password
  *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -513,6 +553,11 @@ router.post(
  *    tags: [Auth | Me]
  *    security:
  *      - bearerAuth: []
+ *    parameters:
+ *      - in: header
+ *        name: Accept-Language
+ *        schema:
+ *         $ref: '#/components/parameters/Accept-Language'
  *    requestBody:
  *      required: true
  *      content:
@@ -579,6 +624,11 @@ router.post(
  *     tags: [Auth | Me]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -645,6 +695,11 @@ router.post(
  *   post:
  *     summary: Login or Register with Facebook
  *     tags: [Auth]
+ *     parameters:
+ *      - in: header
+ *        name: Accept-Language
+ *        schema:
+ *         $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -726,6 +781,11 @@ router.post(
  *   post:
  *     summary: Login or Register with Google
  *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -809,6 +869,11 @@ router.post(
  *     tags: [Auth | Accounts]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *      - in: header
+ *        name: Accept-Language
+ *        schema:
+ *         $ref: '#/components/parameters/Accept-Language'
  *     requestBody:
  *       required: true
  *       content:
@@ -877,6 +942,10 @@ router.post(
  *     security:
  *       - bearerAuth: []
  *     parameters:
+ *      - in: header
+ *        name: Accept-Language
+ *        schema:
+ *         $ref: '#/components/parameters/Accept-Language'
  *      - in: path
  *        name: provider
  *        schema:
@@ -935,6 +1004,11 @@ router.delete(
  *     tags: [Auth | Accounts]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: Accept-Language
+ *         schema:
+ *          $ref: '#/components/parameters/Accept-Language'
  *     responses:
  *       200:
  *         description: Accounts were retrieved successfully

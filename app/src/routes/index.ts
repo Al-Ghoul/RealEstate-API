@@ -6,6 +6,11 @@
  *      type: http
  *      scheme: bearer
  *      bearerFormat: JWT
+ *  parameters:
+ *    Accept-Language:
+ *      type: string
+ *      enum: [en, ar, en-US, ar-EG]
+ *      description: The language of the request
  */
 
 /**

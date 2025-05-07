@@ -14,7 +14,8 @@
     "db:applymigrations": "dotenv -e ./.env.development.local -- drizzle-kit migrate",
     "db:studio": "dotenv -e ./.env.development.local -- npx drizzle-kit studio",
     "db:reset": "bun ./src/db/dropDatabase.ts",
-    "postinstall": "bun2nix -o ../bun.nix"
+    "postinstall": "bun2nix -o ../bun.nix",
+    "typesafe-i18n": "typesafe-i18n"
   },
   "repository": {
     "type": "git",
@@ -41,6 +42,7 @@
     "@types/bun": "^1.2.11",
     "@types/compression": "^1.7.5",
     "@types/express": "5.0.1",
+    "@types/express-locale": "^2.0.4",
     "@types/jsonwebtoken": "9.0.9",
     "@types/lodash-es": "4.17.12",
     "@types/multer": "1.4.12",
@@ -64,6 +66,7 @@
     "dotenv-cli": "8.0.0",
     "drizzle-orm": "0.41.0",
     "express": "5.1.0",
+    "express-locale": "^2.0.2",
     "file-type": "20.5.0",
     "google-auth-library": "9.15.1",
     "jsonwebtoken": "9.0.2",
@@ -80,6 +83,7 @@
     "swagger-jsdoc": "6.2.8",
     "swagger-themes": "1.4.3",
     "swagger-ui-express": "5.0.1",
+    "typesafe-i18n": "^5.26.2",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
     "zod": "3.24.2"

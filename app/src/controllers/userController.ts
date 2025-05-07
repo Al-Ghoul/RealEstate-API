@@ -10,9 +10,12 @@ import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
 import { join } from "path";
 import { logger } from "../lib/logger";
+import L from "../i18n/i18n-node";
+import type { Locales } from "../i18n/i18n-types";
 
 export async function getCurrentUser(req: Request, res: Response) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
 
   try {
     const user = await userService.getUserById(req.user.id);
@@ -51,7 +54,7 @@ export async function getCurrentUser(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "User was retrieved successfully",
+      message: L[lang].USER_RETRIEVED_SUCCESSFULLY(),
       data: finalUser,
     });
   } catch (error) {
@@ -67,16 +70,18 @@ export async function getCurrentUser(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function updateCurrentUser(req: Request, res: Response) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
   try {
     const user = await userService.updateUser(
       req.user.id,
@@ -97,7 +102,7 @@ export async function updateCurrentUser(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "User was updated successfully",
+      message: L[lang].USER_UPDATE_SUCCESS(),
       data: user,
     });
   } catch (error) {
@@ -113,16 +118,18 @@ export async function updateCurrentUser(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function getCurrentUserProfile(req: Request, res: Response) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
 
   try {
     const profile = await userService.getUserProfile(req.user.id);
@@ -141,7 +148,7 @@ export async function getCurrentUserProfile(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "User profile was retrieved successfully",
+      message: L[lang].USER_PROFILE_RETRIEVED_SUCCESSFULLY(),
       data: profile,
     });
   } catch (error) {
@@ -157,16 +164,19 @@ export async function getCurrentUserProfile(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
 
 export async function updateCurrentUserProfile(req: Request, res: Response) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
+
   try {
     const profile = await userService.updateUserProfile(
       req.user.id,
@@ -187,7 +197,7 @@ export async function updateCurrentUserProfile(req: Request, res: Response) {
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "User profile was updated successfully",
+      message: L[lang].USER_PROFILE_UPDATE_SUCCESS(),
       data: profile,
     });
   } catch (error) {
@@ -203,10 +213,11 @@ export async function updateCurrentUserProfile(req: Request, res: Response) {
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
@@ -216,6 +227,7 @@ export async function updateCurrentUserProfileImage(
   res: Response,
 ) {
   assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
 
   if (!req.file) {
     logger.warn({
@@ -232,8 +244,8 @@ export async function updateCurrentUserProfileImage(
     res.status(400).json({
       status: "error",
       statusCode: 400,
-      message: "No image provided",
-      details: "Please upload a file",
+      message: L[lang].NO_IMAGE_PROVIDED(),
+      details: L[lang].PLEASE_PROVIDE_AN_IMAGE(),
     });
     return;
   }
@@ -256,8 +268,8 @@ export async function updateCurrentUserProfileImage(
     res.status(400).json({
       status: "error",
       statusCode: 400,
-      message: "Invalid mime type",
-      details: "Please upload an image",
+      message: L[lang].INVALID_IMAGE_FORMAT(),
+      details: L[lang].PLEASE_PROVIDE_AN_IMAGE(),
     });
     return;
   }
@@ -294,7 +306,7 @@ export async function updateCurrentUserProfileImage(
     res.status(200).json({
       status: "success",
       statusCode: 200,
-      message: "Profile image was updated successfully",
+      message: L[lang].PROFILE_IMAGE_UPDATE_SUCCESS(),
       data: { blurHash },
     });
   } catch (error) {
@@ -310,10 +322,11 @@ export async function updateCurrentUserProfileImage(
     });
 
     res.status(500).json({
+      requestId: req.id,
       status: "error",
       statusCode: 500,
-      message: "Internal server error",
-      details: "Something went wrong, please try again later",
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }

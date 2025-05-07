@@ -1,0 +1,103 @@
+import type { BaseTranslation } from "../i18n-types";
+
+const en = {
+  // messages
+  REIGSTER_SUCCESS: "Your registration was successful",
+  EMAIL_ALREADY_USED: "Email is already used",
+  INVALID_CREDENTIALS: "Invalid credentials",
+  USER_CAN_ONLY_LOGIN_WITH_LINKED_ACCOUNT:
+    "User can only login with a linked account",
+  LOGIN_SUCCESS: "Login was successful",
+  INVALID_REFRESH_TOKEN: "Invalid refresh token",
+  REVOKED_REFRESH_TOKEN: "Revoked refresh token",
+  TOKENS_REFRESHED_SUCCESSFULLY: "Tokens refreshed successfully",
+  INVALID_ACCESS_TOKEN: "Invalid access token",
+  REVOKED_ACCESS_TOKEN: "Revoked access token",
+  LOGOUT_SUCCESS: "Logout was successful",
+  CAN_NOT_SEND_VERIFICATION_CODE: "Can not send verification code",
+  USER_DOES_NOT_HAVE_AN_EMAIL: "User does not have an email",
+  VERIFICATION_CODE_ALREADY_SENT: "Verification code already sent",
+  VERIFICATION_CODE_COULD_NOT_BE_SENT: "Verification code could not be sent",
+  VERIFICATION_CODE_SENT_SUCCESSFULLY: "Verification code sent successfully",
+  INVALID_OR_EXPIRED_VERIFICATION_CODE: "Invalid or expired verification code",
+  USER_VERIFICATION_SUCCESS: "User verification was successful",
+  PASSWORD_RESET_CODE_SENT_SUCCESSFULLY: "Password reset was sent successfully",
+  PASSWORD_RESET_CODE_ALREADY_SENT: "Password reset code already sent",
+  PASSWORD_RESET_CODE_COULD_NOT_BE_SENT:
+    "Password reset code could not be sent",
+  INVALID_OR_EXPIRED_PASSWORD_RESET_CODE:
+    "Invalid or expired password reset code",
+  INTERNAL_SERVER_ERROR: "Internal server error",
+  PASSWORD_RESET_SUCCESS: "Password reset was successful",
+  PASSWORD_NOT_SET: "Password is not set",
+  PASSWORD_INCORRECT: "Password is incorrect",
+  PASSWORD_CHANGE_SUCCESS: "Password change was successful",
+  PASSWORD_ALREADY_SET: "Password is already set",
+  PASSWORD_SET_SUCCESS: "Password was set successfully",
+  USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY:
+    "User was created and logged in successfully",
+  ASSOCIATED_EMAIL_ALREADY_USED: "Associated email is already used",
+  ACCOUNT_COULD_NOT_BE_LINKED: "Account could not be linked",
+  ACCOUNT_LINK_SUCCESS: "Account was linked successfully",
+  ACCOUNT_NOT_FOUND: "Account not found",
+  ACCOUNT_UNLINK_SUCCESS: "Account was unlinked successfully",
+  ACCOUNTS_RETRIEVED_SUCCESSFULLY: "Accounts were retrieved successfully",
+  USER_RETRIEVED_SUCCESSFULLY: "User was retrieved successfully",
+  USER_UPDATE_SUCCESS: "User was updated successfully",
+  USER_PROFILE_RETRIEVED_SUCCESSFULLY:
+    "User profile was retrieved successfully",
+  USER_PROFILE_UPDATE_SUCCESS: "User profile was updated successfully",
+  NO_IMAGE_PROVIDED: "No image provided",
+  INVALID_IMAGE_FORMAT: "Invalid image format",
+  PROFILE_IMAGE_UPDATE_SUCCESS: "Profile image was updated successfully",
+  ACCESS_DENIED: "Access denied",
+  UNABLE_TO_UPLOAD_IMAGE: "Unable to upload image",
+  INPUT_VALIDATION_ERROR: "Input validation error",
+
+  // details
+  EMAIL_ALREADY_USED_DETAILS: "Please choose another email",
+  INVALID_CREDENTIALS_DETAILS:
+    "Please check your email and password and try again",
+  USER_CAN_ONLY_LOGIN_WITH_LINKED_ACCOUNT_DETAILS:
+    "Please log in with a linked account (eg: Google or Facebook)",
+  INVALID_REFRESH_TOKEN_DETAILS: "Please provide a valid refresh token",
+  REVOKED_REFRESH_TOKEN_DETAILS: "Please provide a valid refresh token",
+  INVALID_ACCESS_TOKEN_DETAILS: "Please provide a valid access token",
+  REVOKED_ACCESS_TOKEN_DETAILS: "Please provide a valid access token",
+  USER_ALREADY_VERIFIED_DETAILS: "User is already verified",
+  USER_DOES_NOT_HAVE_AN_EMAIL_DETAILS: "Please set your email",
+  VERIFICATION_CODE_ALREADY_SENT_DETAILS:
+    "Please check your email and try again",
+  VERIFICATION_CODE_COULD_NOT_BE_SENT_DETAILS: "Please try again later",
+  INVALID_OR_EXPIRED_VERIFICATION_CODE_DETAILS:
+    "Please provide a valid verification code",
+  PASSWORD_RESET_CODE_ALREADY_SENT_DETAILS: "Please try again later",
+  PASSWORD_RESET_CODE_COULD_NOT_BE_SENT_DETAILS: "Please try again later",
+  INVALID_OR_EXPIRED_PASSWORD_RESET_CODE_DETAILS:
+    "Please provide a valid password reset code",
+  PASSWORD_NOT_SET_DETAILS: "Please set your password",
+  PASSWORD_INCORRECT_DETAILS: "Please check your password and try again",
+  PASSWORD_ALREADY_SET_DETAILS: "Please login with your current password",
+  ASSOCIATED_EMAIL_ALREADY_USED_DETAILS: "Please login or use another email",
+  ACCOUNT_COULD_NOT_BE_LINKED_DETAILS: "Please try again later",
+  PLEASE_PROVIDE_AN_IMAGE: "Please upload a an image",
+  MISSING_AUTHORIZATION_TOKEN_DETAILS: "Please provide an authorization token",
+  UNABLE_TO_UPLOAD_IMAGE_DETAILS: "Please try again later",
+
+  INTERNAL_SERVER_ERROR_DETAILS: "Please try again later",
+
+  // Zod error messages
+  INVALID_EMAIL: "Invalid email",
+  PASSWORDS_DO_NOT_MATCH: "Passwords do not match",
+  PASSWORD_TOO_SHORT: "Password must be at least {min} character{{s}}",
+  INVALID_PASSWORD: "Invalid password",
+  FIRST_NAME_TOO_SHORT: "First name must be at least {min} character{{s}}",
+  FIRST_NAME_TOO_LONG: "First name must be at most {max} character{{s}}",
+  LAST_NAME_TOO_SHORT: "Last name must be at least {min} character{{s}}",
+  LAST_NAME_TOO_LONG: "Last name must be at most {max} character{{s}}",
+  CODE_IS_REQUIRED: "Please provide a valid code",
+  FIELD_IS_REQUIED: "This field is required",
+  INVALID_CODE: "Invalid code, the code must be in this form XXX-XXX",
+} satisfies BaseTranslation;
+
+export default en;

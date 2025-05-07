@@ -11,7 +11,6 @@ export const passwordResetDTO = verifyUserDTO
   )
   .strict()
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
@@ -25,7 +24,6 @@ export const changePasswordDTO = baseUserDTO
   })
   .strict()
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
@@ -36,7 +34,6 @@ export const setPasswordDTO = baseUserDTO
   })
   .strict()
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 

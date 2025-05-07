@@ -3,14 +3,7 @@ import { z } from "zod";
 export const baseUserDTO = z
   .object({
     email: z.string().email(),
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters long" })
-      .max(255, { message: "Password must be less than 255 characters long" })
-      .regex(/^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+$/, {
-        message:
-          "Password must only contain letters, numbers, and special characters",
-      }),
+    password: z.string().min(8).max(255),
     confirmPassword: z.string(),
   })
   .strict();
@@ -30,7 +23,6 @@ export const createUserDTO = baseProfileDTO
   })
   .merge(baseUserDTO)
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 

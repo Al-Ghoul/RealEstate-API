@@ -14,6 +14,10 @@ import {
 import { env } from "process";
 import compression from "compression";
 import responseTime from "response-time";
+import createLocaleMiddleware from "express-locale";
+import { loadAllLocales } from "./i18n/i18n-util.sync";
+
+loadAllLocales();
 
 export const app = express();
 app.use(responseTime());
@@ -52,6 +56,19 @@ app.use(accessLogger);
 app.use("/public", express.static(join(process.cwd(), "public")));
 
 app.use(express.json());
+
+app.use(
+  createLocaleMiddleware({
+    priority: ["accept-language", "cookie", "map", "default"],
+    default: "en-US",
+    map: {
+      en: "en-US",
+      ar: "ar-EG",
+    },
+    allowed: ["en", "ar", "en-US", "ar-EG"],
+  }),
+);
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 
