@@ -9,6 +9,11 @@ paths:
       summary: Create a new user
       tags:
         - Auth
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       responses:
         "201":
           description: User was created successfully
@@ -87,6 +92,11 @@ paths:
       summary: Login a user
       tags:
         - Auth
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -159,6 +169,11 @@ paths:
       summary: Refresh user's tokens
       tags:
         - Auth
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -219,6 +234,11 @@ paths:
       summary: Logout current user
       tags:
         - Auth | Me
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       security:
         - bearerAuth: []
       responses:
@@ -253,6 +273,11 @@ paths:
         - Auth | Me
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       responses:
         "200":
           description: Verification code was sent successfully
@@ -303,6 +328,11 @@ paths:
         - Auth | Me
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -350,6 +380,11 @@ paths:
       summary: Request password reset code
       tags:
         - Auth
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -393,6 +428,11 @@ paths:
       summary: Reset user password
       tags:
         - Auth
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -438,6 +478,11 @@ paths:
         - Auth | Me
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -495,6 +540,11 @@ paths:
         - Auth | Me
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -552,6 +602,11 @@ paths:
       summary: Login or Register with Facebook
       tags:
         - Auth
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -625,6 +680,11 @@ paths:
       summary: Login or Register with Google
       tags:
         - Auth
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -700,6 +760,11 @@ paths:
         - Auth | Accounts
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -761,6 +826,10 @@ paths:
       security:
         - bearerAuth: []
       parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
         - in: path
           name: provider
           schema:
@@ -813,6 +882,11 @@ paths:
         - Auth | Accounts
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       responses:
         "200":
           description: Accounts were retrieved successfully
@@ -852,6 +926,11 @@ paths:
         - Users
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       responses:
         "200":
           description: User was retrieved successfully
@@ -895,6 +974,11 @@ paths:
         - Users
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -933,6 +1017,11 @@ paths:
         - Users
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       responses:
         "200":
           description: User profile was retrieved successfully
@@ -971,6 +1060,11 @@ paths:
         - Users
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -1022,6 +1116,11 @@ paths:
         - Users
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Accept-Language
+          schema:
+            $ref: "#/components/parameters/Accept-Language"
       requestBody:
         required: true
         content:
@@ -1078,6 +1177,15 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  parameters:
+    Accept-Language:
+      type: string
+      enum:
+        - en
+        - ar
+        - en-US
+        - ar-EG
+      description: The language of the request
   schemas:
     User:
       type: object
