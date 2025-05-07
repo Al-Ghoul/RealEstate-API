@@ -1,10 +1,10 @@
 import "../lib";
 import request from "supertest";
 import { app } from "../../app";
-import { redis } from "../../clients/redis";
 import { db } from "../../db";
 import { user } from "../../db/schemas/user";
 import { createUser } from "../lib";
+import { expect, describe, it, afterEach } from "bun:test";
 
 const basicUser = {
   email: "johndoe@example.com",

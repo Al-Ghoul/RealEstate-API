@@ -1,5 +1,6 @@
 import request from "supertest";
 import { app } from "../../app";
+import { expect, describe, it } from "bun:test";
 
 describe("Check for user endpoints existence", () => {
   it("GET /api/users/me returns 401 unauthorized", async () => {
@@ -11,8 +12,8 @@ describe("Check for user endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -25,8 +26,8 @@ describe("Check for user endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -39,8 +40,8 @@ describe("Check for user endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -53,8 +54,8 @@ describe("Check for user endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -67,8 +68,8 @@ describe("Check for user endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 });

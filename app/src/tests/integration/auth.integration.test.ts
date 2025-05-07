@@ -1,21 +1,10 @@
 import "../lib";
 import request from "supertest";
 import { app } from "../../app";
-import { redis } from "../../clients/redis";
 import { db } from "../../db";
 import { user } from "../../db/schemas/user";
 import { basicUser, createUser } from "../lib";
-
-// NOTE: The following endpoints need some mocks, so I won't test them yet
-// /request-email-verification-code
-// /verify
-// /request-password-reset
-// /password-reset,
-// /set-password
-// /accounts/unlink/:provider
-// /accounts/link
-// /google
-// /facebook
+import { expect, describe, it, afterEach } from "bun:test";
 
 describe("Check for auth endpoints inputs and outputs ", () => {
   it("POST /api/auth/register with valid data returns 201", async () => {
@@ -24,7 +13,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     expect(response.body).toMatchObject({
       status: "success",
       statusCode: 201,
-      message: "User was created successfully",
+      message: "Your registration was successful",
       data: {
         id: expect.any(String),
         email: basicUser.email,
@@ -85,7 +74,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     expect(response2.body).toMatchObject({
       status: "success",
       statusCode: 200,
-      message: "Tokens were refreshed successfully",
+      message: "Tokens refreshed successfully",
       data: {
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
@@ -149,7 +138,7 @@ describe("Check for auth endpoints inputs and outputs ", () => {
     expect(response2.body).toMatchObject({
       status: "success",
       statusCode: 200,
-      message: "Password was changed successfully",
+      message: "Password change was successful",
     });
   });
 

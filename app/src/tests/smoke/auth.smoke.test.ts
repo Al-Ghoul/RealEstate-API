@@ -1,5 +1,6 @@
 import request from "supertest";
 import { app } from "../../app";
+import { expect, describe, it } from "bun:test";
 
 describe("Check for auth endpoints existence", () => {
   it("POST /api/auth/register returns 400 with validation error", async () => {
@@ -11,7 +12,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Input validation failed",
+      message: "Input validation error",
     });
   });
 
@@ -24,7 +25,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Input validation failed",
+      message: "Input validation error",
     });
   });
 
@@ -37,8 +38,8 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -51,7 +52,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Input validation failed",
+      message: "Input validation error",
     });
   });
 
@@ -64,8 +65,8 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -78,8 +79,8 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -92,7 +93,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Input validation failed",
+      message: "Input validation error",
     });
   });
 
@@ -105,7 +106,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Input validation failed",
+      message: "Input validation error",
     });
   });
 
@@ -118,8 +119,8 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -132,7 +133,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Input validation failed",
+      message: "Input validation error",
     });
   });
 
@@ -145,7 +146,7 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 400,
-      message: "Input validation failed",
+      message: "Input validation error",
     });
   });
 
@@ -158,8 +159,8 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -172,8 +173,8 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -186,8 +187,8 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 
@@ -200,8 +201,8 @@ describe("Check for auth endpoints existence", () => {
     expect(response.body).toMatchObject({
       status: "error",
       statusCode: 401,
-      message: "Access Denied",
-      details: "Missing authorization token",
+      message: "Access denied",
+      details: "Please provide an authorization token",
     });
   });
 });
