@@ -4,8 +4,8 @@
 }: let
   inherit (inputs.cells.repo.packages) real-estate-api;
 in {
-  type-checks-job = real-estate-api.overrideAttrs {
-    name = "Type Check Job";
+  types-check-job = real-estate-api.overrideAttrs {
+    name = "Types Check Job";
     phases = [
       "unpackPhase"
       "configurePhase"
@@ -15,6 +15,7 @@ in {
     doCheck = true;
     checkPhase = ''
       runHook preCheck
+      bun ./node_modules/typesafe-i18n/cli/typesafe-i18n.mjs --no-watch
       bunx tsc --noEmit
       runHook postCheck
     '';
@@ -22,7 +23,7 @@ in {
       mkdir $out
     '';
     meta = {
-      description = "A job that runs type checks on the source";
+      description = "A job that runs types check on the source";
     };
   };
   lint-job = real-estate-api.overrideAttrs {
@@ -36,6 +37,7 @@ in {
     doCheck = true;
     checkPhase = ''
       runHook preCheck
+      bun ./node_modules/typesafe-i18n/cli/typesafe-i18n.mjs --no-watch
       bun lint
       runHook postCheck
     '';
