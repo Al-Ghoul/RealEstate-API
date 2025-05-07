@@ -6,7 +6,8 @@ This is a WIP real state API.
 
 ## Motivation
 
-The purpose of this API is to provide a backend for a real estate app. The app will allow users to search for properties, view property details, and make reservations for properties.
+The purpose of this API is to serve a real estate app.
+The Mobile app is a WIP, check the repo at [RealEstate-App](https://github.com/Al-Ghoul/RealEstate-App) or check the API docs at [API Documentation](#api-documentation)
 
 ## Screenshots
 
