@@ -1,6 +1,6 @@
 import { z } from "zod";
-import type { Locales } from "../../i18n/i18n-types";
-import L from "../../i18n/i18n-node";
+import type { Locales } from "../i18n/i18n-types";
+import L from "../i18n/i18n-node";
 
 export function configureZodI18n(locale: Locales) {
   const customErrorMap: z.ZodErrorMap = (issue, ctx) => {

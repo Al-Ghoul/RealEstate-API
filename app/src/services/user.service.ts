@@ -5,7 +5,7 @@ import {
   type UpdateUserProfileDTO,
   type CreateUserDTO,
   type UpdateUserDTO,
-} from "../utils/dtos/user.dto";
+} from "../dtos/user.dto";
 import { account } from "../db/schemas/account.schema";
 import { type TokenPayload } from "google-auth-library";
 import { first } from "lodash-es";

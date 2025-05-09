@@ -3,7 +3,7 @@ import { z, ZodError } from "zod";
 import type { Locales } from "../i18n/i18n-types";
 import L from "../i18n/i18n-node";
 import { logger } from "../utils/logger.utils";
-import { configureZodI18n } from "../utils/dtos";
+import { configureZodI18n } from "../dtos";
 
 export function schemaValidatorMiddleware(schema: z.ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {

@@ -1,9 +1,6 @@
 import { type Request, type Response } from "express";
-import { type CreateUserDTO } from "../utils/dtos/user.dto";
-import {
-  type LoginUserDTO,
-  type RefreshTokenInputDTO,
-} from "../utils/dtos/auth.dto";
+import { type CreateUserDTO } from "../dtos/user.dto";
+import { type LoginUserDTO, type RefreshTokenInputDTO } from "../dtos/auth.dto";
 import * as userService from "../services/user.service";
 import { env } from "../config/env.config";
 import jwt from "jsonwebtoken";
@@ -18,19 +15,19 @@ import {
   getGoogleUserData,
 } from "../utils/auth.utils";
 import { assertAuthenticated } from "../utils/assertions.utils";
-import { type VerifyUserDTO } from "../utils/dtos/verify.dto";
-import { type RequestResetCodeDTO } from "../utils/dtos/reset.dto";
+import { type VerifyUserDTO } from "../dtos/verify.dto";
+import { type RequestResetCodeDTO } from "../dtos/reset.dto";
 import {
   type SetPasswordDTO,
   type ChangePasswordDTO,
   type PasswordResetDTO,
-} from "../utils/dtos/password.dto";
+} from "../dtos/password.dto";
 import {
   type UnlinkAccountDTO,
   type LinkAccountDTO,
   type LoginWithFacebookDTO,
   type LoginWithGoogleDTO,
-} from "../utils/dtos/account.dto";
+} from "../dtos/account.dto";
 import pg from "pg";
 import { PASSWORD_RESET } from "../views/emails/passwordReset.view";
 import { EMAIL_VERIFICATION } from "../views/emails/emailVerification.view";

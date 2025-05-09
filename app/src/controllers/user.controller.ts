@@ -4,7 +4,7 @@ import { assertAuthenticated } from "../utils/assertions.utils";
 import {
   type UpdateUserDTO,
   type UpdateUserProfileDTO,
-} from "../utils/dtos/user.dto";
+} from "../dtos/user.dto";
 import { generateBlurHash } from "../utils/media.utils";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";

@@ -1,21 +1,21 @@
 import { Router } from "express";
 import { schemaValidatorMiddleware } from "../middlewares/schemaValidator.middleware";
-import { createUserDTO } from "../utils/dtos/user.dto";
-import { loginUserDTO, refreshTokenInputDTO } from "../utils/dtos/auth.dto";
+import { createUserDTO } from "../dtos/user.dto";
+import { loginUserDTO, refreshTokenInputDTO } from "../dtos/auth.dto";
 import * as authController from "../controllers/auth.controller";
 import { isAuthenticated } from "../middlewares/auth.middleware";
 import {
   linkAccountDTO,
   loginWithFacebookDTO,
   loginWithGoogleDTO,
-} from "../utils/dtos/account.dto";
+} from "../dtos/account.dto";
 import {
   changePasswordDTO,
   passwordResetDTO,
   setPasswordDTO,
-} from "../utils/dtos/password.dto";
-import { verifyUserDTO } from "../utils/dtos/verify.dto";
-import { requestResetCodeDTO } from "../utils/dtos/reset.dto";
+} from "../dtos/password.dto";
+import { verifyUserDTO } from "../dtos/verify.dto";
+import { requestResetCodeDTO } from "../dtos/reset.dto";
 
 const router = Router();
 
