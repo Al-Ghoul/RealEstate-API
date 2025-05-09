@@ -1,8 +1,8 @@
 import { type Request, type Response, type NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.config";
-import { redis } from "../config/redis.config";
-import { logger } from "../config/logger.config";
+import { redisClient } from "../utils/redis.utils";
+import { logger } from "../utils/logger.utils";
 import type { Locales } from "../i18n/i18n-types";
 import L from "../i18n/i18n-node";
 
@@ -66,26 +66,60 @@ export async function isAuthenticated(
       return;
     }
 
-    const isBlacklisted = await redis.get(`blacklist:${kid}`);
-    if (isBlacklisted) {
-      logger.warn({
-        route: req.originalUrl,
-        message: "Token has been revoked",
-        info: {
-          requestId: req.id,
-          userId: sub,
-          ip: req.ip,
-          browser: req.headers["user-agent"],
-        },
-      });
+    try {
+      const isBlacklisted = await redisClient.get(`blacklist:${kid}`);
+      if (isBlacklisted) {
+        logger.warn({
+          route: req.originalUrl,
+          message: "Token has been revoked",
+          info: {
+            requestId: req.id,
+            userId: sub,
+            ip: req.ip,
+            browser: req.headers["user-agent"],
+          },
+        });
 
-      res.status(403).json({
+        res.status(403).json({
+          status: "error",
+          statusCode: 403,
+          message: L[lang].REVOKED_ACCESS_TOKEN(),
+          details: L[lang].REVOKED_ACCESS_TOKEN_DETAILS(),
+        });
+        return;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error({
+          router: req.originalUrl,
+          message: "Redis client error",
+          info: {
+            requestId: req.id,
+            error: error.message,
+            stack: error.stack,
+            ip: req.ip,
+            browser: req.headers["user-agent"],
+          },
+        });
+      } else {
+        logger.error({
+          router: req.originalUrl,
+          message: "Redis client error",
+          info: {
+            requestId: req.id,
+            error,
+            ip: req.ip,
+            browser: req.headers["user-agent"],
+          },
+        });
+      }
+
+      res.status(500).json({
         status: "error",
-        statusCode: 403,
-        message: L[lang].REVOKED_ACCESS_TOKEN(),
-        details: L[lang].REVOKED_ACCESS_TOKEN_DETAILS(),
+        statusCode: 500,
+        message: L[lang].INTERNAL_SERVER_ERROR(),
+        details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
       });
-
       return;
     }
 

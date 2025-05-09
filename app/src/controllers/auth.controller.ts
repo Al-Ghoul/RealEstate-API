@@ -11,7 +11,7 @@ import * as verificationCodeService from "../services/verification.service";
 import { generateCode } from "../utils/code.utils";
 import * as mailService from "../services/mail.service";
 import * as notificationService from "../services/notification.service";
-import { redis } from "../config/redis.config";
+import { redisClient } from "../utils/redis.utils";
 import {
   generateJWTTokens,
   getFacebookUserData,
@@ -35,7 +35,7 @@ import pg from "pg";
 import { PASSWORD_RESET } from "../views/emails/passwordReset.view";
 import { EMAIL_VERIFICATION } from "../views/emails/emailVerification.view";
 import pug from "pug";
-import { logger } from "../config/logger.config";
+import { logger } from "../utils/logger.utils";
 import L from "../i18n/i18n-node";
 import type { Locales } from "../i18n/i18n-types";
 
@@ -96,18 +96,30 @@ export async function registerUser(req: Request, res: Response) {
 
         return;
       }
+    } else if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
     }
-
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        requestId: req.id,
-        error: error,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
 
     res.status(500).json({
       requestId: req.id,
@@ -268,33 +280,67 @@ export async function refreshUserToken(req: Request, res: Response) {
       return;
     }
 
-    const isBlacklisted = await redis.get(`blacklist:${kid}`);
-    if (isBlacklisted) {
-      logger.warn({
-        route: req.originalUrl,
-        message: "Refresh token is blacklisted",
-        info: {
-          requestId: req.id,
-          ip: req.ip,
-          browser: req.headers["user-agent"],
-        },
-      });
+    try {
+      const isBlacklisted = await redisClient.get(`blacklist:${kid}`);
+      if (isBlacklisted) {
+        logger.warn({
+          route: req.originalUrl,
+          message: "Refresh token is blacklisted",
+          info: {
+            requestId: req.id,
+            ip: req.ip,
+            browser: req.headers["user-agent"],
+          },
+        });
 
-      res.status(403).json({
+        res.status(403).json({
+          status: "error",
+          statusCode: 403,
+          message: L[lang].REVOKED_REFRESH_TOKEN(),
+          details: L[lang].REVOKED_REFRESH_TOKEN_DETAILS(),
+        });
+        return;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        logger.error({
+          router: req.originalUrl,
+          message: "Redis client error",
+          info: {
+            requestId: req.id,
+            error: error.message,
+            stack: error.stack,
+            ip: req.ip,
+            browser: req.headers["user-agent"],
+          },
+        });
+      } else {
+        logger.error({
+          router: req.originalUrl,
+          message: "Redis client error",
+          info: {
+            requestId: req.id,
+            error,
+            ip: req.ip,
+            browser: req.headers["user-agent"],
+          },
+        });
+      }
+
+      res.status(500).json({
         status: "error",
-        statusCode: 403,
-        message: L[lang].REVOKED_REFRESH_TOKEN(),
-        details: L[lang].REVOKED_REFRESH_TOKEN_DETAILS(),
+        statusCode: 500,
+        message: L[lang].INTERNAL_SERVER_ERROR(),
+        details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
       });
-
       return;
     }
 
     // TODO: blacklist the associated access token
-    await redis.setEx(
+    await redisClient.set(`blacklist:${kid}`, "1");
+    await redisClient.expire(
       `blacklist:${kid}`,
       exp - Math.floor(Date.now() / 1000),
-      "1",
     );
 
     logger.info({
@@ -392,10 +438,10 @@ export async function logoutUser(req: Request, res: Response) {
       return;
     }
 
-    await redis.setEx(
+    await redisClient.set(`blacklist:${kid}`, "1");
+    await redisClient.expire(
       `blacklist:${kid}`,
       exp - Math.floor(Date.now() / 1000),
-      "1",
     );
 
     logger.info({

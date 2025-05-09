@@ -9,7 +9,7 @@ import { generateBlurHash } from "../utils/media.utils";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
 import { join } from "path";
-import { logger } from "../config/logger.config";
+import { logger } from "../utils/logger.utils";
 import L from "../i18n/i18n-node";
 import type { Locales } from "../i18n/i18n-types";
 
