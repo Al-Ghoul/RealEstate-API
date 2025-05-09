@@ -1,40 +1,41 @@
 import { type Request, type Response } from "express";
-import { type CreateUserDTO } from "../lib/dtos/user.dto";
+import { type CreateUserDTO } from "../utils/dtos/user.dto";
 import {
   type LoginUserDTO,
   type RefreshTokenInputDTO,
-} from "../lib/dtos/auth.dto";
-import * as userService from "../services/userService";
-import { env } from "../env";
+} from "../utils/dtos/auth.dto";
+import * as userService from "../services/user.service";
+import { env } from "../config/env.config";
 import jwt from "jsonwebtoken";
-import * as verificationCodeService from "../services/verificationCodeService";
-import { generateCode } from "../lib/codeGenerator";
-import * as mailService from "../services/mailService";
-import * as notificationService from "../services/notificationService";
-import { redis } from "../clients/redis";
+import * as verificationCodeService from "../services/verification.service";
+import { generateCode } from "../utils/code.utils";
+import * as mailService from "../services/mail.service";
+import * as notificationService from "../services/notification.service";
+import { redis } from "../config/redis.config";
 import {
   generateJWTTokens,
   getFacebookUserData,
   getGoogleUserData,
-} from "../lib/auth";
-import { assertAuthenticated } from "../lib/assertions";
-import { type VerifyUserDTO } from "../lib/dtos/verify.dto";
-import { type RequestResetCodeDTO } from "../lib/dtos/reset.dto";
+} from "../utils/auth.utils";
+import { assertAuthenticated } from "../utils/assertions.utils";
+import { type VerifyUserDTO } from "../utils/dtos/verify.dto";
+import { type RequestResetCodeDTO } from "../utils/dtos/reset.dto";
 import {
   type SetPasswordDTO,
   type ChangePasswordDTO,
   type PasswordResetDTO,
-} from "../lib/dtos/password.dto";
+} from "../utils/dtos/password.dto";
 import {
   type UnlinkAccountDTO,
   type LinkAccountDTO,
   type LoginWithFacebookDTO,
   type LoginWithGoogleDTO,
-} from "../lib/dtos/account.dto";
+} from "../utils/dtos/account.dto";
 import pg from "pg";
-import { EMAIL_VERIFICATION, PASSWORD_RESET } from "../lib/templates";
+import { PASSWORD_RESET } from "../views/emails/passwordReset.view";
+import { EMAIL_VERIFICATION } from "../views/emails/emailVerification.view";
 import pug from "pug";
-import { logger } from "../lib/logger";
+import { logger } from "../config/logger.config";
 import L from "../i18n/i18n-node";
 import type { Locales } from "../i18n/i18n-types";
 

@@ -2,8 +2,8 @@ import { type Request, type Response, type NextFunction } from "express";
 import { z, ZodError } from "zod";
 import type { Locales } from "../i18n/i18n-types";
 import L from "../i18n/i18n-node";
-import { logger } from "../lib/logger";
-import { configureZodI18n } from "../lib/dtos";
+import { logger } from "../config/logger.config";
+import { configureZodI18n } from "../utils/dtos";
 
 export function schemaValidatorMiddleware(schema: z.ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {

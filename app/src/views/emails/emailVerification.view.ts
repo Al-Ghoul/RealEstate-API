@@ -1,4 +1,4 @@
-doctype html
+const EMAIL_VERIFICATION = `doctype html
 html
   head
     title Email Verification
@@ -9,3 +9,6 @@ html
     p #{code}
     p Thank you,
     p The Support Team
+  `;
+
+export { EMAIL_VERIFICATION };

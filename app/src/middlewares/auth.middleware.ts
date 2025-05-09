@@ -1,8 +1,8 @@
 import { type Request, type Response, type NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { env } from "../env";
-import { redis } from "../clients/redis";
-import { logger } from "../lib/logger";
+import { env } from "../config/env.config";
+import { redis } from "../config/redis.config";
+import { logger } from "../config/logger.config";
 import type { Locales } from "../i18n/i18n-types";
 import L from "../i18n/i18n-node";
 

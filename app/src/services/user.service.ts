@@ -1,16 +1,16 @@
 import { db } from "../db";
-import { user } from "../db/schemas/user";
+import { user } from "../db/schemas/user.schema";
 import { eq, and, isNull } from "drizzle-orm";
 import {
   type UpdateUserProfileDTO,
   type CreateUserDTO,
   type UpdateUserDTO,
-} from "../lib/dtos/user.dto";
-import { account } from "../db/schemas/account";
+} from "../utils/dtos/user.dto";
+import { account } from "../db/schemas/account.schema";
 import { type TokenPayload } from "google-auth-library";
 import { first } from "lodash-es";
-import { lower } from "../db/columns.helpers";
-import { profile } from "../db/schemas/profile";
+import { lower } from "../db/helpers/time.helpers";
+import { profile } from "../db/schemas/profile.schema";
 
 export async function createUser(
   input: CreateUserDTO & Pick<Profile, "image">,

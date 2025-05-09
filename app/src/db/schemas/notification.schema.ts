@@ -7,8 +7,8 @@ import {
   pgEnum,
   bigserial,
 } from "drizzle-orm/pg-core";
-import { timestamps } from "../columns.helpers";
-import { user } from "./user";
+import { timestamps } from "../helpers/time.helpers";
+import { user } from "./user.schema";
 import { relations } from "drizzle-orm";
 
 export const notificationTypeEnum = pgEnum("notification_type", [

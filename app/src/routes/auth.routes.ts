@@ -1,21 +1,21 @@
 import { Router } from "express";
-import { schemaValidatorMiddleware } from "../middlewares/schemaValidatorMiddleware";
-import { createUserDTO } from "../lib/dtos/user.dto";
-import { loginUserDTO, refreshTokenInputDTO } from "../lib/dtos/auth.dto";
-import * as authController from "../controllers/authController";
-import { isAuthenticated } from "../middlewares/authMiddleware";
+import { schemaValidatorMiddleware } from "../middlewares/schemaValidator.middleware";
+import { createUserDTO } from "../utils/dtos/user.dto";
+import { loginUserDTO, refreshTokenInputDTO } from "../utils/dtos/auth.dto";
+import * as authController from "../controllers/auth.controller";
+import { isAuthenticated } from "../middlewares/auth.middleware";
 import {
   linkAccountDTO,
   loginWithFacebookDTO,
   loginWithGoogleDTO,
-} from "../lib/dtos/account.dto";
+} from "../utils/dtos/account.dto";
 import {
   changePasswordDTO,
   passwordResetDTO,
   setPasswordDTO,
-} from "../lib/dtos/password.dto";
-import { verifyUserDTO } from "../lib/dtos/verify.dto";
-import { requestResetCodeDTO } from "../lib/dtos/reset.dto";
+} from "../utils/dtos/password.dto";
+import { verifyUserDTO } from "../utils/dtos/verify.dto";
+import { requestResetCodeDTO } from "../utils/dtos/reset.dto";
 
 const router = Router();
 

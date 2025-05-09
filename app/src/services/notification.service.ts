@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { notification } from "../db/schemas/notification";
+import { notification } from "../db/schemas/notification.schema";
 
 export async function createNotification(
   input: Omit<

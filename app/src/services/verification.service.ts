@@ -1,6 +1,6 @@
 import { first } from "lodash-es";
 import { db } from "../db";
-import { verificationCode } from "../db/schemas/verificationCode";
+import { verificationCode } from "../db/schemas/verificationCode.schema";
 import { and, eq, gt, isNull } from "drizzle-orm";
 
 export async function getVerCodeByUserIdAndType(

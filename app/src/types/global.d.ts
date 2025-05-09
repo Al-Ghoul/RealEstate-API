@@ -1,7 +1,7 @@
-import { notification } from "../db/schemas/notification";
-import { user } from "../db/schemas/user";
-import { verificationCode } from "../db/schemas/verificationCode";
-import { profile } from "../db/schemas/profile";
+import { notification } from "../db/schemas/notification.schema";
+import { user } from "../db/schemas/user.schema";
+import { verificationCode } from "../db/schemas/verificationCode.schema";
+import { profile } from "../db/schemas/profile.schema";
 
 declare global {
   type User = typeof user.$inferSelect;

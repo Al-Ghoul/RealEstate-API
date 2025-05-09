@@ -6,8 +6,8 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { user } from "./user";
-import { timestamps } from "../columns.helpers";
+import { user } from "./user.schema";
+import { timestamps } from "../helpers/time.helpers";
 import { relations } from "drizzle-orm";
 
 export const codeType = pgEnum("code_type", [

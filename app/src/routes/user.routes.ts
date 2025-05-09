@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { isAuthenticated } from "../middlewares/authMiddleware";
-import * as userController from "../controllers/userController";
-import { upload } from "../lib/storage";
-import { schemaValidatorMiddleware } from "../middlewares/schemaValidatorMiddleware";
-import { updateUserDTO, updateUserProfileDTO } from "../lib/dtos/user.dto";
+import { isAuthenticated } from "../middlewares/auth.middleware";
+import * as userController from "../controllers/user.controller";
+import { upload } from "../utils/storage.utils";
+import { schemaValidatorMiddleware } from "../middlewares/schemaValidator.middleware";
+import { updateUserDTO, updateUserProfileDTO } from "../utils/dtos/user.dto";
 
 const router = Router();
 

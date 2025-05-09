@@ -1,10 +1,11 @@
 import winston, { createLogger, format, transports } from "winston";
-import { env } from "../env";
+import { env } from "../config/env.config";
 import "winston-daily-rotate-file";
+import { join } from "path";
 
 const errorsTransport = new winston.transports.DailyRotateFile({
   level: "error",
-  filename: "./log/errors-%DATE%.log",
+  filename: join(process.cwd(), "./log/errors-%DATE%.log"),
   datePattern: "YYYY-MM-DD",
   zippedArchive: true,
   maxSize: "20m",
@@ -13,7 +14,7 @@ const errorsTransport = new winston.transports.DailyRotateFile({
 
 const generalTransport = new winston.transports.DailyRotateFile({
   level: "info",
-  filename: "./log/general-%DATE%.log",
+  filename: join(process.cwd(), "./log/general-%DATE%.log"),
   datePattern: "YYYY-MM-DD",
   zippedArchive: true,
   maxSize: "20m",

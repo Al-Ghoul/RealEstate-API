@@ -3,14 +3,14 @@ import { join, resolve } from "path";
 import swaggerJSDoc from "swagger-jsdoc";
 import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 import swaggerUi from "swagger-ui-express";
-import authRoutes from "./routes/authRoutes";
-import userRoutes from "./routes/userRoutes";
-import { errorHandlerMiddleware } from "./middlewares/errorHandlerMiddleware";
+import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
+import { errorHandlerMiddleware } from "./middlewares/errorHandler.middleware";
 import {
   assignLogId,
   errorLogger,
   accessLogger,
-} from "./middlewares/morganLoggerMiddleware";
+} from "./middlewares/morganLogger.middleware";
 import { env } from "process";
 import compression from "compression";
 import responseTime from "response-time";

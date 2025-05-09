@@ -1,15 +1,15 @@
 import { type Request, type Response } from "express";
-import * as userService from "../services/userService";
-import { assertAuthenticated } from "../lib/assertions";
+import * as userService from "../services/user.service";
+import { assertAuthenticated } from "../utils/assertions.utils";
 import {
   type UpdateUserDTO,
   type UpdateUserProfileDTO,
-} from "../lib/dtos/user.dto";
-import { generateBlurHash } from "../lib/blurHashGenerator";
+} from "../utils/dtos/user.dto";
+import { generateBlurHash } from "../utils/media.utils";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
 import { join } from "path";
-import { logger } from "../lib/logger";
+import { logger } from "../config/logger.config";
 import L from "../i18n/i18n-node";
 import type { Locales } from "../i18n/i18n-types";
 

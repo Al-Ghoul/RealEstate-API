@@ -13,6 +13,8 @@ export default [
       "babel.config.js",
       "src/db/dropDatabase.ts",
       "generateOpenaiDocs.ts",
+      "src/i18n/i18n-node.ts",
+      "src/i18n/i18n-util.ts",
     ],
   },
   pluginJs.configs.recommended,
