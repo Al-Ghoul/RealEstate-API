@@ -12,6 +12,7 @@ import { verificationCode } from "./verificationCode.schema";
 import { account } from "./account.schema";
 import { profile } from "./profile.schema";
 import { userRole } from "./user_role.schema";
+import { property } from "./property.schema";
 
 export const user = pgTable(
   "user",
@@ -32,4 +33,5 @@ export const userRelations = relations(user, ({ many, one }) => ({
   notifications: many(notification),
   verificationCodes: many(verificationCode),
   roles: many(userRole),
+  properties: many(property),
 }));

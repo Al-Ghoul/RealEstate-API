@@ -15,6 +15,13 @@
       "when": 1746975478183,
       "tag": "0001_add_role_table",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1746982581523,
+      "tag": "0002_add_property_table",
+      "breakpoints": true
     }
   ]
 }
