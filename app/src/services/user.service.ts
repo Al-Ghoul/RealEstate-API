@@ -1,6 +1,5 @@
 import { db } from "../db";
 import { user } from "../db/schemas/user.schema";
-import { eq, and, isNull } from "drizzle-orm";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import {
   type UpdateUserProfileDTO,
@@ -328,4 +327,21 @@ export async function createUserByGoogle(data: TokenPayload | undefined) {
   await linkAccount(createdUser.id, "google", data.sub);
 
   return createdUser;
+}
+
+export async function getUserRoles(userId: User["id"]) {
+  return first(
+    await db
+      .select({
+        roles: sql<Array<Role["name"]>>`
+      COALESCE(
+        json_agg(${role.name}),
+        '[]'
+      )
+    `,
+      })
+      .from(userRole)
+      .leftJoin(role, eq(userRole.roleId, role.id))
+      .where(eq(userRole.userId, userId)),
+  );
 }

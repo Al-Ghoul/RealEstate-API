@@ -76,7 +76,7 @@ export async function registerUser(req: Request, res: Response) {
       if (error.code === "23505") {
         logger.warn({
           route: req.originalUrl,
-          message: `User with this email already exists`,
+          message: "User with this email already exists",
           info: {
             requestId: req.id,
             ip: req.ip,
@@ -218,7 +218,7 @@ export async function loginUser(req: Request, res: Response) {
       status: "success",
       statusCode: 200,
       message: L[lang].LOGIN_SUCCESS(),
-      data: generateJWTTokens(user.id),
+      data: generateJWTTokens(user.id, user.roles),
     });
   } catch (error) {
     logger.error({
@@ -340,6 +340,8 @@ export async function refreshUserToken(req: Request, res: Response) {
       exp - Math.floor(Date.now() / 1000),
     );
 
+    const roles = await userService.getUserRoles(sub);
+
     logger.info({
       route: req.originalUrl,
       message: "Tokens were refreshed successfully",
@@ -355,7 +357,7 @@ export async function refreshUserToken(req: Request, res: Response) {
       status: "success",
       statusCode: 200,
       message: L[lang].TOKENS_REFRESHED_SUCCESSFULLY(),
-      data: generateJWTTokens(sub),
+      data: generateJWTTokens(sub, roles?.roles),
     });
   } catch (error) {
     if (error instanceof JsonWebTokenError) {
@@ -1187,7 +1189,7 @@ export async function loginWithFacebook(req: Request, res: Response) {
           status: "success",
           statusCode: 200,
           message: L[lang].LOGIN_SUCCESS(),
-          data: generateJWTTokens(user.id as string),
+          data: generateJWTTokens(user.id as string, ["client"]),
         });
 
         return;
@@ -1211,7 +1213,7 @@ export async function loginWithFacebook(req: Request, res: Response) {
       status: "success",
       statusCode: 201,
       message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
-      data: generateJWTTokens(user.id),
+      data: generateJWTTokens(user.id as string, ["client"]),
     });
   } catch (error) {
     if (error instanceof DatabaseError) {
@@ -1286,7 +1288,7 @@ export async function loginWithGoogle(req: Request, res: Response) {
           status: "error",
           statusCode: 200,
           message: L[lang].LOGIN_SUCCESS(),
-          data: generateJWTTokens(user.id as string),
+          data: generateJWTTokens(user.id as string, ["client"]),
         });
 
         return;
@@ -1310,7 +1312,7 @@ export async function loginWithGoogle(req: Request, res: Response) {
       status: "success",
       statusCode: 201,
       message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
-      data: generateJWTTokens(user.id),
+      data: generateJWTTokens(user.id as string, ["client"]),
     });
   } catch (error) {
     if (error instanceof DatabaseError) {
