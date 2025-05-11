@@ -106,6 +106,7 @@ const ar = {
   CODE_IS_REQUIRED: "يرجى تقديم كود صالح",
   FIELD_IS_REQUIED: "هذا الحقل مطلوب",
   INVALID_CODE: "كود غير صحيح، يأتي الكود في هذه الصيغة: XXX-XXX",
+  EXPECTED_X_RECEIVED_Y: "{expected} لكن المتوقع ،{received} المستلم",
 } satisfies Translation;
 
 export default ar;

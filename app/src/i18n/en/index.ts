@@ -98,6 +98,7 @@ const en = {
   CODE_IS_REQUIRED: "Please provide a valid code",
   FIELD_IS_REQUIED: "This field is required",
   INVALID_CODE: "Invalid code, the code must be in this form XXX-XXX",
+  EXPECTED_X_RECEIVED_Y: "Expected {expected} but received {received}",
 } satisfies BaseTranslation;
 
 export default en;
