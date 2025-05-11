@@ -103,6 +103,10 @@ const router = Router();
  *                 maxLength: 255
  *                 minLength: 2
  *                 title: The last name of the user
+ *               role:
+ *                 type: string
+ *                 enum: [agent, client, admin]
+ *                 default: client
  */
 router.post(
   "/register",
