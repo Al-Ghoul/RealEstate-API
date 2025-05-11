@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { roleType } from "../db/schemas/role.schema";
 
 export const baseUserDTO = z
   .object({
@@ -22,6 +23,10 @@ export const createUserDTO = baseProfileDTO
     lastName: true,
   })
   .merge(baseUserDTO)
+  .extend({
+    role: z.enum(roleType.enumValues).exclude(["admin"]).default("client"),
+  })
+  .strict()
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
   });

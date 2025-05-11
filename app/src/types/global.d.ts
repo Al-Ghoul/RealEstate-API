@@ -2,12 +2,14 @@ import { notification } from "../db/schemas/notification.schema";
 import { user } from "../db/schemas/user.schema";
 import { verificationCode } from "../db/schemas/verificationCode.schema";
 import { profile } from "../db/schemas/profile.schema";
+import { role } from "../db/schemas/role.schema";
 
 declare global {
   type User = typeof user.$inferSelect;
   type Profile = typeof profile.$inferInsert;
   type Code = typeof verificationCode.$inferSelect;
   type NotificationType = typeof notification.$inferSelect;
+  type Role = typeof role.$inferSelect;
 
   interface FacebookDebugTokenResponse {
     data: {
@@ -42,5 +44,6 @@ declare global {
 declare module "jsonwebtoken" {
   interface JwtPayload {
     token_type: "access" | "refresh";
+    roles: Array<Role["name"]>;
   }
 }

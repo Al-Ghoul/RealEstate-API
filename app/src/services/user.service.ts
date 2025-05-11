@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { user } from "../db/schemas/user.schema";
 import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, sql } from "drizzle-orm";
 import {
   type UpdateUserProfileDTO,
   type CreateUserDTO,
@@ -11,10 +12,21 @@ import { type TokenPayload } from "google-auth-library";
 import { first } from "lodash-es";
 import { lower } from "../db/helpers/time.helpers";
 import { profile } from "../db/schemas/profile.schema";
+import { role } from "../db/schemas/role.schema";
+import { userRole } from "../db/schemas/user_role.schema";
 
 export async function createUser(
   input: CreateUserDTO & Pick<Profile, "image">,
 ) {
+  const [selectedRole] = await db
+    .select()
+    .from(role)
+    .where(eq(role.name, input.role))
+    .limit(1);
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (!selectedRole) throw new Error("Role not found");
+
   const [createdUser] = await db
     .insert(user)
     .values({
@@ -28,6 +40,10 @@ export async function createUser(
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });
+
+  await db
+    .insert(userRole)
+    .values({ userId: createdUser.id, roleId: selectedRole.id });
 
   await db
     .insert(profile)
@@ -60,10 +76,18 @@ export async function getUser(email: string) {
         emailVerified: user.emailVerified,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        roles: sql<Array<Role["name"]>>`
+      COALESCE(
+        json_agg(${role.name}),
+        '[]'
+      )
+    `,
       })
       .from(user)
-      .where(eq(lower(user.email), email.toLowerCase()))
-      .limit(1),
+      .leftJoin(userRole, eq(userRole.userId, user.id))
+      .leftJoin(role, eq(role.id, userRole.roleId))
+      .groupBy(user.id)
+      .where(eq(lower(user.email), email.toLowerCase())),
   );
 }
 
