@@ -1980,6 +1980,12 @@
     url = "https://registry.npmjs.org/drizzle-orm/-/drizzle-orm-0.41.0.tgz";
     hash = "sha512-7A4ZxhHk9gdlXmTdPj/lREtP+3u8KvZ4yEN6MYVxBzZGex5Wtdc+CWSbu7btgF6TB0N+MNPrvW7RKBbxJchs/Q==";
   };
+  "drizzle-zod" = {
+    out_path = "drizzle-zod";
+    name = "drizzle-zod@0.7.1";
+    url = "https://registry.npmjs.org/drizzle-zod/-/drizzle-zod-0.7.1.tgz";
+    hash = "sha512-nZzALOdz44/AL2U005UlmMqaQ1qe5JfanvLujiTHiiT8+vZJTBFhj3pY4Vk+L6UWyKFfNmLhk602Hn4kCTynKQ==";
+  };
   "dunder-proto" = {
     out_path = "dunder-proto";
     name = "dunder-proto@1.0.1";
