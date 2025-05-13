@@ -54,6 +54,7 @@ const ar = {
   ACCESS_DENIED: "الوصول ممنوع",
   UNABLE_TO_UPLOAD_IMAGE: "لا يمكن رفع الصورة",
   INPUT_VALIDATION_ERROR: "خطأ في البيانات المدخلة",
+  PROPERTY_CREATED_SUCCESSFULLY: "تم إنشاء الملكية بنجاح",
 
   INTERNAL_SERVER_ERROR: "حدث خطأ بالخادم",
 
@@ -86,6 +87,7 @@ const ar = {
   PLEASE_PROVIDE_AN_IMAGE: "الرجاء تقديم صورة",
   MISSING_AUTHORIZATION_TOKEN_DETAILS: "الرجاء توفير رمز الوصول",
   UNABLE_TO_UPLOAD_IMAGE_DETAILS: "الرجاء المحاولة في وقت لاحق",
+  ACCESS_DENIED_DETAILS: "لا تملك الصلاحية للوصول لهذا المورد",
 
   INTERNAL_SERVER_ERROR_DETAILS: "الرجاء المحاولة في وقت لاحق",
 

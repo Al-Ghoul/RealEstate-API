@@ -53,6 +53,7 @@ const en = {
   ACCESS_DENIED: "Access denied",
   UNABLE_TO_UPLOAD_IMAGE: "Unable to upload image",
   INPUT_VALIDATION_ERROR: "Input validation error",
+  PROPERTY_CREATED_SUCCESSFULLY: "Property was created successfully",
 
   // details
   EMAIL_ALREADY_USED_DETAILS: "Please choose another email",
@@ -83,6 +84,7 @@ const en = {
   PLEASE_PROVIDE_AN_IMAGE: "Please upload a an image",
   MISSING_AUTHORIZATION_TOKEN_DETAILS: "Please provide an authorization token",
   UNABLE_TO_UPLOAD_IMAGE_DETAILS: "Please try again later",
+  ACCESS_DENIED_DETAILS: "You don't have permission to access this resource",
 
   INTERNAL_SERVER_ERROR_DETAILS: "Please try again later",
 
