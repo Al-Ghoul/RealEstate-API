@@ -115,4 +115,26 @@
  *          type: string
  *          description: The id of the account
  *          title: The id of the account
+ *    Property:
+ *      type: object
+ *      properties:
+ *        id:
+ *          type: number
+ *          readOnly: true
+ *          description: The property ID
+ *        title:
+ *          type: string
+ *          description: The title of the property
+ *        description:
+ *          type: string
+ *          description: The description of the property
+ *        price:
+ *          type: number
+ *          description: The price of the property
+ *        latitude:
+ *          type: number
+ *          description: The latitude of the property
+ *        longitude:
+ *          type: number
+ *          description: The longitude of the property
  */
