@@ -36,7 +36,7 @@ declare global {
   namespace Express {
     interface Request {
       id: string;
-      user?: Pick<User, "id">;
+      user?: Pick<User, "id"> & { roles: Array<Role["name"]> };
     }
   }
 }

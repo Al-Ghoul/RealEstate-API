@@ -42,7 +42,7 @@ export async function isAuthenticated(
       complete: true,
     });
     const { kid } = header;
-    const { sub, token_type } = payload as jwt.JwtPayload;
+    const { sub, token_type, roles } = payload as jwt.JwtPayload;
 
     if (token_type !== "access" || !sub || !kid) {
       logger.warn({
@@ -62,7 +62,6 @@ export async function isAuthenticated(
         message: L[lang].INVALID_ACCESS_TOKEN(),
         details: L[lang].INVALID_ACCESS_TOKEN_DETAILS(),
       });
-
       return;
     }
 
@@ -123,7 +122,7 @@ export async function isAuthenticated(
       return;
     }
 
-    req.user = { id: sub };
+    req.user = { id: sub, roles };
     next();
   } catch (error) {
     logger.warn({
