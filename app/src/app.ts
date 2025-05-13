@@ -16,6 +16,7 @@ import compression from "compression";
 import responseTime from "response-time";
 import createLocaleMiddleware from "express-locale";
 import { loadAllLocales } from "./i18n/i18n-util.sync";
+import propertyRoutes from "./routes/property.routes";
 
 loadAllLocales();
 
@@ -71,5 +72,6 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/properties", propertyRoutes);
 
 app.use(errorHandlerMiddleware);
