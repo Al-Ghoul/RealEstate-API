@@ -1213,7 +1213,7 @@ export async function loginWithFacebook(req: Request, res: Response) {
       status: "success",
       statusCode: 201,
       message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
-      data: generateJWTTokens(user.id as string, ["client"]),
+      data: generateJWTTokens(user.id, ["client"]),
     });
   } catch (error) {
     if (error instanceof DatabaseError) {
@@ -1312,7 +1312,7 @@ export async function loginWithGoogle(req: Request, res: Response) {
       status: "success",
       statusCode: 201,
       message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
-      data: generateJWTTokens(user.id as string, ["client"]),
+      data: generateJWTTokens(user.id, ["client"]),
     });
   } catch (error) {
     if (error instanceof DatabaseError) {
