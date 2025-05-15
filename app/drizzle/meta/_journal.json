@@ -22,6 +22,13 @@
       "when": 1746982581523,
       "tag": "0002_add_property_table",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1747167412814,
+      "tag": "0003_add_location_and_index_to_property_table",
+      "breakpoints": true
     }
   ]
 }
