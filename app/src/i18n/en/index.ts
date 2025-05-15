@@ -54,6 +54,7 @@ const en = {
   UNABLE_TO_UPLOAD_IMAGE: "Unable to upload image",
   INPUT_VALIDATION_ERROR: "Input validation error",
   PROPERTY_CREATED_SUCCESSFULLY: "Property was created successfully",
+  PROPERTIES_RETRIEVED_SUCCESSFULLY: "Properties were retrieved successfully",
 
   // details
   EMAIL_ALREADY_USED_DETAILS: "Please choose another email",

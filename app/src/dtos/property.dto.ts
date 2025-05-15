@@ -5,3 +5,76 @@ import { z } from "zod";
 export const createPropertyDTO = createInsertSchema(property);
 
 export type CreatePropertyDTO = z.infer<typeof createPropertyDTO>;
+
+export const queryParamsSchema = z.object({
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .optional()
+    .default(10)
+    .describe("Limit the number of properties returned"),
+
+  searchTerm: z
+    .string()
+    .optional()
+    .describe("Search properties by name or description"),
+
+  minPrice: z.coerce
+    .number()
+    .min(0)
+    .optional()
+    .describe("Filter properties by minimum price"),
+
+  maxPrice: z.coerce
+    .number()
+    .min(0)
+    .optional()
+    .describe("Filter properties by maximum price"),
+
+  longitude: z.coerce
+    .number()
+    .min(-180)
+    .max(180)
+    .optional()
+    .describe("Filter properties by longitude"),
+
+  latitude: z.coerce
+    .number()
+    .min(-90)
+    .max(90)
+    .optional()
+    .describe("Filter properties by latitude"),
+
+  radius: z.coerce
+    .number()
+    .min(0)
+    .optional()
+    .describe("Filter properties by radius (in meters/kilometers)"),
+
+  sortBy: z
+    .enum(["price", "created_at"])
+    .optional()
+    .describe("Sort properties by price or created_at"),
+
+  order: z
+    .enum(["asc", "desc"])
+    .optional()
+    .describe("Sort properties in ascending or descending order"),
+
+  cursor: z.coerce
+    .number()
+    .int()
+    .optional()
+    .default(0)
+    .describe("Cursor ID to paginate after a specific property"),
+
+  cursorCreatedAt: z
+    .string()
+    .optional()
+    .transform((value) => (value ? new Date(value) : undefined))
+    .describe("Cursor created_at to paginate after a specific property"),
+});
+
+export type PropertyQueryParams = z.infer<typeof queryParamsSchema>;
