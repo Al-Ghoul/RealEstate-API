@@ -58,6 +58,7 @@
           # $ openssl rand -base64 64
           "JWT_SECRET=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
           "JWT_KEY=XXXXXXXXXXXXXXXXXXXXXXXX"
+          "TOKEN_AUDIENCE=RealEstate:Mobile"
           # Email settings (we use gmail for mailing for now)
           "GMAIL_USER=XXXXXXXXXXXXX@gmail.com"
           "GMAIL_PASSWORD='XXXXXXXXXXXXXXXXXXX'" # This is NOT your email's password, check nodemailer's docs for more info
@@ -71,7 +72,7 @@
     };
 
   db-image = let
-    postgresPackage = inputs.nixpkgs.postgresql;
+    postgresPackage = inputs.nixpkgs.postgresql.withPackages (ps: [ps.postgis]);
     postgresConf = inputs.nixpkgs.writeText "postgresql.conf" ''
       listen_addresses = '*'
       port = 5433
@@ -100,10 +101,15 @@
         echo -e "\nPostgreSQL init process complete. Ready for start up.\n"
       fi
 
-      ${postgresPackage}/bin/postgres --single -D $PGDATA template1 <<EOF
+      ${postgresPackage}/bin/postgres --single -D $PGDATA template1 <<'EOF'
         CREATE USER db_owner WITH PASSWORD 'secure_password';
         CREATE DATABASE realestatedb OWNER db_owner;
       EOF
+
+      ${postgresPackage}/bin/postgres --single -D "$PGDATA" realestatedb <<'EOF'
+          CREATE EXTENSION IF NOT EXISTS postgis;
+      EOF
+
       exec ${postgresPackage}/bin/"$@"
     '';
   in
