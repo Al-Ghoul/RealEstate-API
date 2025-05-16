@@ -1,935 +1,94 @@
 import { Router } from "express";
 import { schemaValidatorMiddleware } from "../middlewares/schemaValidator.middleware";
-import { createUserDTO } from "../dtos/user.dto";
-import { loginUserDTO, refreshTokenInputDTO } from "../dtos/auth.dto";
-import * as authController from "../controllers/auth.controller";
-import { isAuthenticated } from "../middlewares/auth.middleware";
+import { createUserInputDTO } from "../dtos/user.dto";
 import {
-  linkAccountDTO,
+  loginUserInputDTO,
   loginWithFacebookDTO,
   loginWithGoogleDTO,
-} from "../dtos/account.dto";
-import {
-  changePasswordDTO,
-  passwordResetDTO,
-  setPasswordDTO,
-} from "../dtos/password.dto";
-import { verifyUserDTO } from "../dtos/verify.dto";
-import { requestResetCodeDTO } from "../dtos/reset.dto";
+  refreshTokenInputDTO,
+  requestResetCodeDTO,
+  changePasswordInputDTO,
+  passwordResetInputDTO,
+  setPasswordInputDTO,
+  codeInputDTO,
+} from "../dtos/auth.dto";
+import * as authController from "../controllers/auth.controller";
+import { isAuthenticated } from "../middlewares/auth.middleware";
+import { linkAccountDTO } from "../dtos/account.dto";
 
 const router = Router();
 
-/**
- * @swagger
- * /api/auth/register:
- *   post:
- *     summary: Create a new user
- *     tags: [Auth]
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     responses:
- *       201:
- *         description: User was created successfully
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/GenericResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                      $ref: '#/components/schemas/User'
- *       400:
- *         description: Input validation error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       409:
- *         description: Email already used
- *         content:
- *           application/json:
- *             schema:
- *                $ref: '#/components/schemas/GenericResponse'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: 9YsD0@example.com
- *                 description: The email of the user
- *                 pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
- *                 maxLength: 255
- *                 minLength: 2
- *                 title: The email of the user
- *               password:
- *                 type: string
- *                 example: password
- *                 description: The password of the user
- *                 pattern: ^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$
- *                 maxLength: 255
- *                 minLength: 8
- *                 title: The password of the user
- *               confirmPassword:
- *                 type: string
- *                 example: password
- *                 description: The password of the user
- *               firstName:
- *                 type: string
- *                 example: John
- *                 description: The first name of the user
- *                 pattern: ^[a-zA-Z]+$
- *                 maxLength: 255
- *                 minLength: 2
- *                 title: The first name of the user
- *               lastName:
- *                 type: string
- *                 example: Doe
- *                 description: The last name of the user
- *                 pattern: ^[a-zA-Z]+$
- *                 maxLength: 255
- *                 minLength: 2
- *                 title: The last name of the user
- *               role:
- *                 type: string
- *                 enum: [agent, client, admin]
- *                 default: client
- */
 router.post(
   "/register",
-  schemaValidatorMiddleware(createUserDTO),
+  schemaValidatorMiddleware(createUserInputDTO),
   authController.registerUser,
 );
 
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     summary: Login a user
- *     tags: [Auth]
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: 9YsD0@example.com
- *                 description: The email of the user
- *                 pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
- *                 maxLength: 255
- *                 title: The email of the user
- *               password:
- *                 type: string
- *                 example: password
- *                 description: The password of the user
- *                 pattern: ^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$
- *                 maxLength: 255
- *                 minLength: 8
- *                 title: The password of the user
- *     responses:
- *       200:
- *         description: Login was successful
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/GenericResponse'
- *                 - type: object
- *               properties:
- *                data:
- *                 type: object
- *                 properties:
- *                  accessToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The token of the user
- *                  refreshToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The refresh token of the user
- *       400:
- *         description: Input validation failed
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       401:
- *         description: Invalid credentials
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       403:
- *         description: This user is associated with a social login and has no password
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/login",
-  schemaValidatorMiddleware(loginUserDTO),
+  schemaValidatorMiddleware(loginUserInputDTO),
   authController.loginUser,
 );
 
-/**
- * @swagger
- * /api/auth/refresh:
- *   post:
- *     summary: Refresh user's tokens
- *     tags: [Auth]
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               refreshToken:
- *                 type: string
- *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *     responses:
- *       200:
- *         description: Tokens were refreshed successfully
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/GenericResponse'
- *                 - type: object
- *               properties:
- *                data:
- *                 type: object
- *                 properties:
- *                  accessToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The token of the user
- *                  refreshToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The refresh token of the user
- *       400:
- *         description: Input validation failed
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       401:
- *        description: Invalid refresh token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       403:
- *        description: Invalid, expired or revoked refresh token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/refresh",
   schemaValidatorMiddleware(refreshTokenInputDTO),
   authController.refreshUserToken,
 );
 
-/**
- * @swagger
- * /api/auth/me/logout:
- *   post:
- *     summary: Logout current user
- *     tags: [Auth | Me]
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Logout was successful
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       401:
- *         description: Missing or Invalid authorization token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       403:
- *        description: Invalid, expired or revoked access token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.post("/me/logout", isAuthenticated, authController.logoutUser);
 
-/**
- * @swagger
- * /api/auth/me/request-email-verification-code:
- *   post:
- *     summary: Request verification code for current user
- *     tags: [Auth | Me]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     responses:
- *      200:
- *        description: Verification code was sent successfully
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      400:
- *        description: Input validation failed or User has no email
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      401:
- *        description: Missing authorization token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      403:
- *        description: Invalid, expired or revoked access token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      409:
- *        description: User already verified
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      503:
- *        description: Verification code email could not be sent
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/me/request-email-verification-code",
   isAuthenticated,
   authController.requestEmailVerificationCode,
 );
 
-/**
- * @swagger
- * /api/auth/me/verify:
- *   post:
- *     summary: Verify current user
- *     tags: [Auth | Me]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               code:
- *                 type: string
- *                 example: 123456
- *                 description: The verification code
- *     responses:
- *      200:
- *        description: User was verified successfully
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      401:
- *        description: Missing authorization token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      403:
- *        description: Invalid, expired or revoked access token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      422:
- *        description: Invalid or expired verification code
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/me/verify",
   isAuthenticated,
-  schemaValidatorMiddleware(verifyUserDTO),
+  schemaValidatorMiddleware(codeInputDTO),
   authController.verifyUser,
 );
 
-/**
- * @swagger
- * /api/auth/request-password-reset:
- *   post:
- *     summary: Request password reset code
- *     tags: [Auth]
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: 6bVJt@example.com
- *                 description: The email of the user
- *     responses:
- *      200:
- *        description: If email exists in our records, a password reset code will be sent
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      400:
- *        description: Input validation failed, User does not have an email or Password Reset code already sent
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      503:
- *        description: Password reset code email could not be sent
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/request-password-reset",
   schemaValidatorMiddleware(requestResetCodeDTO),
   authController.requestPasswordReset,
 );
 
-/**
- * @swagger
- * /api/auth/password-reset:
- *   post:
- *     summary: Reset user password
- *     tags: [Auth]
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               code:
- *                 type: string
- *                 example: 123456
- *                 description: The verification code
- *               password:
- *                 type: string
- *                 example: 12345678
- *                 description: The new password
- *               confirmPassword:
- *                 type: string
- *                 example: 12345678
- *                 description: The confirmation of new password
- *     responses:
- *      200:
- *        description: Password was reset successfully
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      400:
- *        description: Input validation failed or Invalid/Expired reset code
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/password-reset",
-  schemaValidatorMiddleware(passwordResetDTO),
+  schemaValidatorMiddleware(passwordResetInputDTO),
   authController.resetUserPassword,
 );
 
-/**
- * @swagger
- * /api/auth/me/change-password:
- *  post:
- *    summary: Change current user's password
- *    tags: [Auth | Me]
- *    security:
- *      - bearerAuth: []
- *    parameters:
- *      - in: header
- *        name: Accept-Language
- *        schema:
- *         $ref: '#/components/parameters/Accept-Language'
- *    requestBody:
- *      required: true
- *      content:
- *        application/json:
- *          schema:
- *            type: object
- *            properties:
- *              currentPassword:
- *                type: string
- *                example: 12345678
- *                description: The current password
- *              password:
- *                type: string
- *                example: 12345678
- *                description: The new password
- *              confirmPassword:
- *                type: string
- *                example: 12345678
- *                description: The confirmation of the new password
- *    responses:
- *      200:
- *        description: Password was changed successfully
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      400:
- *        description: Input validation failed or Password is incorrect
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      401:
- *        description: Missing authorization token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      403:
- *        description: Invalid, expired, revoked access token or Password is not set
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/me/change-password",
   isAuthenticated,
-  schemaValidatorMiddleware(changePasswordDTO),
+  schemaValidatorMiddleware(changePasswordInputDTO),
   authController.changePassword,
 );
 
-/**
- * @swagger
- * /api/auth/me/set-password:
- *   post:
- *     summary: Set current user's password
- *     tags: [Auth | Me]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *              password:
- *                type: string
- *                example: 12345678
- *                description: The new password
- *              confirmPassword:
- *                type: string
- *                example: 12345678
- *                description: The confirmation new password
- *     responses:
- *       200:
- *         description: Password was set successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       400:
- *         description: Input validation failed
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       401:
- *         description: Missing authorization token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       403:
- *         description: Invalid, expired or revoked access token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/GenericResponse'
- *       409:
- *        description: Password is already set
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       500:
- *        description: Internal server error
- *        content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/me/set-password",
   isAuthenticated,
-  schemaValidatorMiddleware(setPasswordDTO),
+  schemaValidatorMiddleware(setPasswordInputDTO),
   authController.setPassword,
 );
 
-/**
- * @swagger
- * /api/auth/facebook:
- *   post:
- *     summary: Login or Register with Facebook
- *     tags: [Auth]
- *     parameters:
- *      - in: header
- *        name: Accept-Language
- *        schema:
- *         $ref: '#/components/parameters/Accept-Language'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               accessToken:
- *                 type: string
- *     responses:
- *       200:
- *         description: User has logged in successfully
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/GenericResponse'
- *                 - type: object
- *               properties:
- *                data:
- *                 type: object
- *                 properties:
- *                  accessToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The token of the user
- *                  refreshToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The refresh token of the user
- *       201:
- *         description: User was created and logged in successfully
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/GenericResponse'
- *                 - type: object
- *               properties:
- *                data:
- *                 type: object
- *                 properties:
- *                  accessToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The token of the user
- *                  refreshToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The refresh token of the user
- *       400:
- *        description: Input validation failed
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       409:
- *        description: The associated email is already in use
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/facebook",
   schemaValidatorMiddleware(loginWithFacebookDTO),
   authController.loginWithFacebook,
 );
 
-/**
- * @swagger
- * /api/auth/google:
- *   post:
- *     summary: Login or Register with Google
- *     tags: [Auth]
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               idToken:
- *                 type: string
- *     responses:
- *       200:
- *         description: User has logged in successfully
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/GenericResponse'
- *                 - type: object
- *               properties:
- *                data:
- *                 type: object
- *                 properties:
- *                  accessToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The token of the user
- *                  refreshToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The refresh token of the user
- *       201:
- *         description: User was created and logged in successfully
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/GenericResponse'
- *                 - type: object
- *               properties:
- *                data:
- *                 type: object
- *                 properties:
- *                  accessToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The token of the user
- *                  refreshToken:
- *                    type: string
- *                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
- *                    description: The refresh token of the user
- *       400:
- *        description: Input validation failed
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       409:
- *        description: The associated email is already in use
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/google",
   schemaValidatorMiddleware(loginWithGoogleDTO),
   authController.loginWithGoogle,
 );
 
-/**
- * @swagger
- * /api/auth/me/accounts/link:
- *   post:
- *     summary: Link an account to the current user
- *     tags: [Auth | Accounts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *      - in: header
- *        name: Accept-Language
- *        schema:
- *         $ref: '#/components/parameters/Accept-Language'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               accessToken:
- *                 type: string
- *                 description: The access token of the account to link
- *               provider:
- *                 type: string
- *                 description: The provider of the account to link
- *                 enum: [google, facebook]
- *     responses:
- *      201:
- *        description: Account was linked successfully
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      400:
- *        description: Input validation failed or Account could not be linked
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      401:
- *        description: Missing authorization token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      403:
- *        description: Invalid, expired or revoked access token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      409:
- *        description: The associated email is already in use
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      500:
- *        description: Internal server error or Unidentified database error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.post(
   "/me/accounts/link",
   isAuthenticated,
@@ -937,115 +96,12 @@ router.post(
   authController.linkAccount,
 );
 
-/**
- * @swagger
- * /api/auth/me/accounts/unlink/{provider}:
- *   delete:
- *     summary: Unlink current user's selected provider's account
- *     tags: [Auth | Accounts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *      - in: header
- *        name: Accept-Language
- *        schema:
- *         $ref: '#/components/parameters/Accept-Language'
- *      - in: path
- *        name: provider
- *        schema:
- *          type: string
- *          enum: [google, facebook]
- *        required: true
- *     responses:
- *      200:
- *        description: Account was unlinked successfully
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      400:
- *        description: Input validation failed
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      401:
- *        description: Missing authorization token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      403:
- *        description: Invalid, expired, revoked access token or Password is not set
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      404:
- *        description: Account was not found
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *      500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.delete(
   "/me/accounts/unlink/:provider",
   isAuthenticated,
   authController.unlinkAccount,
 );
 
-/**
- * @swagger
- * /api/auth/me/accounts:
- *   get:
- *     summary: Get current user's accounts
- *     tags: [Auth | Accounts]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: Accept-Language
- *         schema:
- *          $ref: '#/components/parameters/Accept-Language'
- *     responses:
- *       200:
- *         description: Accounts were retrieved successfully
- *         content:
- *           application/json:
- *            schema:
- *              allOf:
- *                - $ref: '#/components/schemas/GenericResponse'
- *                - type: object
- *                  properties:
- *                    data:
- *                      type: array
- *                      items:
- *                        $ref: '#/components/schemas/Account'
- *       401:
- *        description: Missing authorization token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       403:
- *        description: Invalid, expired or revoked access token
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- *       500:
- *        description: Internal server error
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/GenericResponse'
- */
 router.get("/me/accounts", isAuthenticated, authController.getAccounts);
 
 export default router;

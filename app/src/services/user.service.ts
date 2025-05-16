@@ -3,7 +3,7 @@ import { user } from "../db/schemas/user.schema";
 import { eq, and, isNull, sql } from "drizzle-orm";
 import {
   type UpdateUserProfileDTO,
-  type CreateUserDTO,
+  type CreateUserInputDTO,
   type UpdateUserDTO,
 } from "../dtos/user.dto";
 import { account } from "../db/schemas/account.schema";
@@ -15,7 +15,7 @@ import { role } from "../db/schemas/role.schema";
 import { userRole } from "../db/schemas/user_role.schema";
 
 export async function createUser(
-  input: CreateUserDTO & Pick<Profile, "image">,
+  input: CreateUserInputDTO & Pick<Profile, "image">,
 ) {
   const [selectedRole] = await db
     .select()
@@ -208,14 +208,7 @@ export async function updateUserProfile(
 }
 
 export async function getAccountsByUserId(id: string) {
-  return db
-    .select({
-      userId: account.userId,
-      provider: account.provider,
-      providerAccountId: account.providerAccountId,
-    })
-    .from(account)
-    .where(eq(account.userId, id));
+  return db.select().from(account).where(eq(account.userId, id));
 }
 
 export async function getUserByProviderAndId(

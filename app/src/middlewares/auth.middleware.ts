@@ -26,8 +26,6 @@ export async function isAuthenticated(
     });
 
     res.status(401).json({
-      status: "error",
-      statusCode: 401,
       message: L[lang].ACCESS_DENIED(),
       details: L[lang].MISSING_AUTHORIZATION_TOKEN_DETAILS(),
     });
@@ -57,8 +55,6 @@ export async function isAuthenticated(
       });
 
       res.status(403).json({
-        status: "error",
-        statusCode: 403,
         message: L[lang].INVALID_ACCESS_TOKEN(),
         details: L[lang].INVALID_ACCESS_TOKEN_DETAILS(),
       });
@@ -80,8 +76,6 @@ export async function isAuthenticated(
         });
 
         res.status(403).json({
-          status: "error",
-          statusCode: 403,
           message: L[lang].REVOKED_ACCESS_TOKEN(),
           details: L[lang].REVOKED_ACCESS_TOKEN_DETAILS(),
         });
@@ -114,8 +108,6 @@ export async function isAuthenticated(
       }
 
       res.status(500).json({
-        status: "error",
-        statusCode: 500,
         message: L[lang].INTERNAL_SERVER_ERROR(),
         details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
       });
@@ -137,8 +129,6 @@ export async function isAuthenticated(
     });
 
     res.status(401).json({
-      status: "error",
-      statusCode: 401,
       message: L[lang].INVALID_ACCESS_TOKEN(),
       details: L[lang].INVALID_ACCESS_TOKEN_DETAILS(),
     });

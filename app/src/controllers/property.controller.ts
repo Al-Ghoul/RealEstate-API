@@ -4,8 +4,8 @@ import type { Locales } from "../i18n/i18n-types";
 import * as propertyService from "../services/property.service";
 import L from "../i18n/i18n-node";
 import {
-  queryParamsSchema,
-  type CreatePropertyDTO,
+  propertyQueryParams,
+  type CreatePropertyInputDTO,
 } from "../dtos/property.dto";
 import { logger } from "../utils/logger.utils";
 
@@ -15,8 +15,7 @@ export async function createProperty(req: Request, res: Response) {
 
   if (!req.user.roles.includes("agent") && !req.user.roles.includes("admin")) {
     res.status(403).json({
-      status: "error",
-      statusCode: 403,
+      requestId: req.id,
       message: L[lang].ACCESS_DENIED(),
       details: L[lang].ACCESS_DENIED_DETAILS(),
     });
@@ -25,12 +24,10 @@ export async function createProperty(req: Request, res: Response) {
 
   try {
     const property = await propertyService.createProperty({
-      ...(req.body as CreatePropertyDTO),
+      ...(req.body as CreatePropertyInputDTO),
       userId: req.user.id,
     });
     res.status(201).json({
-      status: "success",
-      statusCode: 201,
       message: L[lang].PROPERTY_CREATED_SUCCESSFULLY(),
       data: property,
     });
@@ -61,9 +58,9 @@ export async function createProperty(req: Request, res: Response) {
     }
 
     res.status(500).json({
-      status: "error",
-      statusCode: 500,
+      requestId: req.id,
       message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }
@@ -71,13 +68,11 @@ export async function createProperty(req: Request, res: Response) {
 export async function getProperties(req: Request, res: Response) {
   assertAuthenticated(req);
   const lang = req.locale.language as Locales;
-  const parsed = queryParamsSchema.safeParse(req.query);
+  const parsed = propertyQueryParams.safeParse(req.query);
 
   if (!parsed.success) {
     const errors = parsed.error.errors;
     res.status(400).json({
-      status: "error",
-      statusCode: 400,
       message: L[lang].INPUT_VALIDATION_ERROR(),
       errors: errors.map((error) => {
         return { path: error.path[0], message: error.message };
@@ -112,8 +107,6 @@ export async function getProperties(req: Request, res: Response) {
     };
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].PROPERTIES_RETRIEVED_SUCCESSFULLY(),
       meta,
       data: trimmedResults,
@@ -145,9 +138,9 @@ export async function getProperties(req: Request, res: Response) {
     }
 
     res.status(500).json({
-      status: "error",
-      statusCode: 500,
+      requestId: req.id,
       message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
   }
 }

@@ -1,16 +1,26 @@
 import { z } from "zod";
+import { loginWithFacebookDTO, loginWithGoogleDTO } from "./auth.dto";
+import { createSchemaFactory } from "drizzle-zod";
+import { registry, zodInstance } from "../utils/swagger.utils";
+import { account } from "../db/schemas/account.schema";
 
-export const loginWithFacebookDTO = z
-  .object({
-    accessToken: z.string(),
-  })
-  .strict();
+const { createInsertSchema } = createSchemaFactory({
+  zodInstance,
+  coerce: {
+    date: true,
+  },
+});
 
-export const loginWithGoogleDTO = z
-  .object({
-    idToken: z.string(),
-  })
-  .strict();
+export const accountSchema = createInsertSchema(account, {
+  provider: (schema) => schema.openapi({ example: "google" }),
+  providerAccountId: (schema) => schema.openapi({ example: "123456789" }),
+  updatedAt: (schema) =>
+    schema.openapi({ example: "2025-05-15 13:52:05.232193", format: "Date" }),
+  createdAt: (schema) =>
+    schema.openapi({ example: "2025-05-15 13:52:05.232193", format: "Date" }),
+});
+
+registry.register("Account", accountSchema);
 
 export const linkAccountDTO = z.discriminatedUnion("provider", [
   loginWithGoogleDTO.extend({
@@ -21,13 +31,16 @@ export const linkAccountDTO = z.discriminatedUnion("provider", [
   }),
 ]);
 
-export const unlinkAccountDTO = z
+export const unlinkAccountInputDTO = z
   .object({
-    provider: z.enum(["google", "facebook"]),
+    provider: z.enum(["google", "facebook"]).openapi({
+      param: {
+        name: "provider",
+        in: "path",
+      },
+    }),
   })
   .strict();
 
-export type LoginWithFacebookDTO = z.infer<typeof loginWithFacebookDTO>;
-export type LoginWithGoogleDTO = z.infer<typeof loginWithGoogleDTO>;
 export type LinkAccountDTO = z.infer<typeof linkAccountDTO>;
-export type UnlinkAccountDTO = z.infer<typeof unlinkAccountDTO>;
+export type UnlinkAccountInputDTO = z.infer<typeof unlinkAccountInputDTO>;

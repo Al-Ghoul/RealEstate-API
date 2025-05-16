@@ -1,6 +1,5 @@
 import express from "express";
-import { join, resolve } from "path";
-import swaggerJSDoc from "swagger-jsdoc";
+import { join } from "path";
 import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 import swaggerUi from "swagger-ui-express";
 import authRoutes from "./routes/auth.routes";
@@ -17,28 +16,13 @@ import responseTime from "response-time";
 import createLocaleMiddleware from "express-locale";
 import { loadAllLocales } from "./i18n/i18n-util.sync";
 import propertyRoutes from "./routes/property.routes";
+import { openApiDoc } from "./docs";
 
 loadAllLocales();
 
 export const app = express();
-app.use(responseTime());
 
-app.use(compression());
-
-if (env.NODE_ENV === "development") {
-  const swaggerOptions = {
-    definition: {
-      openapi: "3.0.0",
-      info: {
-        title: "RealEstate API",
-        version: "1.0.0",
-        description: "RealEstate API documentation",
-      },
-    },
-    apis: [resolve(__dirname, "./routes/*.ts")],
-  };
-
-  const swaggerDocs = swaggerJSDoc(swaggerOptions);
+if (env.NODE_ENV !== "production") {
   const theme = new SwaggerTheme();
   const options = {
     customCss:
@@ -47,8 +31,13 @@ if (env.NODE_ENV === "development") {
     explorer: false,
   };
 
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, options));
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDoc, options));
+  console.log("✅ Swagger docs available at http://localhost:3000/api-docs");
 }
+
+app.use(responseTime());
+
+app.use(compression());
 
 app.use(errorLogger);
 app.use(assignLogId);

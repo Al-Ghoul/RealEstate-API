@@ -14,11 +14,13 @@ import {
 import { db } from "../db";
 import { property } from "../db/schemas/property.schema";
 import type {
-  CreatePropertyDTO,
+  CreatePropertyInputDTO,
   PropertyQueryParams,
 } from "../dtos/property.dto";
 
-export async function createProperty(input: Omit<CreatePropertyDTO, "id">) {
+export async function createProperty(
+  input: Omit<CreatePropertyInputDTO, "id">,
+) {
   return db
     .insert(property)
     .values({
@@ -58,6 +60,7 @@ export async function getProperties(input: PropertyQueryParams) {
 
   if (minPrice !== undefined && maxPrice !== undefined)
     filters.push(
+      // @ts-ignore
       and(gte(property.price, minPrice), lte(property.price, maxPrice)),
     );
 
@@ -79,10 +82,12 @@ export async function getProperties(input: PropertyQueryParams) {
     sortBy === "price" ||
     (minPrice !== undefined && maxPrice !== undefined)
   ) {
+    // @ts-ignore
     query = query.orderBy(
       order === "asc" ? property.price : desc(property.price),
     );
   } else {
+    // @ts-ignore
     query = query.orderBy(
       order === "asc" ? property.createdAt : desc(property.createdAt),
     );
@@ -90,6 +95,7 @@ export async function getProperties(input: PropertyQueryParams) {
 
   if (cursor > 0 && cursorCreatedAt !== undefined) {
     filters.push(
+      // @ts-ignore
       order === "asc"
         ? or(
             gt(property.createdAt, cursorCreatedAt),

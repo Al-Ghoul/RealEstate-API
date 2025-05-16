@@ -1,6 +1,10 @@
 import { type Request, type Response } from "express";
-import { type CreateUserDTO } from "../dtos/user.dto";
-import { type LoginUserDTO, type RefreshTokenInputDTO } from "../dtos/auth.dto";
+import { type CreateUserInputDTO } from "../dtos/user.dto";
+import {
+  type CodeInputDTO,
+  type LoginUserInputDTO,
+  type RefreshTokenInputDTO,
+} from "../dtos/auth.dto";
 import * as userService from "../services/user.service";
 import { env } from "../config/env.config";
 import jwt from "jsonwebtoken";
@@ -15,19 +19,18 @@ import {
   getGoogleUserData,
 } from "../utils/auth.utils";
 import { assertAuthenticated } from "../utils/assertions.utils";
-import { type VerifyUserDTO } from "../dtos/verify.dto";
-import { type RequestResetCodeDTO } from "../dtos/reset.dto";
+import { type RequestResetCodeDTO } from "../dtos/auth.dto";
 import {
-  type SetPasswordDTO,
-  type ChangePasswordDTO,
-  type PasswordResetDTO,
-} from "../dtos/password.dto";
-import {
-  type UnlinkAccountDTO,
+  type UnlinkAccountInputDTO,
   type LinkAccountDTO,
+} from "../dtos/account.dto";
+import {
+  type SetPasswordInputDTO,
+  type ChangePasswordInputDTO,
+  type PasswordResetInputDTO,
   type LoginWithFacebookDTO,
   type LoginWithGoogleDTO,
-} from "../dtos/account.dto";
+} from "../dtos/auth.dto";
 import pg from "pg";
 import { PASSWORD_RESET } from "../views/emails/passwordReset.view";
 import { EMAIL_VERIFICATION } from "../views/emails/emailVerification.view";
@@ -41,7 +44,7 @@ const JsonWebTokenError = jwt.JsonWebTokenError;
 
 export async function registerUser(req: Request, res: Response) {
   const lang = req.locale.language as Locales;
-  const input = req.body as CreateUserDTO;
+  const input = req.body as CreateUserInputDTO;
   input.password = await Bun.password.hash(input.password, {
     algorithm: "bcrypt",
     cost: 4,
@@ -66,8 +69,6 @@ export async function registerUser(req: Request, res: Response) {
     });
 
     res.status(201).json({
-      status: "success",
-      statusCode: 201,
       data: user,
       message: L[lang].REIGSTER_SUCCESS(),
     });
@@ -85,8 +86,7 @@ export async function registerUser(req: Request, res: Response) {
         });
 
         res.status(409).json({
-          status: "error",
-          statusCode: 409,
+          requestId: req.id,
           message: L[lang].EMAIL_ALREADY_USED(),
           details: L[lang].EMAIL_ALREADY_USED_DETAILS(),
         });
@@ -120,8 +120,6 @@ export async function registerUser(req: Request, res: Response) {
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -130,7 +128,7 @@ export async function registerUser(req: Request, res: Response) {
 
 export async function loginUser(req: Request, res: Response) {
   const lang = req.locale.language as Locales;
-  const { password, email } = req.body as LoginUserDTO;
+  const { password, email } = req.body as LoginUserInputDTO;
 
   try {
     const user = await userService.getUser(email);
@@ -147,8 +145,7 @@ export async function loginUser(req: Request, res: Response) {
       });
 
       res.status(401).json({
-        status: "error",
-        statusCode: 401,
+        requestId: req.id,
         message: L[lang].INVALID_CREDENTIALS(),
         details: L[lang].INVALID_CREDENTIALS_DETAILS(),
       });
@@ -170,8 +167,7 @@ export async function loginUser(req: Request, res: Response) {
       const accounts = await userService.getAccountsByUserId(user.id);
       if (accounts.length > 0) {
         res.status(403).json({
-          status: "error",
-          statusCode: 403,
+          requestId: req.id,
           message: L[lang].USER_CAN_ONLY_LOGIN_WITH_LINKED_ACCOUNT,
           details: L[lang].USER_CAN_ONLY_LOGIN_WITH_LINKED_ACCOUNT_DETAILS(),
         });
@@ -194,8 +190,7 @@ export async function loginUser(req: Request, res: Response) {
       });
 
       res.status(401).json({
-        status: "error",
-        statusCode: 401,
+        requestId: req.id,
         message: L[lang].INVALID_CREDENTIALS(),
         details: L[lang].INVALID_CREDENTIALS_DETAILS(),
       });
@@ -215,27 +210,37 @@ export async function loginUser(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].LOGIN_SUCCESS(),
       data: generateJWTTokens(user.id, user.roles),
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -268,8 +273,7 @@ export async function refreshUserToken(req: Request, res: Response) {
       });
 
       res.status(403).json({
-        status: "error",
-        statusCode: 403,
+        requestId: req.id,
         message: L[lang].INVALID_REFRESH_TOKEN(),
         details: L[lang].INVALID_REFRESH_TOKEN_DETAILS(),
       });
@@ -291,8 +295,7 @@ export async function refreshUserToken(req: Request, res: Response) {
         });
 
         res.status(403).json({
-          status: "error",
-          statusCode: 403,
+          requestId: req.id,
           message: L[lang].REVOKED_REFRESH_TOKEN(),
           details: L[lang].REVOKED_REFRESH_TOKEN_DETAILS(),
         });
@@ -325,8 +328,7 @@ export async function refreshUserToken(req: Request, res: Response) {
       }
 
       res.status(500).json({
-        status: "error",
-        statusCode: 500,
+        requestId: req.id,
         message: L[lang].INTERNAL_SERVER_ERROR(),
         details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
       });
@@ -354,8 +356,6 @@ export async function refreshUserToken(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].TOKENS_REFRESHED_SUCCESSFULLY(),
       data: generateJWTTokens(sub, roles?.roles),
     });
@@ -372,30 +372,39 @@ export async function refreshUserToken(req: Request, res: Response) {
       });
 
       res.status(401).json({
-        status: "error",
-        statusCode: 401,
+        requestId: req.id,
         message: L[lang].INVALID_REFRESH_TOKEN(),
         details: L[lang].INVALID_REFRESH_TOKEN_DETAILS(),
       });
 
       return;
+    } else if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
     }
-
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -428,8 +437,7 @@ export async function logoutUser(req: Request, res: Response) {
       });
 
       res.status(403).json({
-        status: "error",
-        statusCode: 403,
+        requestId: req.id,
         message: L[lang].INVALID_ACCESS_TOKEN(),
         details: L[lang].INVALID_ACCESS_TOKEN_DETAILS(),
       });
@@ -455,26 +463,36 @@ export async function logoutUser(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].LOGOUT_SUCCESS(),
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -504,8 +522,7 @@ export async function requestEmailVerificationCode(
       });
 
       res.status(409).json({
-        status: "error",
-        statusCode: 409,
+        requestId: req.id,
         message: L[lang].CAN_NOT_SEND_VERIFICATION_CODE(),
         details: L[lang].USER_ALREADY_VERIFIED_DETAILS(),
       });
@@ -526,8 +543,7 @@ export async function requestEmailVerificationCode(
       });
 
       res.status(400).json({
-        status: "error",
-        statusCode: 400,
+        requestId: req.id,
         message: L[lang].USER_DOES_NOT_HAVE_AN_EMAIL(),
         details: L[lang].USER_DOES_NOT_HAVE_AN_EMAIL_DETAILS(),
       });
@@ -553,8 +569,7 @@ export async function requestEmailVerificationCode(
       });
 
       res.status(400).json({
-        status: "error",
-        statusCode: 400,
+        requestId: req.id,
         message: L[lang].VERIFICATION_CODE_ALREADY_SENT(),
         details: L[lang].VERIFICATION_CODE_ALREADY_SENT_DETAILS(),
       });
@@ -600,8 +615,7 @@ export async function requestEmailVerificationCode(
       });
 
       res.status(503).json({
-        status: "error",
-        statusCode: 503,
+        requestId: req.id,
         message: L[lang].VERIFICATION_CODE_COULD_NOT_BE_SENT(),
         details: L[lang].VERIFICATION_CODE_COULD_NOT_BE_SENT_DETAILS(),
       });
@@ -622,27 +636,36 @@ export async function requestEmailVerificationCode(
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].VERIFICATION_CODE_SENT_SUCCESSFULLY(),
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        userId: req.user.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -652,7 +675,7 @@ export async function requestEmailVerificationCode(
 export async function verifyUser(req: Request, res: Response) {
   assertAuthenticated(req);
   const lang = req.locale.language as Locales;
-  const { code } = req.body as VerifyUserDTO;
+  const { code } = req.body as CodeInputDTO;
 
   try {
     const verificationCode =
@@ -673,8 +696,7 @@ export async function verifyUser(req: Request, res: Response) {
       });
 
       res.status(422).json({
-        status: "error",
-        statusCode: 422,
+        requestId: req.id,
         message: L[lang].INVALID_OR_EXPIRED_VERIFICATION_CODE(),
         details: L[lang].INVALID_OR_EXPIRED_VERIFICATION_CODE_DETAILS(),
       });
@@ -697,27 +719,36 @@ export async function verifyUser(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].USER_VERIFICATION_SUCCESS(),
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        userId: req.user.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -744,8 +775,6 @@ export async function requestPasswordReset(req: Request, res: Response) {
       });
 
       res.status(200).json({
-        status: "success",
-        statusCode: 200,
         message: L[lang].PASSWORD_RESET_CODE_SENT_SUCCESSFULLY(),
       });
 
@@ -764,8 +793,6 @@ export async function requestPasswordReset(req: Request, res: Response) {
       });
 
       res.status(400).json({
-        status: "error",
-        statusCode: 400,
         message: L[lang].USER_DOES_NOT_HAVE_AN_EMAIL(),
         details: L[lang].USER_DOES_NOT_HAVE_AN_EMAIL_DETAILS(),
       });
@@ -790,8 +817,6 @@ export async function requestPasswordReset(req: Request, res: Response) {
       });
 
       res.status(400).json({
-        status: "error",
-        statusCode: 400,
         message: L[lang].PASSWORD_RESET_CODE_ALREADY_SENT(),
         details: L[lang].PASSWORD_RESET_CODE_ALREADY_SENT_DETAILS(),
       });
@@ -835,8 +860,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
       });
 
       res.status(503).json({
-        status: "error",
-        statusCode: 503,
+        requestId: req.id,
         message: L[lang].PASSWORD_RESET_CODE_COULD_NOT_BE_SENT(),
         details: L[lang].PASSWORD_RESET_CODE_COULD_NOT_BE_SENT_DETAILS(),
       });
@@ -856,26 +880,36 @@ export async function requestPasswordReset(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].PASSWORD_RESET_CODE_SENT_SUCCESSFULLY(),
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -884,7 +918,7 @@ export async function requestPasswordReset(req: Request, res: Response) {
 
 export async function resetUserPassword(req: Request, res: Response) {
   const lang = req.locale.language as Locales;
-  const input = req.body as PasswordResetDTO;
+  const input = req.body as PasswordResetInputDTO;
 
   try {
     const resetCode = await verificationCodeService.getVerCodeByCodeAndType(
@@ -903,8 +937,7 @@ export async function resetUserPassword(req: Request, res: Response) {
       });
 
       res.status(400).json({
-        status: "error",
-        statusCode: 400,
+        requestId: req.id,
         message: L[lang].INVALID_OR_EXPIRED_PASSWORD_RESET_CODE(),
         details: L[lang].INVALID_OR_EXPIRED_PASSWORD_RESET_CODE_DETAILS(),
       });
@@ -931,26 +964,36 @@ export async function resetUserPassword(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].PASSWORD_RESET_SUCCESS(),
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -961,7 +1004,7 @@ export async function changePassword(req: Request, res: Response) {
   assertAuthenticated(req);
   const lang = req.locale.language as Locales;
 
-  const input = req.body as ChangePasswordDTO;
+  const input = req.body as ChangePasswordInputDTO;
   try {
     const user = await userService.getUserById(req.user.id);
 
@@ -993,8 +1036,7 @@ export async function changePassword(req: Request, res: Response) {
       });
 
       res.status(403).json({
-        status: "error",
-        statusCode: 403,
+        requestId: req.id,
         message: L[lang].PASSWORD_NOT_SET(),
         details: L[lang].PASSWORD_NOT_SET_DETAILS(),
       });
@@ -1020,8 +1062,6 @@ export async function changePassword(req: Request, res: Response) {
       });
 
       res.status(400).json({
-        status: "error",
-        statusCode: 400,
         message: L[lang].PASSWORD_INCORRECT(),
         details: L[lang].PASSWORD_INCORRECT_DETAILS(),
       });
@@ -1047,27 +1087,36 @@ export async function changePassword(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].PASSWORD_CHANGE_SUCCESS(),
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        userId: req.user.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -1077,7 +1126,7 @@ export async function changePassword(req: Request, res: Response) {
 export async function setPassword(req: Request, res: Response) {
   assertAuthenticated(req);
   const lang = req.locale.language as Locales;
-  const input = req.body as SetPasswordDTO;
+  const input = req.body as SetPasswordInputDTO;
   try {
     const user = await userService.getUserById(req.user.id);
 
@@ -1109,8 +1158,7 @@ export async function setPassword(req: Request, res: Response) {
       });
 
       res.status(409).json({
-        status: "error",
-        statusCode: 409,
+        requestId: req.id,
         message: L[lang].PASSWORD_ALREADY_SET(),
         details: L[lang].PASSWORD_ALREADY_SET_DETAILS(),
       });
@@ -1135,27 +1183,36 @@ export async function setPassword(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].PASSWORD_SET_SUCCESS(),
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        userId: req.user.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -1186,8 +1243,6 @@ export async function loginWithFacebook(req: Request, res: Response) {
         });
 
         res.status(200).json({
-          status: "success",
-          statusCode: 200,
           message: L[lang].LOGIN_SUCCESS(),
           data: generateJWTTokens(user.id as string, ["client"]),
         });
@@ -1210,8 +1265,6 @@ export async function loginWithFacebook(req: Request, res: Response) {
     });
 
     res.status(201).json({
-      status: "success",
-      statusCode: 201,
       message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
       data: generateJWTTokens(user.id, ["client"]),
     });
@@ -1230,31 +1283,40 @@ export async function loginWithFacebook(req: Request, res: Response) {
         });
 
         res.status(409).json({
-          status: "error",
-          statusCode: 409,
+          requestId: req.id,
           message: L[lang].ASSOCIATED_EMAIL_ALREADY_USED(),
           details: L[lang].ASSOCIATED_EMAIL_ALREADY_USED_DETAILS(),
         });
 
         return;
       }
+    } else if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
     }
-
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -1285,8 +1347,6 @@ export async function loginWithGoogle(req: Request, res: Response) {
         });
 
         res.status(200).json({
-          status: "error",
-          statusCode: 200,
           message: L[lang].LOGIN_SUCCESS(),
           data: generateJWTTokens(user.id as string, ["client"]),
         });
@@ -1309,8 +1369,6 @@ export async function loginWithGoogle(req: Request, res: Response) {
     });
 
     res.status(201).json({
-      status: "success",
-      statusCode: 201,
       message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
       data: generateJWTTokens(user.id, ["client"]),
     });
@@ -1329,31 +1387,40 @@ export async function loginWithGoogle(req: Request, res: Response) {
         });
 
         res.status(409).json({
-          status: "error",
-          statusCode: 409,
+          requestId: req.id,
           message: L[lang].ASSOCIATED_EMAIL_ALREADY_USED(),
           details: L[lang].ASSOCIATED_EMAIL_ALREADY_USED_DETAILS(),
         });
 
         return;
       }
+    } else if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
     }
-
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -1401,8 +1468,6 @@ export async function linkAccount(req: Request, res: Response) {
         });
 
         res.status(400).json({
-          status: "error",
-          statusCode: 400,
           message: L[lang].ACCOUNT_COULD_NOT_BE_LINKED(),
           details: L[lang].ACCOUNT_COULD_NOT_BE_LINKED_DETAILS(),
         });
@@ -1429,8 +1494,6 @@ export async function linkAccount(req: Request, res: Response) {
     });
 
     res.status(201).json({
-      status: "success",
-      statusCode: 201,
       message: L[lang].ACCOUNT_LINK_SUCCESS(),
       data: account,
     });
@@ -1447,31 +1510,39 @@ export async function linkAccount(req: Request, res: Response) {
       });
       if (error.code === "23505") {
         res.status(409).json({
-          status: "error",
-          statusCode: 409,
           message: "The associated account is already in use",
           details: "Please use another account",
         });
 
         return;
       }
+    } else if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
     }
-
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -1481,7 +1552,7 @@ export async function linkAccount(req: Request, res: Response) {
 export async function unlinkAccount(req: Request, res: Response) {
   assertAuthenticated(req);
   const lang = req.locale.language as Locales;
-  const { provider } = req.params as UnlinkAccountDTO;
+  const { provider } = req.params as UnlinkAccountInputDTO;
   try {
     const user = await userService.getUserById(req.user.id);
     if (!user) {
@@ -1512,8 +1583,7 @@ export async function unlinkAccount(req: Request, res: Response) {
       });
 
       res.status(403).json({
-        status: "error",
-        statusCode: 403,
+        requestId: req.id,
         message: L[lang].PASSWORD_NOT_SET(),
         details: L[lang].PASSWORD_NOT_SET_DETAILS(),
       });
@@ -1534,8 +1604,7 @@ export async function unlinkAccount(req: Request, res: Response) {
       });
 
       res.status(404).json({
-        status: "error",
-        statusCode: 404,
+        requestId: req.id,
         message: L[lang].ACCOUNT_NOT_FOUND(),
         details: null,
       });
@@ -1555,27 +1624,36 @@ export async function unlinkAccount(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].ACCOUNT_UNLINK_SUCCESS(),
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        userId: req.user.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -1599,28 +1677,37 @@ export async function getAccounts(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].ACCOUNTS_RETRIEVED_SUCCESSFULLY(),
       data: accounts,
     });
   } catch (error) {
-    logger.error({
-      route: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        requestId: req.id,
-        userId: req.user.id,
-        error: error,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });

@@ -18,29 +18,37 @@ export function schemaValidatorMiddleware(schema: z.ZodSchema) {
       if (error instanceof ZodError) {
         const errors = error.errors;
         res.status(400).json({
-          status: "error",
-          statusCode: 400,
           message: L[lang].INPUT_VALIDATION_ERROR(),
           errors: errors.map((error) => {
             return { path: error.path[0], message: error.message };
           }),
         });
       } else {
-        logger.error({
-          router: req.originalUrl,
-          message: "Internal server error",
-          info: {
-            error: error,
-            requestId: req.id,
-            ip: req.ip,
-            browser: req.headers["user-agent"],
-          },
-        });
+        if (error instanceof Error) {
+          logger.error({
+            route: req.originalUrl,
+            message: "Internal server error",
+            info: {
+              requestId: req.id,
+              error: error.message,
+              stack: error.stack,
+              browser: req.headers["user-agent"],
+            },
+          });
+        } else {
+          logger.error({
+            route: req.originalUrl,
+            message: "Internal server error",
+            info: {
+              requestId: req.id,
+              error,
+              browser: req.headers["user-agent"],
+            },
+          });
+        }
 
         res.status(500).json({
           requestId: req.id,
-          status: "error",
-          statusCode: 500,
           message: L[lang].INTERNAL_SERVER_ERROR(),
           details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
         });

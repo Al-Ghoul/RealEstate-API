@@ -15,16 +15,12 @@ export function errorHandlerMiddleware(
     if (err instanceof multer.MulterError) {
       res.status(400).json({
         requestId: req.id,
-        status: "error",
-        statusCode: 400,
         message: L[lang].UNABLE_TO_UPLOAD_IMAGE(),
         details: L[lang].UNABLE_TO_UPLOAD_IMAGE_DETAILS(),
       });
     } else if (err instanceof Error) {
       res.status(400).json({
         requestId: req.id,
-        status: "error",
-        statusCode: 400,
         message: L[lang].UNABLE_TO_UPLOAD_IMAGE(),
         details: L[lang].UNABLE_TO_UPLOAD_IMAGE_DETAILS(),
       });

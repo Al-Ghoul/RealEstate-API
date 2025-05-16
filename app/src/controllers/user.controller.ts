@@ -37,7 +37,7 @@ export async function getCurrentUser(req: Request, res: Response) {
     const finalUser = { ...user, hasPassword: !!user.password } as User & {
       hasPassword: boolean;
     };
-    // @ts-expect-error TS complains about this, but we can and MUST delete it...
+    // @ts-ignore TS complains about this, but we can and MUST delete it...
     delete finalUser.password;
 
     logger.info({
@@ -52,27 +52,37 @@ export async function getCurrentUser(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].USER_RETRIEVED_SUCCESSFULLY(),
       data: finalUser,
     });
   } catch (error) {
-    logger.error({
-      router: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        requestId: req.id,
-        error: error,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -100,27 +110,37 @@ export async function updateCurrentUser(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].USER_UPDATE_SUCCESS(),
       data: user,
     });
   } catch (error) {
-    logger.error({
-      router: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -146,27 +166,37 @@ export async function getCurrentUserProfile(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].USER_PROFILE_RETRIEVED_SUCCESSFULLY(),
       data: profile,
     });
   } catch (error) {
-    logger.error({
-      router: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -195,27 +225,37 @@ export async function updateCurrentUserProfile(req: Request, res: Response) {
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].USER_PROFILE_UPDATE_SUCCESS(),
       data: profile,
     });
   } catch (error) {
-    logger.error({
-      router: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
@@ -242,8 +282,6 @@ export async function updateCurrentUserProfileImage(
     });
 
     res.status(400).json({
-      status: "error",
-      statusCode: 400,
       message: L[lang].NO_IMAGE_PROVIDED(),
       details: L[lang].PLEASE_PROVIDE_AN_IMAGE(),
     });
@@ -266,8 +304,6 @@ export async function updateCurrentUserProfileImage(
     });
 
     res.status(400).json({
-      status: "error",
-      statusCode: 400,
       message: L[lang].INVALID_IMAGE_FORMAT(),
       details: L[lang].PLEASE_PROVIDE_AN_IMAGE(),
     });
@@ -304,27 +340,37 @@ export async function updateCurrentUserProfileImage(
     });
 
     res.status(200).json({
-      status: "success",
-      statusCode: 200,
       message: L[lang].PROFILE_IMAGE_UPDATE_SUCCESS(),
       data: { blurHash },
     });
   } catch (error) {
-    logger.error({
-      router: req.originalUrl,
-      message: "Internal server error",
-      info: {
-        error: error,
-        requestId: req.id,
-        ip: req.ip,
-        browser: req.headers["user-agent"],
-      },
-    });
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
 
     res.status(500).json({
       requestId: req.id,
-      status: "error",
-      statusCode: 500,
       message: L[lang].INTERNAL_SERVER_ERROR(),
       details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
     });
