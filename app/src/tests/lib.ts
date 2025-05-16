@@ -7,6 +7,7 @@ export const basicUser = {
   lastName: "Doe",
   password: "password",
   confirmPassword: "password",
+  role: "client",
 };
 
 export const createUser = async (input: typeof basicUser) =>

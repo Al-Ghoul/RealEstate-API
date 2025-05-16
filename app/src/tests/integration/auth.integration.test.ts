@@ -2,17 +2,16 @@ import "../lib";
 import request from "supertest";
 import { app } from "../../app";
 import { db } from "../../db";
-import { user } from "../../db/schemas/user";
+import { user } from "../../db/schemas/user.schema";
 import { basicUser, createUser } from "../lib";
-import { expect, describe, it, afterEach } from "bun:test";
+import { expect, describe, it, afterEach, beforeAll, afterAll } from "bun:test";
+import { role } from "../../db/schemas/role.schema";
 
 describe("Check for auth endpoints inputs and outputs ", () => {
   it("POST /api/auth/register with valid data returns 201", async () => {
     const response = await createUser(basicUser);
 
     expect(response.body).toMatchObject({
-      status: "success",
-      statusCode: 201,
       message: "Your registration was successful",
       data: {
         id: expect.any(String),
@@ -38,8 +37,6 @@ describe("Check for auth endpoints inputs and outputs ", () => {
       .expect(200);
 
     expect(response.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
       message: "Login was successful",
       data: {
         accessToken: expect.any(String),
@@ -72,8 +69,6 @@ describe("Check for auth endpoints inputs and outputs ", () => {
       .expect(200);
 
     expect(response2.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
       message: "Tokens refreshed successfully",
       data: {
         accessToken: expect.any(String),
@@ -103,8 +98,6 @@ describe("Check for auth endpoints inputs and outputs ", () => {
       .expect(200);
 
     expect(response2.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
       message: "Logout was successful",
     });
   });
@@ -136,8 +129,6 @@ describe("Check for auth endpoints inputs and outputs ", () => {
       .expect(200);
 
     expect(response2.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
       message: "Password change was successful",
     });
   });
@@ -163,12 +154,28 @@ describe("Check for auth endpoints inputs and outputs ", () => {
       .expect(200);
 
     expect(response2.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
       message: "Accounts were retrieved successfully",
       data: expect.any(Array),
     });
   });
+});
+
+beforeAll(async () => {
+  await db.insert(role).values([
+    {
+      name: "admin",
+    },
+    {
+      name: "agent",
+    },
+    {
+      name: "client",
+    },
+  ]);
+});
+
+afterAll(async () => {
+  await db.delete(role).execute();
 });
 
 afterEach(async () => {

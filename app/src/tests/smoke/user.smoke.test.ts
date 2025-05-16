@@ -10,8 +10,6 @@ describe("Check for user endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      status: "error",
-      statusCode: 401,
       message: "Access denied",
       details: "Please provide an authorization token",
     });
@@ -24,8 +22,6 @@ describe("Check for user endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      status: "error",
-      statusCode: 401,
       message: "Access denied",
       details: "Please provide an authorization token",
     });
@@ -38,8 +34,6 @@ describe("Check for user endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      status: "error",
-      statusCode: 401,
       message: "Access denied",
       details: "Please provide an authorization token",
     });
@@ -52,8 +46,6 @@ describe("Check for user endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      status: "error",
-      statusCode: 401,
       message: "Access denied",
       details: "Please provide an authorization token",
     });
@@ -66,8 +58,6 @@ describe("Check for user endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      status: "error",
-      statusCode: 401,
       message: "Access denied",
       details: "Please provide an authorization token",
     });

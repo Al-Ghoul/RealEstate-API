@@ -2,9 +2,10 @@ import "../lib";
 import request from "supertest";
 import { app } from "../../app";
 import { db } from "../../db";
-import { user } from "../../db/schemas/user";
+import { user } from "../../db/schemas/user.schema";
 import { createUser } from "../lib";
-import { expect, describe, it, afterEach } from "bun:test";
+import { expect, describe, it, afterEach, beforeAll, afterAll } from "bun:test";
+import { role } from "../../db/schemas/role.schema";
 
 const basicUser = {
   email: "johndoe@example.com",
@@ -12,6 +13,7 @@ const basicUser = {
   lastName: "Doe",
   password: "password",
   confirmPassword: "password",
+  role: "client",
 };
 
 describe("Check for user endpoints inputs and outputs ", () => {
@@ -36,8 +38,6 @@ describe("Check for user endpoints inputs and outputs ", () => {
       .expect(200);
 
     expect(response2.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
       message: "User was retrieved successfully",
       data: {
         id: expect.any(String),
@@ -76,8 +76,6 @@ describe("Check for user endpoints inputs and outputs ", () => {
       .expect(200);
 
     expect(userPatchRes.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
       message: "User was updated successfully",
       data: {
         id: expect.any(String),
@@ -110,8 +108,6 @@ describe("Check for user endpoints inputs and outputs ", () => {
       .expect(200);
 
     expect(response2.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
       message: "User profile was retrieved successfully",
       data: {
         firstName: basicUser.firstName,
@@ -158,8 +154,6 @@ describe("Check for user endpoints inputs and outputs ", () => {
       .expect(200);
 
     expect(profilePatchRes.body).toMatchObject({
-      status: "success",
-      statusCode: 200,
       message: "User profile was updated successfully",
       data: {
         firstName: input2.firstName,
@@ -172,6 +166,24 @@ describe("Check for user endpoints inputs and outputs ", () => {
       },
     });
   });
+});
+
+beforeAll(async () => {
+  await db.insert(role).values([
+    {
+      name: "admin",
+    },
+    {
+      name: "agent",
+    },
+    {
+      name: "client",
+    },
+  ]);
+});
+
+afterAll(async () => {
+  await db.delete(role).execute();
 });
 
 afterEach(async () => {
