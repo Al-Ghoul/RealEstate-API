@@ -1,1290 +1,3019 @@
-openapi: 3.0.0
-info:
-  title: RealEstate API
-  version: 1.0.0
-  description: RealEstate API documentation
-paths:
-  /api/auth/register:
-    post:
-      summary: Create a new user
-      tags:
-        - Auth
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      responses:
-        "201":
-          description: User was created successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/User"
-        "400":
-          description: Input validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "409":
-          description: Email already used
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: 9YsD0@example.com
-                  description: The email of the user
-                  pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-                  maxLength: 255
-                  minLength: 2
-                  title: The email of the user
-                password:
-                  type: string
-                  example: password
-                  description: The password of the user
-                  pattern: ^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$
-                  maxLength: 255
-                  minLength: 8
-                  title: The password of the user
-                confirmPassword:
-                  type: string
-                  example: password
-                  description: The password of the user
-                firstName:
-                  type: string
-                  example: John
-                  description: The first name of the user
-                  pattern: ^[a-zA-Z]+$
-                  maxLength: 255
-                  minLength: 2
-                  title: The first name of the user
-                lastName:
-                  type: string
-                  example: Doe
-                  description: The last name of the user
-                  pattern: ^[a-zA-Z]+$
-                  maxLength: 255
-                  minLength: 2
-                  title: The last name of the user
-  /api/auth/login:
-    post:
-      summary: Login a user
-      tags:
-        - Auth
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: 9YsD0@example.com
-                  description: The email of the user
-                  pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-                  maxLength: 255
-                  title: The email of the user
-                password:
-                  type: string
-                  example: password
-                  description: The password of the user
-                  pattern: ^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$
-                  maxLength: 255
-                  minLength: 8
-                  title: The password of the user
-      responses:
-        "200":
-          description: Login was successful
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      accessToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The token of the user
-                      refreshToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The refresh token of the user
-        "400":
-          description: Input validation failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: This user is associated with a social login and has no password
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/refresh:
-    post:
-      summary: Refresh user's tokens
-      tags:
-        - Auth
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                refreshToken:
-                  type: string
-                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-      responses:
-        "200":
-          description: Tokens were refreshed successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      accessToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The token of the user
-                      refreshToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The refresh token of the user
-        "400":
-          description: Input validation failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Invalid refresh token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked refresh token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/me/logout:
-    post:
-      summary: Logout current user
-      tags:
-        - Auth | Me
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Logout was successful
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing or Invalid authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/me/request-email-verification-code:
-    post:
-      summary: Request verification code for current user
-      tags:
-        - Auth | Me
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      responses:
-        "200":
-          description: Verification code was sent successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "400":
-          description: Input validation failed or User has no email
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "409":
-          description: User already verified
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "503":
-          description: Verification code email could not be sent
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/me/verify:
-    post:
-      summary: Verify current user
-      tags:
-        - Auth | Me
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: string
-                  example: 123456
-                  description: The verification code
-      responses:
-        "200":
-          description: User was verified successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "422":
-          description: Invalid or expired verification code
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/request-password-reset:
-    post:
-      summary: Request password reset code
-      tags:
-        - Auth
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: 6bVJt@example.com
-                  description: The email of the user
-      responses:
-        "200":
-          description: If email exists in our records, a password reset code will be sent
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "400":
-          description:
-            Input validation failed, User does not have an email or Password
-            Reset code already sent
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "503":
-          description: Password reset code email could not be sent
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/password-reset:
-    post:
-      summary: Reset user password
-      tags:
-        - Auth
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                code:
-                  type: string
-                  example: 123456
-                  description: The verification code
-                password:
-                  type: string
-                  example: 12345678
-                  description: The new password
-                confirmPassword:
-                  type: string
-                  example: 12345678
-                  description: The confirmation of new password
-      responses:
-        "200":
-          description: Password was reset successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "400":
-          description: Input validation failed or Invalid/Expired reset code
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/me/change-password:
-    post:
-      summary: Change current user's password
-      tags:
-        - Auth | Me
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                currentPassword:
-                  type: string
-                  example: 12345678
-                  description: The current password
-                password:
-                  type: string
-                  example: 12345678
-                  description: The new password
-                confirmPassword:
-                  type: string
-                  example: 12345678
-                  description: The confirmation of the new password
-      responses:
-        "200":
-          description: Password was changed successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "400":
-          description: Input validation failed or Password is incorrect
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired, revoked access token or Password is not set
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/me/set-password:
-    post:
-      summary: Set current user's password
-      tags:
-        - Auth | Me
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                password:
-                  type: string
-                  example: 12345678
-                  description: The new password
-                confirmPassword:
-                  type: string
-                  example: 12345678
-                  description: The confirmation new password
-      responses:
-        "200":
-          description: Password was set successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "400":
-          description: Input validation failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "409":
-          description: Password is already set
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/facebook:
-    post:
-      summary: Login or Register with Facebook
-      tags:
-        - Auth
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                accessToken:
-                  type: string
-      responses:
-        "200":
-          description: User has logged in successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      accessToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The token of the user
-                      refreshToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The refresh token of the user
-        "201":
-          description: User was created and logged in successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      accessToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The token of the user
-                      refreshToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The refresh token of the user
-        "400":
-          description: Input validation failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "409":
-          description: The associated email is already in use
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/google:
-    post:
-      summary: Login or Register with Google
-      tags:
-        - Auth
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                idToken:
-                  type: string
-      responses:
-        "200":
-          description: User has logged in successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      accessToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The token of the user
-                      refreshToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The refresh token of the user
-        "201":
-          description: User was created and logged in successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      accessToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The token of the user
-                      refreshToken:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNzkwMjJ9
-                        description: The refresh token of the user
-        "400":
-          description: Input validation failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "409":
-          description: The associated email is already in use
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/me/accounts/link:
-    post:
-      summary: Link an account to the current user
-      tags:
-        - Auth | Accounts
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                accessToken:
-                  type: string
-                  description: The access token of the account to link
-                provider:
-                  type: string
-                  description: The provider of the account to link
-                  enum:
-                    - google
-                    - facebook
-      responses:
-        "201":
-          description: Account was linked successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "400":
-          description: Input validation failed or Account could not be linked
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "409":
-          description: The associated email is already in use
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error or Unidentified database error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  "/api/auth/me/accounts/unlink/{provider}":
-    delete:
-      summary: Unlink current user's selected provider's account
-      tags:
-        - Auth | Accounts
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-        - in: path
-          name: provider
-          schema:
+>
+  openapi: 3.0.0
+
+  info:
+    title: RealEstate API
+    version: 1.0.0
+    description: RealEstate API documentation
+  servers:
+    - url: http://localhost:3000
+  components:
+    securitySchemes:
+      bearerAuth:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+    schemas:
+      Profile:
+        type: object
+        properties:
+          userId:
             type: string
-            enum:
-              - google
-              - facebook
-          required: true
-      responses:
-        "200":
-          description: Account was unlinked successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "400":
-          description: Input validation failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired, revoked access token or Password is not set
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "404":
-          description: Account was not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/auth/me/accounts:
-    get:
-      summary: Get current user's accounts
-      tags:
-        - Auth | Accounts
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      responses:
-        "200":
-          description: Accounts were retrieved successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/Account"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/users/me:
-    get:
-      summary: Get current user's data
-      tags:
-        - Users
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      responses:
-        "200":
-          description: User was retrieved successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    allOf:
-                      - $ref: "#/components/schemas/User"
-                    properties:
-                      hasPassword:
-                        type: boolean
-                        example: true
-                        description: Whether the user has a password
-        "401":
-          description: Missing authorization header
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-    patch:
-      summary: Update current user's data
-      tags:
-        - Users
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        "200":
-          description: User was updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/users/me/profile:
-    get:
-      summary: Get current user's profile
-      tags:
-        - Users
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      responses:
-        "200":
-          description: User profile was retrieved successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    allOf:
-                      - $ref: "#/components/schemas/Profile"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-    patch:
-      summary: Update current user's profile
-      tags:
-        - Users
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/User"
-      responses:
-        "200":
-          description: User profile was updated successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    allOf:
-                      - $ref: "#/components/schemas/Profile"
-        "400":
-          description: Input validation failed
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-  /api/users/me/profile/image:
-    put:
-      summary: Update current user profile's image
-      tags:
-        - Users
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: Accept-Language
-          schema:
-            $ref: "#/components/parameters/Accept-Language"
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
+            format: uuid
+          firstName:
+            type: string
+            nullable: true
+            maxLength: 16
+            example: John
+          lastName:
+            type: string
+            nullable: true
+            maxLength: 16
+            example: Doe
+          bio:
+            type: string
+            nullable: true
+            maxLength: 255
+          image:
+            type: string
+            nullable: true
+          imageBlurHash:
+            type: string
+            nullable: true
+          updatedAt:
+            type: string
+            example: 2025-05-15 13:52:05.232193
+            format: Date
+          createdAt:
+            type: string
+            example: 2025-05-15 13:52:05.232193
+            format: Date
+        required:
+          - userId
+      User:
+        type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+          email:
+            type: string
+            nullable: true
+            maxLength: 255
+            format: email
+            example: 9YsD0@example.com
+          emailVerified:
+            type: string
+            nullable: true
+            example: 2025-05-15 13:52:05.232193
+            format: Date
+          updatedAt:
+            type: string
+            nullable: true
+            example: 2025-05-15 13:52:05.232193
+            format: Date
+          createdAt:
+            type: string
+            nullable: true
+            example: 2025-05-15 13:52:05.232193
+            format: Date
+      ValidationError:
+        type: object
+        properties:
+          message:
+            type: string
+          details:
+            type: string
+          errors:
+            type: array
+            items:
               type: object
               properties:
-                image:
+                path:
                   type: string
-                  format: binary
-                  description: The profile image file
-      responses:
-        "200":
-          description: Profile image was updated successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/GenericResponse"
-                  - type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      blurHash:
-                        type: string
-        "400":
-          description: No image provided, Invalid mime type or Unable to upload image
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "401":
-          description: Missing authorization token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "403":
-          description: Invalid, expired or revoked access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  parameters:
-    Accept-Language:
-      type: string
-      enum:
-        - en
-        - ar
-        - en-US
-        - ar-EG
-      description: The language of the request
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: true
-          format: uuid
-          description: The user ID
-        email:
-          type: string
-        emailVerified:
-          readOnly: true
-          type: string
-          format: date-time
-          default: null
-        createdAt:
-          readOnly: true
-          type: string
-          format: date-time
-        updatedAt:
-          readOnly: true
-          type: string
-          format: date-time
-    Profile:
-      type: object
-      properties:
-        firstName:
-          type: string
-          description: The first name of the user
-        lastName:
-          type: string
-          description: The last name of the user
-        bio:
-          type: string
-          description: The bio of the user
-        image:
-          type: string
-          description: The image URI of the user
-        imageBlurHash:
-          type: string
-          description: The image's blur hash
-        createdAt:
-          readOnly: true
-          type: string
-          format: date-time
-        updatedAt:
-          readOnly: true
-          type: string
-          format: date-time
-    GenericResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          description: The status of the response
-          title: The status of the response
-        statusCode:
-          type: number
-          description: The status code of the response
-          title: The status code of the response
-        message:
-          type: string
-          description: The error message
-          title: The error message
-        details:
-          type: string
-          description: The error details
-          title: The error details
-        errors:
-          title: The error messages
-          type: array
-          items:
+                message:
+                  type: string
+              required:
+                - path
+                - message
+        required:
+          - message
+          - details
+          - errors
+      GenericResponse:
+        type: object
+        properties:
+          requestId:
+            type: string
+            format: uuid
+          message:
+            type: string
+          details:
+            type: string
+        required:
+          - requestId
+          - message
+          - details
+      Account:
+        type: object
+        properties:
+          userId:
+            type: string
+            format: uuid
+          provider:
+            type: string
+            maxLength: 255
+            example: google
+          providerAccountId:
+            type: string
+            maxLength: 255
+            example: "123456789"
+          updatedAt:
+            type: string
+            nullable: true
+            example: 2025-05-15 13:52:05.232193
+            format: Date
+          createdAt:
+            type: string
+            nullable: true
+            example: 2025-05-15 13:52:05.232193
+            format: Date
+        required:
+          - userId
+          - provider
+          - providerAccountId
+      Property:
+        type: object
+        properties:
+          id:
+            type: integer
+            minimum: -2147483648
+            maximum: 2147483647
+          title:
+            type: string
+            example: Some title
+          description:
+            type: string
+          price:
+            type: string
+          location:
             type: object
             properties:
-              path:
-                type: string
-                description: The path of the error
-                title: The path of the error
-              message:
-                type: string
-                description: The error message
-                title: The error message
-    Account:
-      type: object
-      properties:
-        userId:
-          type: string
-          description: The id of the user
-          title: The id of the user
-        provider:
-          type: string
-          enum:
-            - google
-            - facebook
-          description: The provider of the account
-          title: The provider of the account
-        providerAccountId:
-          type: string
-          description: The id of the account
-          title: The id of the account
-tags: []
+              x:
+                type: number
+              y:
+                type: number
+            required:
+              - x
+              - y
+          userId:
+            type: string
+            format: uuid
+          updatedAt:
+            type: string
+          createdAt:
+            type: string
+        required:
+          - title
+          - description
+          - price
+          - location
+          - userId
+    parameters: {}
+  paths:
+    /api/auth/register:
+      post:
+        tags:
+          - Auth
+        description: Create a new user
+        summary: Create a new user
+        parameters:
+          - schema:
+              type: string
+              enum: &a1
+                - en
+                - ar
+                - en-US
+                - ar-EG
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    format: email
+                    example: 9YsD0@example.com
+                  firstName:
+                    type: string
+                    nullable: true
+                    maxLength: 16
+                    example: John
+                  lastName:
+                    type: string
+                    nullable: true
+                    maxLength: 16
+                    example: Doe
+                  password:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                  confirmPassword:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                  role:
+                    type: string
+                    enum:
+                      - agent
+                      - client
+                    default: client
+                required:
+                  - email
+                  - firstName
+                  - lastName
+                  - password
+                  - confirmPassword
+                additionalProperties: false
+        responses:
+          "201":
+            description: Your registration was successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        email:
+                          type: string
+                          nullable: true
+                          maxLength: 255
+                          format: email
+                          example: 9YsD0@example.com
+                        emailVerified:
+                          type: string
+                          nullable: true
+                          example: 2025-05-15 13:52:05.232193
+                          format: Date
+                        updatedAt:
+                          type: string
+                          nullable: true
+                          example: 2025-05-15 13:52:05.232193
+                          format: Date
+                        createdAt:
+                          type: string
+                          nullable: true
+                          example: 2025-05-15 13:52:05.232193
+                          format: Date
+                  required:
+                    - data
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    details:
+                      type: string
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          path:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                          - path
+                          - message
+                  required:
+                    - message
+                    - details
+                    - errors
+          "409":
+            description: Email is already used
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/login:
+      post:
+        tags:
+          - Auth
+        description: Login a user
+        summary: Login a user
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    format: email
+                    example: 9YsD0@example.com
+                  password:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                required:
+                  - email
+                  - password
+                additionalProperties: false
+        responses:
+          "200":
+            description: Login was successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        accessToken:
+                          type: string
+                        refreshToken:
+                          type: string
+                      required:
+                        - accessToken
+                        - refreshToken
+                  required:
+                    - data
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    details:
+                      type: string
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          path:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                          - path
+                          - message
+                  required:
+                    - message
+                    - details
+                    - errors
+          "401":
+            description: Invalid credentials
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: User can only login with a linked account
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/refresh:
+      post:
+        tags:
+          - Auth
+        description: Refresh user's tokens
+        summary: Refresh user's tokens
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refreshToken:
+                    type: string
+                required:
+                  - refreshToken
+                additionalProperties: false
+        responses:
+          "200":
+            description: Tokens refreshed successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        accessToken:
+                          type: string
+                        refreshToken:
+                          type: string
+                      required:
+                        - accessToken
+                        - refreshToken
+                  required:
+                    - data
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    details:
+                      type: string
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          path:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                          - path
+                          - message
+                  required:
+                    - message
+                    - details
+                    - errors
+          "401":
+            description: Invalid refresh token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/request-password-reset:
+      post:
+        tags:
+          - Auth
+        description: Request password reset code
+        summary: Request password reset code
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    format: email
+                    example: 9YsD0@example.com
+        responses:
+          "200":
+            description: Password reset was sent successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: Input validation error, User does not have an email or Password
+              reset code already sent
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    details:
+                      type: string
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          path:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                          - path
+                          - message
+                  required:
+                    - message
+                    - details
+                    - errors
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "503":
+            description: Password reset code could not be sent
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/password-reset:
+      post:
+        tags:
+          - Auth
+        description: Reset user password
+        summary: Reset user password
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    pattern: ^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$
+                    example: 12X-4X6
+                  password:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                  confirmPassword:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                required:
+                  - code
+                  - password
+                  - confirmPassword
+                additionalProperties: false
+        responses:
+          "200":
+            description: Password reset was sent successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: Invalid or expired password reset code
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    details:
+                      type: string
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          path:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                          - path
+                          - message
+                  required:
+                    - message
+                    - details
+                    - errors
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/facebook:
+      post:
+        tags:
+          - Auth
+        description: Login or register user with Facebook
+        summary: Login or register user with Facebook
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                required:
+                  - accessToken
+                additionalProperties: false
+        responses:
+          "200":
+            description: Login was successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        accessToken:
+                          type: string
+                        refreshToken:
+                          type: string
+                      required:
+                        - accessToken
+                        - refreshToken
+                  required:
+                    - data
+          "201":
+            description: User was created and logged in successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        accessToken:
+                          type: string
+                        refreshToken:
+                          type: string
+                      required:
+                        - accessToken
+                        - refreshToken
+                  required:
+                    - data
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    details:
+                      type: string
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          path:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                          - path
+                          - message
+                  required:
+                    - message
+                    - details
+                    - errors
+          "409":
+            description: Email is already used
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/google:
+      post:
+        tags:
+          - Auth
+        description: Login or register user with Google
+        summary: Login or register user with Google
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  idToken:
+                    type: string
+                required:
+                  - idToken
+                additionalProperties: false
+        responses:
+          "200":
+            description: Login was successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        accessToken:
+                          type: string
+                        refreshToken:
+                          type: string
+                      required:
+                        - accessToken
+                        - refreshToken
+                  required:
+                    - data
+          "201":
+            description: User was created and logged in successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        accessToken:
+                          type: string
+                        refreshToken:
+                          type: string
+                      required:
+                        - accessToken
+                        - refreshToken
+                  required:
+                    - data
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    details:
+                      type: string
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          path:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                          - path
+                          - message
+                  required:
+                    - message
+                    - details
+                    - errors
+          "409":
+            description: Email is already used
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/me/logout:
+      post:
+        tags:
+          - Auth | Me
+        description: Logout current user
+        summary: Logout current user
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        responses:
+          "200":
+            description: Logout was successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/me/request-email-verification-code:
+      post:
+        tags:
+          - Auth | Me
+        description: Logout current user
+        summary: Logout current user
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        responses:
+          "200":
+            description: Verification code sent successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: User does not have an email or Verification code already sent
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "409":
+            description: Can not send verification code
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "503":
+            description: Verification code could not be sent
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/me/verify:
+      post:
+        tags:
+          - Auth | Me
+        description: Verify current user
+        summary: Verify current user
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    pattern: ^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$
+                    example: 12X-4X6
+                required:
+                  - code
+                additionalProperties: false
+        responses:
+          "200":
+            description: User verification was successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "422":
+            description: Invalid or expired verification code
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/me/change-password:
+      post:
+        tags:
+          - Auth | Me
+        description: Change current user's password
+        summary: Change current user's password
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  password:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                  currentPassword:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                  confirmPassword:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                required:
+                  - password
+                  - currentPassword
+                  - confirmPassword
+                additionalProperties: false
+        responses:
+          "200":
+            description: Password change was successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: Input validation error or Password is incorrect
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token, Revoked access token or Password is not set
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/me/set-password:
+      post:
+        tags:
+          - Auth | Me
+        description: Set current user's password
+        summary: Set current user's password
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  password:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                  confirmPassword:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: password
+                required:
+                  - password
+                  - confirmPassword
+                additionalProperties: false
+        responses:
+          "200":
+            description: Password was set successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "409":
+            description: Password is already set
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/me/accounts/link:
+      post:
+        tags:
+          - Auth | Accounts
+        description: Link an account to the current user
+        summary: Link an account to the current user
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      idToken:
+                        type: string
+                      provider:
+                        type: string
+                        enum:
+                          - google
+                    required:
+                      - idToken
+                      - provider
+                    additionalProperties: false
+                  - type: object
+                    properties:
+                      accessToken:
+                        type: string
+                      provider:
+                        type: string
+                        enum:
+                          - facebook
+                    required:
+                      - accessToken
+                      - provider
+                    additionalProperties: false
+        responses:
+          "201":
+            description: Account was linked successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: Input validation error or Account could not be linked
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "409":
+            description: Email is already used
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/me/accounts/unlink:
+      delete:
+        tags:
+          - Auth | Accounts
+        description: Unlink current user's selected provider's account
+        summary: Unlink current user's selected provider's account
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum:
+                - google
+                - facebook
+            required: true
+            name: provider
+            in: path
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        responses:
+          "200":
+            description: Account was unlinked successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token, Revoked access token or Password is not set
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "404":
+            description: Account not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/auth/me/accounts:
+      get:
+        tags:
+          - Auth | Accounts
+        description: Get current user's accounts
+        summary: Get current user's accounts
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        responses:
+          "200":
+            description: Accounts were retrieved successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          userId:
+                            type: string
+                            format: uuid
+                          provider:
+                            type: string
+                            maxLength: 255
+                            example: google
+                          providerAccountId:
+                            type: string
+                            maxLength: 255
+                            example: "123456789"
+                          updatedAt:
+                            type: string
+                            nullable: true
+                            example: 2025-05-15 13:52:05.232193
+                            format: Date
+                          createdAt:
+                            type: string
+                            nullable: true
+                            example: 2025-05-15 13:52:05.232193
+                            format: Date
+                        required:
+                          - userId
+                          - provider
+                          - providerAccountId
+                  required:
+                    - data
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/users/me:
+      get:
+        tags:
+          - Users | Me
+        description: Get current user
+        summary: Get current user
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        responses:
+          "200":
+            description: User was retrieved successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        email:
+                          type: string
+                          nullable: true
+                          maxLength: 255
+                          format: email
+                          example: 9YsD0@example.com
+                        emailVerified:
+                          type: string
+                          nullable: true
+                          example: 2025-05-15 13:52:05.232193
+                          format: Date
+                        updatedAt:
+                          type: string
+                          nullable: true
+                          example: 2025-05-15 13:52:05.232193
+                          format: Date
+                        createdAt:
+                          type: string
+                          nullable: true
+                          example: 2025-05-15 13:52:05.232193
+                          format: Date
+                        hasPassword:
+                          type: boolean
+                      required:
+                        - hasPassword
+                  required:
+                    - data
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+      patch:
+        tags:
+          - Users | Me
+        description: Update current user
+        summary: Update current user
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        responses:
+          "200":
+            description: User was updated successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/users/me/profile:
+      get:
+        tags:
+          - Users | Me
+        description: Get current user's profile
+        summary: Get current user's profile
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        responses:
+          "200":
+            description: User profile was retrieved successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        firstName:
+                          type: string
+                          nullable: true
+                          maxLength: 16
+                          example: John
+                        lastName:
+                          type: string
+                          nullable: true
+                          maxLength: 16
+                          example: Doe
+                        bio:
+                          type: string
+                          nullable: true
+                          maxLength: 255
+                        image:
+                          type: string
+                          nullable: true
+                        imageBlurHash:
+                          type: string
+                          nullable: true
+                        updatedAt:
+                          type: string
+                          example: 2025-05-15 13:52:05.232193
+                          format: Date
+                        createdAt:
+                          type: string
+                          example: 2025-05-15 13:52:05.232193
+                          format: Date
+                  required:
+                    - data
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+      patch:
+        tags:
+          - Users | Me
+        description: Update current user's profile
+        summary: Update current user's profile
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        responses:
+          "200":
+            description: User profile was updated successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/users/me/image:
+      put:
+        tags:
+          - Users | Me
+        description: Update current user's image
+        summary: Update current user's image
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  image:
+                    type: string
+                    format: binary
+                    description: The profile image file
+                required:
+                  - image
+        responses:
+          "200":
+            description: Profile image was updated successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        blurHash:
+                          type: string
+                      required:
+                        - blurHash
+                  required:
+                    - data
+          "400":
+            description: Input validation error, Invalid image format or No image provided
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+    /api/properties:
+      post:
+        tags:
+          - Properties
+        description: Create a property
+        summary: Create a property
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Some title
+                  description:
+                    type: string
+                  price:
+                    type: string
+                  location:
+                    type: object
+                    properties:
+                      x:
+                        type: number
+                      y:
+                        type: number
+                    required:
+                      - x
+                      - y
+                  updatedAt:
+                    type: string
+                  createdAt:
+                    type: string
+                required:
+                  - title
+                  - description
+                  - price
+                  - location
+                additionalProperties: false
+        responses:
+          "201":
+            description: Property was created successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          minimum: -2147483648
+                          maximum: 2147483647
+                        title:
+                          type: string
+                          example: Some title
+                        description:
+                          type: string
+                        price:
+                          type: string
+                        location:
+                          type: object
+                          properties:
+                            x:
+                              type: number
+                            y:
+                              type: number
+                          required:
+                            - x
+                            - y
+                        userId:
+                          type: string
+                          format: uuid
+                        updatedAt:
+                          type: string
+                        createdAt:
+                          type: string
+                      required:
+                        - title
+                        - description
+                        - price
+                        - location
+                        - userId
+                  required:
+                    - data
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    details:
+                      type: string
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          path:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                          - path
+                          - message
+                  required:
+                    - message
+                    - details
+                    - errors
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: "Invalid access token, Revoked access token or "
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+      get:
+        tags:
+          - Properties
+        description: Get and filter properties
+        summary: Get and filter properties
+        security:
+          - bearerAuth: []
+        parameters:
+          - schema:
+              type: integer
+              minimum: 1
+              maximum: 100
+              default: 10
+              description: Limit the number of properties returned
+            required: false
+            description: Limit the number of properties returned
+            name: limit
+            in: path
+          - schema:
+              type: string
+              description: Search properties by name or description
+            required: false
+            description: Search properties by name or description
+            name: searchTerm
+            in: path
+          - schema:
+              type: number
+              nullable: true
+              minimum: 0
+              description: Filter properties by minimum price
+            required: false
+            description: Filter properties by minimum price
+            name: minPrice
+            in: path
+          - schema:
+              type: number
+              nullable: true
+              minimum: 0
+              description: Filter properties by maximum price
+            required: false
+            description: Filter properties by maximum price
+            name: maxPrice
+            in: path
+          - schema:
+              type: number
+              nullable: true
+              minimum: -180
+              maximum: 180
+              description: Filter properties by longitude
+            required: false
+            description: Filter properties by longitude
+            name: longitude
+            in: path
+          - schema:
+              type: number
+              nullable: true
+              minimum: -90
+              maximum: 90
+              description: Filter properties by latitude
+            required: false
+            description: Filter properties by latitude
+            name: latitude
+            in: path
+          - schema:
+              type: number
+              nullable: true
+              minimum: 0
+              description: Filter properties by radius (in kilometers, 1 = 1km)
+            required: false
+            description: Filter properties by radius (in kilometers, 1 = 1km)
+            name: radius
+            in: path
+          - schema:
+              type: string
+              enum:
+                - price
+                - created_at
+              description: Sort properties by price or created_at
+            required: false
+            description: Sort properties by price or created_at
+            name: sortBy
+            in: path
+          - schema:
+              type: string
+              enum:
+                - asc
+                - desc
+              description: Sort properties in ascending or descending order
+            required: false
+            description: Sort properties in ascending or descending order
+            name: order
+            in: path
+          - schema:
+              type: integer
+              nullable: true
+              default: 0
+              description: Cursor ID to paginate after a specific property
+            required: false
+            description: Cursor ID to paginate after a specific property
+            name: cursor
+            in: path
+          - schema:
+              type: string
+              description: Cursor created_at to paginate after a specific property
+            required: false
+            description: Cursor created_at to paginate after a specific property
+            name: cursorCreatedAt
+            in: path
+          - schema:
+              type: string
+              enum: *a1
+              default: en
+            required: false
+            in: header
+            name: Accept-Language
+        responses:
+          "200":
+            description: Properties were retrieved successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    data:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            minimum: -2147483648
+                            maximum: 2147483647
+                          title:
+                            type: string
+                            example: Some title
+                          description:
+                            type: string
+                          price:
+                            type: string
+                          location:
+                            type: object
+                            properties:
+                              x:
+                                type: number
+                              y:
+                                type: number
+                            required:
+                              - x
+                              - y
+                          userId:
+                            type: string
+                            format: uuid
+                          updatedAt:
+                            type: string
+                          createdAt:
+                            type: string
+                        required:
+                          - title
+                          - description
+                          - price
+                          - location
+                          - userId
+                  required:
+                    - data
+          "400":
+            description: Input validation error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                    details:
+                      type: string
+                    errors:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          path:
+                            type: string
+                          message:
+                            type: string
+                        required:
+                          - path
+                          - message
+                  required:
+                    - message
+                    - details
+                    - errors
+          "401":
+            description: Access denied
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "403":
+            description: Invalid access token or Revoked access token
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
+          "500":
+            description: Internal server error
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    requestId:
+                      type: string
+                      format: uuid
+                    message:
+                      type: string
+                    details:
+                      type: string
+                  required:
+                    - requestId
+                    - message
+                    - details
