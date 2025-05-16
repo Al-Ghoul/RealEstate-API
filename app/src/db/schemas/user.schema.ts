@@ -11,7 +11,7 @@ import { notification } from "./notification.schema";
 import { verificationCode } from "./verificationCode.schema";
 import { account } from "./account.schema";
 import { profile } from "./profile.schema";
-import { userRole } from "./user_role.schema";
+import { userRole } from "./userRole.schema";
 import { property } from "./property.schema";
 
 export const user = pgTable(

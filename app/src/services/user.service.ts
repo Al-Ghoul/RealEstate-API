@@ -12,7 +12,7 @@ import { first } from "lodash-es";
 import { lower } from "../db/helpers/time.helpers";
 import { profile } from "../db/schemas/profile.schema";
 import { role } from "../db/schemas/role.schema";
-import { userRole } from "../db/schemas/user_role.schema";
+import { userRole } from "../db/schemas/userRole.schema";
 
 export async function createUser(
   input: CreateUserInputDTO & Pick<Profile, "image">,

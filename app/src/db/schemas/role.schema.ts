@@ -1,7 +1,7 @@
 import { pgEnum, pgTable, serial } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { timestamps } from "../helpers/time.helpers";
-import { userRole } from "./user_role.schema";
+import { userRole } from "./userRole.schema";
 
 export const roleType = pgEnum("role_type", ["agent", "client", "admin"]);
 
