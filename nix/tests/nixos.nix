@@ -45,6 +45,10 @@ in {
         services.postgresql = {
           enable = true;
           settings.port = 5433;
+          extensions = [
+            pkgs.postgresql16Packages.postgis
+          ];
+          package = pkgs.postgresql_16;
           initdbArgs = ["--encoding=UTF-8" "--locale=C"];
           initialScript = pkgs.writeText "db-initScript" ''
             CREATE USER db_owner WITH LOGIN PASSWORD 'secure_password';
@@ -52,6 +56,7 @@ in {
             GRANT ALL PRIVILEGES ON DATABASE realestatedb TO db_owner;
             \c realestatedb;
             GRANT ALL ON SCHEMA public TO db_owner;
+            CREATE EXTENSION IF NOT EXISTS postgis;
           '';
         };
 
