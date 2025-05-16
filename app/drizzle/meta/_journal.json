@@ -29,6 +29,13 @@
       "when": 1747167412814,
       "tag": "0003_add_location_and_index_to_property_table",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1747414717436,
+      "tag": "0004_add_userId_roleId_cascade_on_user_role",
+      "breakpoints": true
     }
   ]
 }

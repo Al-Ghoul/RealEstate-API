@@ -7,8 +7,8 @@ import { relations } from "drizzle-orm";
 export const userRole = pgTable(
   "user_role",
   {
-    userId: uuid().references(() => user.id),
-    roleId: integer().references(() => role.id),
+    userId: uuid().references(() => user.id, { onDelete: "cascade" }),
+    roleId: integer().references(() => role.id, { onDelete: "cascade" }),
     ...timestamps,
   },
   (table) => [unique().on(table.userId, table.roleId)],
