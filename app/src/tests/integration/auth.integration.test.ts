@@ -6,6 +6,7 @@ import { user } from "../../db/schemas/user.schema";
 import { basicUser, createUser } from "../lib";
 import { expect, describe, it, afterEach, beforeAll, afterAll } from "bun:test";
 import { role } from "../../db/schemas/role.schema";
+import { redisClient } from "../../utils/redis.utils";
 
 describe("Check for auth endpoints inputs and outputs ", () => {
   it("POST /api/auth/register with valid data returns 201", async () => {
@@ -172,6 +173,8 @@ beforeAll(async () => {
       name: "client",
     },
   ]);
+
+  redisClient.connect().catch(console.error);
 });
 
 afterAll(async () => {
