@@ -15,7 +15,10 @@ export function configureZodI18n(locale: Locales) {
       case z.ZodIssueCode.invalid_type:
         if (issue.path[0] === "code") {
           return { message: L[locale].CODE_IS_REQUIRED() };
-        } else if (issue.path[0] === "price" && issue.received !== undefined) {
+        } else if (
+          issue.path[0] === "price" &&
+          issue.received !== "undefined"
+        ) {
           return {
             message: L[locale].EXPECTED_X_RECEIVED_Y({
               expected: L[locale][issue.expected](),
@@ -24,7 +27,7 @@ export function configureZodI18n(locale: Locales) {
           };
         } else if (
           issue.path[0] === "location" &&
-          issue.received !== undefined
+          issue.received !== "undefined"
         ) {
           return {
             message: L[locale].EXPECTED_X_RECEIVED_Y({
