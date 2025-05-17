@@ -29,7 +29,7 @@ registry.registerPath({
       content: {
         "application/json": {
           schema: createPropertyInputDTO
-            .omit({ id: true, userId: true })
+            .omit({ id: true, userId: true, createdAt: true, updatedAt: true })
             .strict(),
         },
       },

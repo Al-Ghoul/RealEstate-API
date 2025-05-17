@@ -10,7 +10,9 @@ router.post(
   "/",
   isAuthenticated,
   schemaValidatorMiddleware(
-    createPropertyInputDTO.omit({ userId: true }).strict(),
+    createPropertyInputDTO
+      .omit({ id: true, userId: true, createdAt: true, updatedAt: true })
+      .strict(),
   ),
   propertyController.createProperty,
 );
