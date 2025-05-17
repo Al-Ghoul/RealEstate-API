@@ -1,6 +1,7 @@
 import request from "supertest";
 import { app } from "../../app";
-import { expect, describe, it } from "bun:test";
+import { expect, describe, it, beforeAll } from "bun:test";
+import { redisClient } from "../../utils/redis.utils";
 
 describe("Check for user endpoints existence", () => {
   it("GET /api/users/me returns 401 unauthorized", async () => {
@@ -62,4 +63,12 @@ describe("Check for user endpoints existence", () => {
       details: "Please provide an authorization token",
     });
   });
+});
+
+beforeAll(async () => {
+  try {
+    await redisClient.connect();
+  } catch (error) {
+    console.error(error);
+  }
 });

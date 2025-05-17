@@ -174,7 +174,11 @@ beforeAll(async () => {
     },
   ]);
 
-  redisClient.connect().catch(console.error);
+  try {
+    await redisClient.connect();
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 afterAll(async () => {

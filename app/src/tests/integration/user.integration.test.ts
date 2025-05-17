@@ -6,6 +6,7 @@ import { user } from "../../db/schemas/user.schema";
 import { createUser } from "../lib";
 import { expect, describe, it, afterEach, beforeAll, afterAll } from "bun:test";
 import { role } from "../../db/schemas/role.schema";
+import { redisClient } from "../../utils/redis.utils";
 
 const basicUser = {
   email: "johndoe@example.com",
@@ -180,6 +181,12 @@ beforeAll(async () => {
       name: "client",
     },
   ]);
+
+  try {
+    await redisClient.connect();
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 afterAll(async () => {

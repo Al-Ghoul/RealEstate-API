@@ -1,6 +1,7 @@
 import request from "supertest";
 import { app } from "../../app";
-import { expect, describe, it } from "bun:test";
+import { expect, describe, it, beforeAll } from "bun:test";
+import { redisClient } from "../../utils/redis.utils";
 
 describe("Check for auth endpoints existence", () => {
   it("POST /api/auth/register returns 400 with validation error", async () => {
@@ -175,4 +176,12 @@ describe("Check for auth endpoints existence", () => {
       details: "Please provide an authorization token",
     });
   });
+});
+
+beforeAll(async () => {
+  try {
+    await redisClient.connect();
+  } catch (error) {
+    console.error(error);
+  }
 });
