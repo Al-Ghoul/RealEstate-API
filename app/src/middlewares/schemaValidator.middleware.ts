@@ -20,7 +20,7 @@ export function schemaValidatorMiddleware(schema: z.ZodSchema) {
         res.status(400).json({
           message: L[lang].INPUT_VALIDATION_ERROR(),
           errors: errors.map((error) => {
-            return { path: error.path[0], message: error.message };
+            return { path: error.path.join("."), message: error.message };
           }),
         });
       } else {

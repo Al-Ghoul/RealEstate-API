@@ -5,7 +5,6 @@ import { registry } from "../utils/swagger.utils";
 
 export function configureZodI18n(locale: Locales) {
   const customErrorMap: z.ZodErrorMap = (issue, ctx) => {
-    console.log(issue);
     switch (issue.code) {
       case z.ZodIssueCode.custom:
         if (issue.path[0] === "confirmPassword") {
@@ -16,13 +15,28 @@ export function configureZodI18n(locale: Locales) {
       case z.ZodIssueCode.invalid_type:
         if (issue.path[0] === "code") {
           return { message: L[locale].CODE_IS_REQUIRED() };
-        } /*else if (issue.path[0] === "price") {
-          
-        }*/ else if (issue.path[0] === "role") {
+        } else if (issue.path[0] === "price" && issue.received !== undefined) {
           return {
             message: L[locale].EXPECTED_X_RECEIVED_Y({
-              expected: issue.expected,
-              received: issue.received,
+              expected: L[locale][issue.expected](),
+              received: L[locale][issue.received](),
+            }),
+          };
+        } else if (
+          issue.path[0] === "location" &&
+          issue.received !== undefined
+        ) {
+          return {
+            message: L[locale].EXPECTED_X_RECEIVED_Y({
+              expected: L[locale][issue.expected](),
+              received: L[locale][issue.received](),
+            }),
+          };
+        } else if (issue.path[0] === "role") {
+          return {
+            message: L[locale].EXPECTED_X_RECEIVED_Y({
+              expected: L[locale][issue.expected](),
+              received: L[locale][issue.received](),
             }),
           };
         } else {

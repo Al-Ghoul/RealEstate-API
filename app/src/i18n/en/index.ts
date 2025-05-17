@@ -102,6 +102,27 @@ const en = {
   FIELD_IS_REQUIED: "This field is required",
   INVALID_CODE: "Invalid code, the code must be in this form XXX-XXX",
   EXPECTED_X_RECEIVED_Y: "Expected {expected} but received {received}",
+
+  string: "string",
+  number: "number",
+  bigint: "bigint",
+  boolean: "boolean",
+  symbol: "symbol",
+  undefined: "undefined",
+  object: "object",
+  function: "function",
+  map: "map",
+  nan: "nan",
+  integer: "integer",
+  float: "float",
+  date: "date",
+  null: "null",
+  array: "array",
+  unknown: "unknown",
+  promise: "promise",
+  void: "void",
+  never: "never",
+  set: "set",
 } satisfies BaseTranslation;
 
 export default en;
