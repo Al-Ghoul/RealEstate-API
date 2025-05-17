@@ -4,7 +4,9 @@ import { openApiDoc } from "./src/docs";
 
 function writeDocumentation() {
   const fileContent = yaml.stringify(openApiDoc);
-  fs.writeFileSync("./openapi-spec.yaml", yaml.stringify(fileContent));
+  fs.writeFileSync("./openapi-spec.yaml", fileContent, {
+    encoding: "utf-8",
+  });
 }
 
 writeDocumentation();
