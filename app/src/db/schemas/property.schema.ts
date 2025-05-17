@@ -25,7 +25,7 @@ export const property = pgTable(
     }).notNull(),
 
     userId: uuid()
-      .references(() => user.id)
+      .references(() => user.id, { onDelete: "cascade" })
       .notNull(),
     ...timestamps,
   },

@@ -36,6 +36,13 @@
       "when": 1747414717436,
       "tag": "0004_add_userId_roleId_cascade_on_user_role",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1747441064688,
+      "tag": "0005_add_userId_cascade_on_property",
+      "breakpoints": true
     }
   ]
 }
