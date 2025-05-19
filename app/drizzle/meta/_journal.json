@@ -43,6 +43,13 @@
       "when": 1747441064688,
       "tag": "0005_add_userId_cascade_on_property",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1747584104283,
+      "tag": "0006_add_more_fields_on_property_table",
+      "breakpoints": true
     }
   ]
 }

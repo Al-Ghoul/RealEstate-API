@@ -6,10 +6,27 @@ import {
   uuid,
   index,
   geometry,
+  pgEnum,
+  boolean,
+  integer,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "../helpers/time.helpers";
 import { user } from "./user.schema";
 import { relations, sql } from "drizzle-orm";
+
+export const propertyType = pgEnum("property_type", [
+  "apartment",
+  "house",
+  "land",
+  "coastal",
+  "commercial",
+]);
+
+export const propertyStatus = pgEnum("property_status", [
+  "available",
+  "rented",
+  "sold",
+]);
 
 export const property = pgTable(
   "property",
@@ -18,12 +35,18 @@ export const property = pgTable(
     title: text().notNull().unique(),
     description: text().notNull(),
     price: numeric().notNull(),
+    type: propertyType().notNull(),
+    status: propertyStatus().notNull(),
+    area: integer().notNull(),
+    rooms: integer().notNull(),
+    isPublished: boolean().notNull().default(false),
+    isFeatured: boolean().notNull().default(false),
+    thumbnailURL: text().notNull(),
     location: geometry({
       type: "point",
       mode: "xy",
       srid: 4326,
     }).notNull(),
-
     userId: uuid()
       .references(() => user.id, { onDelete: "cascade" })
       .notNull(),
