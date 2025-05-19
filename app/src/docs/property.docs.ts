@@ -7,6 +7,7 @@ import {
   ValidationErrorResponseSchema,
 } from "../dtos";
 import {
+  basePropertyDTO,
   createPropertyInputDTO,
   propertyQueryParamsSchema,
 } from "../dtos/property.dto";
@@ -27,10 +28,13 @@ registry.registerPath({
     headers: [acceptLanguageHeader],
     body: {
       content: {
-        "application/json": {
-          schema: createPropertyInputDTO
-            .omit({ id: true, userId: true, createdAt: true, updatedAt: true })
-            .strict(),
+        "multipart/form-data": {
+          schema: createPropertyInputDTO.extend({
+            thumbnail: z.string().openapi({
+              format: "binary",
+              description: "The thumbnail image file",
+            }),
+          }),
         },
       },
     },
@@ -40,7 +44,7 @@ registry.registerPath({
       description: L[lang].PROPERTY_CREATED_SUCCESSFULLY(),
       content: {
         "application/json": {
-          schema: createSuccessResponseSchema(createPropertyInputDTO),
+          schema: createSuccessResponseSchema(basePropertyDTO),
         },
       },
     },
@@ -90,14 +94,14 @@ registry.registerPath({
   security: [{ [bearerAuth.name]: [] }],
   request: {
     headers: [acceptLanguageHeader],
-    params: propertyQueryParamsSchema,
+    query: propertyQueryParamsSchema,
   },
   responses: {
     200: {
       description: L[lang].PROPERTIES_RETRIEVED_SUCCESSFULLY(),
       content: {
         "application/json": {
-          schema: createSuccessResponseSchema(z.array(createPropertyInputDTO), {
+          schema: createSuccessResponseSchema(z.array(basePropertyDTO), {
             meta: metaSchema,
           }),
         },

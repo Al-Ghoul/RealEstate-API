@@ -5,9 +5,60 @@ import { registry, zodInstance } from "../utils/swagger.utils";
 
 const { createInsertSchema } = createSchemaFactory({ zodInstance });
 
-export const createPropertyInputDTO = createInsertSchema(property, {
-  title: (schema) => schema.openapi({ example: "Some title" }),
-});
+export const basePropertyDTO = createInsertSchema(property, {});
+
+const locationSchema = z
+  .union([
+    z.object({
+      x: z.number(),
+      y: z.number(),
+    }),
+    z.string().transform((str, ctx) => {
+      try {
+        const parsed = JSON.parse(str) as { x: number; y: number } | null;
+        if (
+          typeof parsed === "object" &&
+          parsed !== null &&
+          typeof parsed.x === "number" &&
+          typeof parsed.y === "number"
+        ) {
+          return parsed;
+        } else {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Invalid location object shape",
+          });
+          return z.NEVER;
+        }
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Invalid JSON string",
+        });
+        return z.NEVER;
+      }
+    }),
+  ])
+  .refine((obj) => typeof obj.x === "number" && typeof obj.y === "number", {
+    message: "Location must have numeric x and y",
+  });
+
+export const createPropertyInputDTO = basePropertyDTO
+  .omit({
+    id: true,
+    userId: true,
+    isFeatured: true,
+    thumbnailURL: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    location: locationSchema,
+    rooms: z.coerce.number(),
+    area: z.coerce.number(),
+    isPublished: z.coerce.boolean().default(false),
+  })
+  .strict();
 registry.register("Property", createPropertyInputDTO);
 
 export type CreatePropertyInputDTO = z.infer<typeof createPropertyInputDTO>;
@@ -21,6 +72,28 @@ export const propertyQueryParams = z.object({
     .optional()
     .default(10)
     .describe("Limit the number of properties returned"),
+
+  rooms: z.coerce
+    .number()
+    .min(1)
+    .optional()
+    .describe("Filter properties by number of rooms"),
+
+  area: z.coerce
+    .number()
+    .min(1)
+    .optional()
+    .describe("Filter properties by area"),
+
+  type: z
+    .enum(property.type.enumValues)
+    .optional()
+    .describe("Filter properties by type"),
+
+  status: z
+    .enum(property.status.enumValues)
+    .optional()
+    .describe("Filter properties by status"),
 
   searchTerm: z
     .string()
@@ -85,7 +158,7 @@ export const propertyQueryParams = z.object({
 
 export const propertyQueryParamsSchema = propertyQueryParams.openapi({
   param: {
-    in: "path",
+    in: "query",
   },
 });
 

@@ -19,7 +19,10 @@ import type {
 } from "../dtos/property.dto";
 
 export async function createProperty(
-  input: Omit<CreatePropertyInputDTO, "id">,
+  input: Omit<CreatePropertyInputDTO, "id"> & {
+    userId: User["id"];
+    thumbnailURL: Property["thumbnailURL"];
+  },
 ) {
   return db
     .insert(property)
@@ -43,6 +46,10 @@ export async function getProperties(input: PropertyQueryParams) {
     limit,
     cursor,
     cursorCreatedAt,
+    area,
+    type,
+    rooms,
+    status,
   } = input;
   let query = db.select().from(property);
 
@@ -113,6 +120,16 @@ export async function getProperties(input: PropertyQueryParams) {
           ),
     );
   }
+
+  if (area !== undefined) filters.push(eq(property.area, area));
+
+  if (type !== undefined) filters.push(eq(property.type, type));
+
+  if (rooms !== undefined) filters.push(eq(property.rooms, rooms));
+
+  if (status !== undefined) filters.push(eq(property.status, status));
+
+  filters.push(eq(property.isPublished, true));
 
   const propertiesQuery = async (filters: SQL[]) =>
     query.where(and(...filters)).limit(limit + 1);

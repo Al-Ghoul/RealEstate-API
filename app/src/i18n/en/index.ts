@@ -55,6 +55,7 @@ const en = {
   INPUT_VALIDATION_ERROR: "Input validation error",
   PROPERTY_CREATED_SUCCESSFULLY: "Property was created successfully",
   PROPERTIES_RETRIEVED_SUCCESSFULLY: "Properties were retrieved successfully",
+  PROPERTY_ALREADY_EXISTS: "Property already exists",
 
   // details
   EMAIL_ALREADY_USED_DETAILS: "Please choose another email",
@@ -86,6 +87,7 @@ const en = {
   MISSING_AUTHORIZATION_TOKEN_DETAILS: "Please provide an authorization token",
   UNABLE_TO_UPLOAD_IMAGE_DETAILS: "Please try again later",
   ACCESS_DENIED_DETAILS: "You don't have permission to access this resource",
+  PROPERTY_ALREADY_EXISTS_DETAILS: "Please choose another property title",
 
   INTERNAL_SERVER_ERROR_DETAILS: "Please try again later",
 

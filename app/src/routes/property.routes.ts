@@ -1,19 +1,14 @@
 import { Router } from "express";
 import { isAuthenticated } from "../middlewares/auth.middleware";
 import * as propertyController from "../controllers/property.controller";
-import { schemaValidatorMiddleware } from "../middlewares/schemaValidator.middleware";
-import { createPropertyInputDTO } from "../dtos/property.dto";
+import { upload } from "../utils/storage.utils";
 
 const router = Router();
 
 router.post(
   "/",
   isAuthenticated,
-  schemaValidatorMiddleware(
-    createPropertyInputDTO
-      .omit({ id: true, userId: true, createdAt: true, updatedAt: true })
-      .strict(),
-  ),
+  upload.single("thumbnail"),
   propertyController.createProperty,
 );
 
