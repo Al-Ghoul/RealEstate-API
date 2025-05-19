@@ -18,6 +18,7 @@ export function schemaValidatorMiddleware(schema: z.ZodSchema) {
       if (error instanceof ZodError) {
         const errors = error.errors;
         res.status(400).json({
+          requestId: req.id,
           message: L[lang].INPUT_VALIDATION_ERROR(),
           errors: errors.map((error) => {
             return { path: error.path.join("."), message: error.message };

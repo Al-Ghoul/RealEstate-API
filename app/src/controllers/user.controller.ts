@@ -282,6 +282,7 @@ export async function updateCurrentUserProfileImage(
     });
 
     res.status(400).json({
+      requestId: req.id,
       message: L[lang].NO_IMAGE_PROVIDED(),
       details: L[lang].PLEASE_PROVIDE_AN_IMAGE(),
     });
@@ -304,6 +305,7 @@ export async function updateCurrentUserProfileImage(
     });
 
     res.status(400).json({
+      requestId: req.id,
       message: L[lang].INVALID_IMAGE_FORMAT(),
       details: L[lang].PLEASE_PROVIDE_AN_IMAGE(),
     });
