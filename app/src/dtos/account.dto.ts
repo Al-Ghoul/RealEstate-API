@@ -33,14 +33,13 @@ export const linkAccountDTO = z.discriminatedUnion("provider", [
 
 export const unlinkAccountInputDTO = z
   .object({
-    provider: z.enum(["google", "facebook"]).openapi({
-      param: {
-        name: "provider",
-        in: "path",
-      },
-    }),
+    provider: z.enum(["google", "facebook"]),
   })
-  .strict();
+  .openapi({
+    param: {
+      in: "path",
+    },
+  });
 
 export type LinkAccountDTO = z.infer<typeof linkAccountDTO>;
 export type UnlinkAccountInputDTO = z.infer<typeof unlinkAccountInputDTO>;

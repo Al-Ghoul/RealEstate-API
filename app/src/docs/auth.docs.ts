@@ -855,7 +855,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "delete",
-  path: "/api/auth/me/accounts/unlink",
+  path: "/api/auth/me/accounts/unlink/{provider}",
   tags: ["Auth | Accounts"],
   description: "Unlink current user's selected provider's account",
   summary: "Unlink current user's selected provider's account",
