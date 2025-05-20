@@ -14,4 +14,13 @@ router.post(
 
 router.get("/", isAuthenticated, propertyController.getProperties);
 
+router.get("/:id", isAuthenticated, propertyController.getProperty);
+
+router.patch(
+  "/:id",
+  isAuthenticated,
+  upload.single("thumbnail"),
+  propertyController.updateProperty,
+);
+
 export default router;

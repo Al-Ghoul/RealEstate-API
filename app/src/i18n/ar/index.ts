@@ -57,6 +57,9 @@ const ar = {
   PROPERTIES_RETRIEVED_SUCCESSFULLY: "تم استرجاع الملكيات بنجاح",
   PROPERTY_CREATED_SUCCESSFULLY: "تم إنشاء العقار بنجاح",
   PROPERTY_ALREADY_EXISTS: "العقار موجود بالفعل",
+  PROPERTY_NOT_FOUND: "لم يتم العثور على العقار",
+  PROPERTY_RETRIEVED_SUCCESSFULLY: "تم جلب بيانات العقار بنجاح",
+  PROPERTY_UPDATED_SUCCESSFULLY: "تم تحديث بيانات العقار بنجاح",
 
   INTERNAL_SERVER_ERROR: "حدث خطأ بالخادم",
 
@@ -91,6 +94,7 @@ const ar = {
   UNABLE_TO_UPLOAD_IMAGE_DETAILS: "الرجاء المحاولة في وقت لاحق",
   ACCESS_DENIED_DETAILS: "لا تملك الصلاحية للوصول لهذا المورد",
   PROPERTY_ALREADY_EXISTS_DETAILS: "الرجاء إختيار إسم آخر للعقار",
+  PROPERTY_NOT_FOUND_DETAILS: "الرجاء توفير معرف عقار صحيح",
 
   INTERNAL_SERVER_ERROR_DETAILS: "الرجاء المحاولة في وقت لاحق",
 

@@ -17,9 +17,10 @@ import type {
   CreatePropertyInputDTO,
   PropertyQueryParams,
 } from "../dtos/property.dto";
+import { first } from "lodash-es";
 
 export async function createProperty(
-  input: Omit<CreatePropertyInputDTO, "id"> & {
+  input: CreatePropertyInputDTO & {
     userId: User["id"];
     thumbnailURL: Property["thumbnailURL"];
   },
@@ -139,4 +140,27 @@ export async function getProperties(input: PropertyQueryParams) {
 
 export async function getTotalProperties() {
   return (await db.select({ count: count() }).from(property))[0].count;
+}
+
+export async function getPropertyById(id: Property["id"]) {
+  return first(await db.select().from(property).where(eq(property.id, id)));
+}
+
+export async function updatePropertyById(
+  input: CreatePropertyInputDTO & {
+    id: Property["id"];
+    userId: User["id"];
+    thumbnailURL?: Property["thumbnailURL"];
+  },
+) {
+  return first(
+    await db
+      .update(property)
+      .set({
+        ...input,
+        location: sql`ST_SetSRID(ST_MakePoint(${input.location.x}, ${input.location.y}), 4326)`,
+      })
+      .where(and(eq(property.id, input.id), eq(property.userId, input.userId)))
+      .returning(),
+  );
 }

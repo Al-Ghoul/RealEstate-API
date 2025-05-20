@@ -56,6 +56,9 @@ const en = {
   PROPERTY_CREATED_SUCCESSFULLY: "Property was created successfully",
   PROPERTIES_RETRIEVED_SUCCESSFULLY: "Properties were retrieved successfully",
   PROPERTY_ALREADY_EXISTS: "Property already exists",
+  PROPERTY_NOT_FOUND: "Property not found",
+  PROPERTY_RETRIEVED_SUCCESSFULLY: "Property was retrieved successfully",
+  PROPERTY_UPDATED_SUCCESSFULLY: "Property was updated successfully",
 
   // details
   EMAIL_ALREADY_USED_DETAILS: "Please choose another email",
@@ -88,6 +91,7 @@ const en = {
   UNABLE_TO_UPLOAD_IMAGE_DETAILS: "Please try again later",
   ACCESS_DENIED_DETAILS: "You don't have permission to access this resource",
   PROPERTY_ALREADY_EXISTS_DETAILS: "Please choose another property title",
+  PROPERTY_NOT_FOUND_DETAILS: "Please provide a valid property id",
 
   INTERNAL_SERVER_ERROR_DETAILS: "Please try again later",
 

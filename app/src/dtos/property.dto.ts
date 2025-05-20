@@ -53,9 +53,15 @@ export const createPropertyInputDTO = basePropertyDTO
     updatedAt: true,
   })
   .extend({
+    price: z.coerce
+      .string()
+      .regex(/^\d+(\.\d{1,2})?$/)
+      .openapi({
+        example: "199.99",
+      }),
     location: locationSchema,
-    rooms: z.coerce.number(),
-    area: z.coerce.number(),
+    rooms: z.coerce.number().min(0),
+    area: z.coerce.number().min(0),
     isPublished: z.coerce.boolean().default(false),
   })
   .strict();
@@ -161,5 +167,16 @@ export const propertyQueryParamsSchema = propertyQueryParams.openapi({
     in: "query",
   },
 });
+
+export const getPropertyByIdInputDTO = z
+  .object({
+    id: z.string().transform((value) => parseInt(value)),
+  })
+  .strict()
+  .openapi({
+    param: {
+      in: "path",
+    },
+  });
 
 export type PropertyQueryParams = z.infer<typeof propertyQueryParams>;
