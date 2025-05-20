@@ -13,6 +13,7 @@ import { account } from "./account.schema";
 import { profile } from "./profile.schema";
 import { userRole } from "./userRole.schema";
 import { property } from "./property.schema";
+import { propertyView } from "./propertyView.schema";
 
 export const user = pgTable(
   "user",
@@ -34,4 +35,5 @@ export const userRelations = relations(user, ({ many, one }) => ({
   verificationCodes: many(verificationCode),
   roles: many(userRole),
   properties: many(property),
+  propertiesViews: many(propertyView),
 }));

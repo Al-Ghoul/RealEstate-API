@@ -50,6 +50,13 @@
       "when": 1747584104283,
       "tag": "0006_add_more_fields_on_property_table",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1747768056790,
+      "tag": "0007_add_property_views_table",
+      "breakpoints": true
     }
   ]
 }
