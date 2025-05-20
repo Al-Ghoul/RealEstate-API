@@ -18,6 +18,7 @@ import type {
   PropertyQueryParams,
 } from "../dtos/property.dto";
 import { first } from "lodash-es";
+import { propertyView } from "../db/schemas/propertyView.schema";
 
 export async function createProperty(
   input: CreatePropertyInputDTO & {
@@ -162,5 +163,14 @@ export async function updatePropertyById(
       })
       .where(and(eq(property.id, input.id), eq(property.userId, input.userId)))
       .returning(),
+  );
+}
+
+export async function addNewView(
+  propertyId: Property["id"],
+  userId: User["id"],
+) {
+  return first(
+    await db.insert(propertyView).values({ propertyId, userId }).returning(),
   );
 }

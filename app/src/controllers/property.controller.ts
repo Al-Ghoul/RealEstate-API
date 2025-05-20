@@ -310,6 +310,8 @@ export async function getProperty(req: Request, res: Response) {
       return;
     }
 
+    await propertyService.addNewView(property.id, req.user.id);
+
     res.status(200).json({
       message: L[lang].PROPERTY_RETRIEVED_SUCCESSFULLY(),
       data: property,
