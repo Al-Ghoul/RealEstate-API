@@ -2,10 +2,25 @@ import { createSchemaFactory } from "drizzle-zod";
 import { property } from "../db/schemas/property.schema";
 import { z } from "zod";
 import { registry, zodInstance } from "../utils/swagger.utils";
+import { propertyMedia } from "../db/schemas/propertyMedia.schema";
 
 const { createInsertSchema } = createSchemaFactory({ zodInstance });
 
 export const basePropertyDTO = createInsertSchema(property, {});
+
+export const basePropertyMediaDTO = createInsertSchema(propertyMedia, {});
+
+registry.register("PropertyMedia", basePropertyMediaDTO);
+
+export const createPropertyMediaInputDTO = basePropertyMediaDTO.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type CreatePropertyMediaInputDTO = z.infer<
+  typeof createPropertyMediaInputDTO
+>;
 
 const locationSchema = z
   .union([
@@ -168,9 +183,20 @@ export const propertyQueryParamsSchema = propertyQueryParams.openapi({
   },
 });
 
-export const getPropertyByIdInputDTO = z
+export const getItemByIdInputDTO = z
   .object({
     id: z.string().transform((value) => parseInt(value)),
+  })
+  .strict()
+  .openapi({
+    param: {
+      in: "path",
+    },
+  });
+
+export const getMediaByIdInputDTO = z
+  .object({
+    mediaId: z.string().transform((value) => parseInt(value)),
   })
   .strict()
   .openapi({

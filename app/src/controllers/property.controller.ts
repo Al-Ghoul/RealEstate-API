@@ -5,8 +5,10 @@ import * as propertyService from "../services/property.service";
 import L from "../i18n/i18n-node";
 import {
   createPropertyInputDTO,
-  getPropertyByIdInputDTO,
+  getItemByIdInputDTO,
+  getMediaByIdInputDTO,
   propertyQueryParams,
+  type CreatePropertyMediaInputDTO,
 } from "../dtos/property.dto";
 import { logger } from "../utils/logger.utils";
 import { fileTypeFromBuffer } from "file-type";
@@ -262,7 +264,7 @@ export async function getProperties(req: Request, res: Response) {
 export async function getProperty(req: Request, res: Response) {
   assertAuthenticated(req);
   const lang = req.locale.language as Locales;
-  const input = getPropertyByIdInputDTO.safeParse(req.params);
+  const input = getItemByIdInputDTO.safeParse(req.params);
 
   if (!input.success) {
     logger.warn({
@@ -353,7 +355,7 @@ export async function getProperty(req: Request, res: Response) {
 export async function updateProperty(req: Request, res: Response) {
   assertAuthenticated(req);
   const lang = req.locale.language as Locales;
-  const params = getPropertyByIdInputDTO.safeParse(req.params);
+  const params = getItemByIdInputDTO.safeParse(req.params);
   const body = createPropertyInputDTO.safeParse(req.body);
 
   if (!params.success || !body.success) {
@@ -470,6 +472,373 @@ export async function updateProperty(req: Request, res: Response) {
         return;
       }
     } else if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error.message,
+          stack: error.stack,
+          userId: req.user.id,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error,
+          userId: req.user.id,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
+
+    res.status(500).json({
+      requestId: req.id,
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
+    });
+  }
+}
+
+export async function addPropertyMedia(req: Request, res: Response) {
+  assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
+  const params = getItemByIdInputDTO.safeParse(req.params);
+
+  if (!params.success) {
+    logger.warn({
+      router: req.originalUrl,
+      message: "Invalid input",
+      info: {
+        userId: req.user.id,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+    const errors = params.error.errors;
+    res.status(400).json({
+      requestId: req.id,
+      message: L[lang].INPUT_VALIDATION_ERROR(),
+      errors: errors.map((error) => {
+        return { path: error.path[0], message: error.message };
+      }),
+    });
+    return;
+  }
+
+  const files = req.files as Express.Multer.File[];
+  if (files.length === 0) {
+    logger.warn({
+      router: req.originalUrl,
+      message: "Invalid input",
+      info: {
+        userId: req.user.id,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
+    res.status(400).json({
+      requestId: req.id,
+      message: L[lang].INPUT_VALIDATION_ERROR(),
+      errors: [
+        {
+          path: "files",
+          message: L[lang].INVALID_MEDIA_FILES_DETAILS(),
+        },
+      ],
+    });
+    return;
+  }
+
+  const propertyMedia: Array<CreatePropertyMediaInputDTO> = [];
+
+  for (const file of files) {
+    const { buffer, originalname } = file;
+    const fileType = await fileTypeFromBuffer(buffer);
+    const allowed = ["image/jpeg", "image/png", "image/webp", "video/mp4"];
+    if (!fileType || !allowed.includes(fileType.mime)) {
+      logger.warn({
+        router: req.originalUrl,
+        message: "Invalid mime type",
+        info: {
+          userId: req.user.id,
+          requestId: req.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+
+      res.status(400).json({
+        requestId: req.id,
+        message: L[lang].INVALID_MEDIA_FILES(),
+        details: L[lang].INVALID_MEDIA_FILES_DETAILS(),
+      });
+      return;
+    }
+
+    const uploadDir = join(process.cwd(), "public/uploads/property-media/");
+    const fileName = `${Date.now().toString()}-${originalname}`;
+    const filePath = `${uploadDir}${fileName}`;
+    await fs.writeFile(filePath, buffer);
+
+    if (propertyMedia.length > 10) break; // only allow 10 media files
+
+    propertyMedia.push({
+      propertyId: params.data.id,
+      url: `${req.protocol}://${
+        req.get("host") ?? "localhost"
+      }/public/uploads/property-media/${fileName}`,
+      type: fileType.mime.includes("image") ? "image" : "video",
+      mimeType: fileType.mime,
+    });
+  }
+
+  try {
+    const mediaCount = await propertyService.getMediaCount(params.data.id);
+    if (propertyMedia.length + mediaCount > 10) {
+      logger.warn({
+        route: req.originalUrl,
+        message: "Property media limit reached",
+        info: {
+          requestId: req.id,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+
+      res.status(400).json({
+        requestId: req.id,
+        message: L[lang].PROPERTY_MEDIA_LIMIT_REACHED(),
+        details: L[lang].PROPERTY_MEDIA_LIMIT_REACHED_DETAILS(),
+      });
+
+      return;
+    }
+
+    const property = await propertyService.addPropertyMedia(propertyMedia);
+
+    if (!property.length) {
+      logger.warn({
+        route: req.originalUrl,
+        message: "Property was not found",
+        info: {
+          requestId: req.id,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+
+      res.status(404).json({
+        requestId: req.id,
+        message: L[lang].PROPERTY_NOT_FOUND(),
+        details: L[lang].PROPERTY_NOT_FOUND_DETAILS(),
+      });
+
+      return;
+    }
+
+    res.status(200).json({
+      message: L[lang].PROPERTY_UPDATED_SUCCESSFULLY(),
+      data: property,
+    });
+  } catch (error) {
+    if (error instanceof DatabaseError) {
+      if (error.code === "23503") {
+        logger.warn({
+          route: req.originalUrl,
+          message: "Property was not found",
+          info: {
+            requestId: req.id,
+            userId: req.user.id,
+            ip: req.ip,
+            browser: req.headers["user-agent"],
+          },
+        });
+
+        res.status(404).json({
+          requestId: req.id,
+          message: L[lang].PROPERTY_NOT_FOUND(),
+          details: L[lang].PROPERTY_NOT_FOUND_DETAILS(),
+        });
+
+        return;
+      }
+    } else if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error.message,
+          stack: error.stack,
+          userId: req.user.id,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error,
+          userId: req.user.id,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
+
+    res.status(500).json({
+      requestId: req.id,
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
+    });
+  }
+}
+
+export async function getPropertyMedia(req: Request, res: Response) {
+  assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
+  const params = getItemByIdInputDTO.safeParse(req.params);
+
+  if (!params.success) {
+    logger.warn({
+      router: req.originalUrl,
+      message: "Invalid input",
+      info: {
+        userId: req.user.id,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
+    const errors = params.error.errors;
+    res.status(400).json({
+      requestId: req.id,
+      message: L[lang].INPUT_VALIDATION_ERROR(),
+      errors: errors.map((error) => {
+        return { path: error.path[0], message: error.message };
+      }),
+    });
+    return;
+  }
+
+  try {
+    const property = await propertyService.getPropertyMedia(params.data.id);
+
+    res.status(200).json({
+      message: L[lang].PROPERTY_UPDATED_SUCCESSFULLY(),
+      data: property,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error.message,
+          stack: error.stack,
+          userId: req.user.id,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error,
+          userId: req.user.id,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
+
+    res.status(500).json({
+      requestId: req.id,
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
+    });
+  }
+}
+
+export async function deletePropertyMedia(req: Request, res: Response) {
+  assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
+  const params = getItemByIdInputDTO
+    .merge(getMediaByIdInputDTO)
+    .safeParse(req.params);
+
+  if (!params.success) {
+    logger.warn({
+      router: req.originalUrl,
+      message: "Invalid input",
+      info: {
+        userId: req.user.id,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+    const errors = params.error.errors;
+    res.status(400).json({
+      requestId: req.id,
+      message: L[lang].INPUT_VALIDATION_ERROR(),
+      errors: errors.map((error) => {
+        return { path: error.path[0], message: error.message };
+      }),
+    });
+
+    return;
+  }
+
+  try {
+    const property = await propertyService.deletePropertyMedia(
+      params.data.id,
+      params.data.mediaId,
+    );
+
+    if (!property.rowCount) {
+      logger.warn({
+        route: req.originalUrl,
+        message: "Property was not found or property has no media",
+        info: {
+          requestId: req.id,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+
+      res.status(404).json({
+        requestId: req.id,
+        message: `${L[lang].PROPERTY_NOT_FOUND()} or ${L[
+          lang
+        ].PROPERTY_HAS_NO_MEDIA()}`,
+        details: L[lang].PROPERTY_IS_NOT_FOUND_OR_NO_MEDIA_DETAILS(),
+      });
+
+      return;
+    }
+
+    res.status(200).json({
+      message: L[lang].PROPERTY_MEDIA_DELETED_SUCCESSFULLY(),
+      data: property,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
       logger.error({
         route: req.originalUrl,
         message: "Internal server error",

@@ -4,6 +4,7 @@ import { verificationCode } from "../db/schemas/verificationCode.schema";
 import { profile } from "../db/schemas/profile.schema";
 import { role } from "../db/schemas/role.schema";
 import { property } from "../db/schemas/property.schema";
+import { propertyMedia } from "../db/schemas/propertyMedia.schema";
 
 declare global {
   type User = typeof user.$inferSelect;
@@ -12,6 +13,7 @@ declare global {
   type NotificationType = typeof notification.$inferSelect;
   type Role = typeof role.$inferSelect;
   type Property = typeof property.$inferSelect;
+  type PropertyMedia = typeof propertyMedia.$inferSelect;
 
   interface FacebookDebugTokenResponse {
     data: {

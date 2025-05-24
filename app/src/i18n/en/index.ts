@@ -59,6 +59,13 @@ const en = {
   PROPERTY_NOT_FOUND: "Property not found",
   PROPERTY_RETRIEVED_SUCCESSFULLY: "Property was retrieved successfully",
   PROPERTY_UPDATED_SUCCESSFULLY: "Property was updated successfully",
+  INVALID_MEDIA_FILES: "Invalid media files",
+  PROPERTY_MEDIA_RETRIEVED_SUCCESSFULLY:
+    "Property media was retrieved successfully",
+  PROPERTY_HAS_NO_MEDIA: "Property has no media",
+  PROPERTY_MEDIA_DELETED_SUCCESSFULLY:
+    "Property media was deleted successfully",
+  PROPERTY_MEDIA_LIMIT_REACHED: "Property media limit reached",
 
   // details
   EMAIL_ALREADY_USED_DETAILS: "Please choose another email",
@@ -92,6 +99,10 @@ const en = {
   ACCESS_DENIED_DETAILS: "You don't have permission to access this resource",
   PROPERTY_ALREADY_EXISTS_DETAILS: "Please choose another property title",
   PROPERTY_NOT_FOUND_DETAILS: "Please provide a valid property id",
+  INVALID_MEDIA_FILES_DETAILS: "Please provide valid media files",
+  PROPERTY_IS_NOT_FOUND_OR_NO_MEDIA_DETAILS:
+    "Please check if the property exists and has media",
+  PROPERTY_MEDIA_LIMIT_REACHED_DETAILS: "Please delete some media first",
 
   INTERNAL_SERVER_ERROR_DETAILS: "Please try again later",
 

@@ -15,10 +15,12 @@ import { db } from "../db";
 import { property } from "../db/schemas/property.schema";
 import type {
   CreatePropertyInputDTO,
+  CreatePropertyMediaInputDTO,
   PropertyQueryParams,
 } from "../dtos/property.dto";
 import { first } from "lodash-es";
 import { propertyView } from "../db/schemas/propertyView.schema";
+import { propertyMedia } from "../db/schemas/propertyMedia.schema";
 
 export async function createProperty(
   input: CreatePropertyInputDTO & {
@@ -26,13 +28,15 @@ export async function createProperty(
     thumbnailURL: Property["thumbnailURL"];
   },
 ) {
-  return db
-    .insert(property)
-    .values({
-      ...input,
-      location: sql`ST_SetSRID(ST_MakePoint(${input.location.x}, ${input.location.y}), 4326)`,
-    })
-    .returning();
+  return first(
+    await db
+      .insert(property)
+      .values({
+        ...input,
+        location: sql`ST_SetSRID(ST_MakePoint(${input.location.x}, ${input.location.y}), 4326)`,
+      })
+      .returning(),
+  );
 }
 
 export async function getProperties(input: PropertyQueryParams) {
@@ -173,4 +177,38 @@ export async function addNewView(
   return first(
     await db.insert(propertyView).values({ propertyId, userId }).returning(),
   );
+}
+
+export async function addPropertyMedia(input: CreatePropertyMediaInputDTO[]) {
+  return await db.insert(propertyMedia).values(input).returning();
+}
+
+export async function getPropertyMedia(propertyId: Property["id"]) {
+  return await db
+    .select()
+    .from(propertyMedia)
+    .where(eq(propertyMedia.propertyId, propertyId));
+}
+
+export async function deletePropertyMedia(
+  propertyId: Property["id"],
+  mediaId: PropertyMedia["id"],
+) {
+  return await db
+    .delete(propertyMedia)
+    .where(
+      and(
+        eq(propertyMedia.propertyId, propertyId),
+        eq(propertyMedia.id, mediaId),
+      ),
+    );
+}
+
+export async function getMediaCount(propertyId: Property["id"]) {
+  return (
+    await db
+      .select({ count: count() })
+      .from(propertyMedia)
+      .where(eq(propertyMedia.propertyId, propertyId))
+  )[0].count;
 }

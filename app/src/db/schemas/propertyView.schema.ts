@@ -7,7 +7,7 @@ import { property } from "./property.schema";
 export const propertyView = pgTable("property_view", {
   id: serial().primaryKey(),
   userId: uuid().references(() => user.id),
-  propertyId: integer().references(() => property.id),
+  propertyId: integer().references(() => property.id, { onDelete: "cascade" }),
   viewedAt: timestamp().defaultNow(),
   ...timestamps,
 });
@@ -17,7 +17,7 @@ export const propertyViewsRelations = relations(propertyView, ({ one }) => ({
     fields: [propertyView.userId],
     references: [user.id],
   }),
-  propertiesView: one(property, {
+  property: one(property, {
     fields: [propertyView.propertyId],
     references: [property.id],
   }),

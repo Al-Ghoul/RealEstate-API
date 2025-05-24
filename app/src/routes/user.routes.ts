@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { isAuthenticated } from "../middlewares/auth.middleware";
 import * as userController from "../controllers/user.controller";
-import { upload } from "../utils/storage.utils";
+import { imageStorage } from "../utils/storage.utils";
 import { schemaValidatorMiddleware } from "../middlewares/schemaValidator.middleware";
 import { updateUserDTO, updateUserProfileDTO } from "../dtos/user.dto";
 
@@ -32,7 +32,7 @@ router.patch(
 router.put(
   "/me/profile/image",
   isAuthenticated,
-  upload.single("image"),
+  imageStorage.single("image"),
   userController.updateCurrentUserProfileImage,
 );
 

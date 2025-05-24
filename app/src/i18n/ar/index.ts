@@ -43,10 +43,10 @@ const ar = {
   ACCOUNT_LINK_SUCCESS: "تم ربط الحساب بنجاح",
   ACCOUNT_NOT_FOUND: "لم يتم العثور على الحساب",
   ACCOUNT_UNLINK_SUCCESS: "تم إلغاء ربط الحساب بنجاح",
-  ACCOUNTS_RETRIEVED_SUCCESSFULLY: "تم استرجاع الحسابات بنجاح",
-  USER_RETRIEVED_SUCCESSFULLY: "تم استرجاع المستخدم بنجاح",
+  ACCOUNTS_RETRIEVED_SUCCESSFULLY: "تم جلب الحسابات بنجاح",
+  USER_RETRIEVED_SUCCESSFULLY: "تم جلب المستخدم بنجاح",
   USER_UPDATE_SUCCESS: "تم تحديث المستخدم بنجاح",
-  USER_PROFILE_RETRIEVED_SUCCESSFULLY: "تم استرجاع ملف المستخدم بنجاح",
+  USER_PROFILE_RETRIEVED_SUCCESSFULLY: "تم جلب ملف المستخدم بنجاح",
   USER_PROFILE_UPDATE_SUCCESS: "تم تحديث ملف المستخدم بنجاح",
   NO_IMAGE_PROVIDED: "لم يتم تقديم صورة",
   INVALID_IMAGE_FORMAT: "تنسيق الصورة غير صحيح",
@@ -54,12 +54,17 @@ const ar = {
   ACCESS_DENIED: "الوصول ممنوع",
   UNABLE_TO_UPLOAD_IMAGE: "لا يمكن رفع الصورة",
   INPUT_VALIDATION_ERROR: "خطأ في البيانات المدخلة",
-  PROPERTIES_RETRIEVED_SUCCESSFULLY: "تم استرجاع الملكيات بنجاح",
+  PROPERTIES_RETRIEVED_SUCCESSFULLY: "تم جلب الملكيات بنجاح",
   PROPERTY_CREATED_SUCCESSFULLY: "تم إنشاء العقار بنجاح",
   PROPERTY_ALREADY_EXISTS: "العقار موجود بالفعل",
   PROPERTY_NOT_FOUND: "لم يتم العثور على العقار",
   PROPERTY_RETRIEVED_SUCCESSFULLY: "تم جلب بيانات العقار بنجاح",
   PROPERTY_UPDATED_SUCCESSFULLY: "تم تحديث بيانات العقار بنجاح",
+  INVALID_MEDIA_FILES: "نوع ملفات الوسائط غير صالح",
+  PROPERTY_MEDIA_RETRIEVED_SUCCESSFULLY: "تم جلب وسائط العقار بنجاح",
+  PROPERTY_HAS_NO_MEDIA: "العقار لا يحتوي على وسائط",
+  PROPERTY_MEDIA_DELETED_SUCCESSFULLY: "تم حذف وسائط العقار بنجاح",
+  PROPERTY_MEDIA_LIMIT_REACHED: "تم تجاوز حد الوسائط للعقار",
 
   INTERNAL_SERVER_ERROR: "حدث خطأ بالخادم",
 
@@ -95,6 +100,10 @@ const ar = {
   ACCESS_DENIED_DETAILS: "لا تملك الصلاحية للوصول لهذا المورد",
   PROPERTY_ALREADY_EXISTS_DETAILS: "الرجاء إختيار إسم آخر للعقار",
   PROPERTY_NOT_FOUND_DETAILS: "الرجاء توفير معرف عقار صحيح",
+  INVALID_MEDIA_FILES_DETAILS: "الرجاء تقديم ملفات صالحة",
+  PROPERTY_IS_NOT_FOUND_OR_NO_MEDIA_DETAILS:
+    "الرجاء من وجود العقار و وجود ملفات وسائط مرفقة",
+  PROPERTY_MEDIA_LIMIT_REACHED_DETAILS: "الرجاء حذف بعض الملفات اولا",
 
   INTERNAL_SERVER_ERROR_DETAILS: "الرجاء المحاولة في وقت لاحق",
 

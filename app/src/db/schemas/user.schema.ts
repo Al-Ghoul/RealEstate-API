@@ -35,5 +35,5 @@ export const userRelations = relations(user, ({ many, one }) => ({
   verificationCodes: many(verificationCode),
   roles: many(userRole),
   properties: many(property),
-  propertiesViews: many(propertyView),
+  propertyViews: many(propertyView),
 }));
