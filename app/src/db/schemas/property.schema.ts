@@ -14,6 +14,7 @@ import { timestamps } from "../helpers/time.helpers";
 import { user } from "./user.schema";
 import { relations, sql } from "drizzle-orm";
 import { propertyView } from "./propertyView.schema";
+import { propertyMedia } from "./propertyMedia.schema";
 
 export const propertyType = pgEnum("property_type", [
   "apartment",
@@ -71,5 +72,6 @@ export const propertiesRelations = relations(property, ({ one, many }) => ({
     fields: [property.userId],
     references: [user.id],
   }),
-  propertiesViews: many(propertyView),
+  views: many(propertyView),
+  media: many(propertyMedia),
 }));

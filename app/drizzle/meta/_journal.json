@@ -57,6 +57,13 @@
       "when": 1747768056790,
       "tag": "0007_add_property_views_table",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1748051902649,
+      "tag": "0008_add_property_medias_table",
+      "breakpoints": true
     }
   ]
 }
