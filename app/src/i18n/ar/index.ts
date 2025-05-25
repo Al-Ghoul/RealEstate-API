@@ -65,6 +65,7 @@ const ar = {
   PROPERTY_HAS_NO_MEDIA: "العقار لا يحتوي على وسائط",
   PROPERTY_MEDIA_DELETED_SUCCESSFULLY: "تم حذف وسائط العقار بنجاح",
   PROPERTY_MEDIA_LIMIT_REACHED: "تم تجاوز حد الوسائط للعقار",
+  PROPERTY_DELETED_SUCCESSFULLY: "تم حذف العقار بنجاح",
 
   INTERNAL_SERVER_ERROR: "حدث خطأ بالخادم",
 

@@ -103,6 +103,7 @@ const en = {
   PROPERTY_IS_NOT_FOUND_OR_NO_MEDIA_DETAILS:
     "Please check if the property exists and has media",
   PROPERTY_MEDIA_LIMIT_REACHED_DETAILS: "Please delete some media first",
+  PROPERTY_DELETED_SUCCESSFULLY: "Property was deleted successfully",
 
   INTERNAL_SERVER_ERROR_DETAILS: "Please try again later",
 

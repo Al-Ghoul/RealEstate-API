@@ -212,3 +212,15 @@ export async function getMediaCount(propertyId: Property["id"]) {
       .where(eq(propertyMedia.propertyId, propertyId))
   )[0].count;
 }
+
+export async function deletePropertyById(
+  propertyId: Property["id"],
+  userId: User["id"],
+) {
+  return first(
+    await db
+      .delete(property)
+      .where(and(eq(property.id, propertyId), eq(property.userId, userId)))
+      .returning(),
+  );
+}

@@ -870,3 +870,95 @@ export async function deletePropertyMedia(req: Request, res: Response) {
     });
   }
 }
+
+export async function deleteProperty(req: Request, res: Response) {
+  assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
+  const params = getItemByIdInputDTO.safeParse(req.params);
+
+  if (!params.success) {
+    logger.warn({
+      router: req.originalUrl,
+      message: "Invalid input",
+      info: {
+        userId: req.user.id,
+        requestId: req.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+    const errors = params.error.errors;
+    res.status(400).json({
+      requestId: req.id,
+      message: L[lang].INPUT_VALIDATION_ERROR(),
+      errors: errors.map((error) => {
+        return { path: error.path[0], message: error.message };
+      }),
+    });
+    return;
+  }
+
+  try {
+    const property = await propertyService.deletePropertyById(
+      params.data.id,
+      req.user.id,
+    );
+
+    if (!property) {
+      logger.warn({
+        route: req.originalUrl,
+        message: "Property was not found",
+        info: {
+          requestId: req.id,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+
+      res.status(404).json({
+        requestId: req.id,
+        message: L[lang].PROPERTY_NOT_FOUND(),
+        details: L[lang].PROPERTY_NOT_FOUND_DETAILS(),
+      });
+
+      return;
+    }
+
+    res.status(200).json({
+      message: L[lang].PROPERTY_DELETED_SUCCESSFULLY(),
+      data: property,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error.message,
+          stack: error.stack,
+          userId: req.user.id,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error,
+          userId: req.user.id,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
+
+    res.status(500).json({
+      requestId: req.id,
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
+    });
+  }
+}

@@ -38,4 +38,6 @@ router.delete(
   propertyController.deletePropertyMedia,
 );
 
+router.delete("/:id", isAuthenticated, propertyController.deleteProperty);
+
 export default router;

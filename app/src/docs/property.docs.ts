@@ -215,6 +215,70 @@ registry.registerPath({
 });
 
 registry.registerPath({
+  method: "delete",
+  path: "/api/properties/{id}",
+  tags: ["Properties"],
+  description: "Delete a property by id",
+  summary: "Delete a property by id",
+  security: [{ [bearerAuth.name]: [] }],
+  request: {
+    headers: [acceptLanguageHeader],
+    params: getItemByIdInputDTO,
+  },
+  responses: {
+    200: {
+      description: L[lang].PROPERTY_DELETED_SUCCESSFULLY(),
+      content: {
+        "application/json": {
+          schema: createSuccessResponseSchema(basePropertyDTO),
+        },
+      },
+    },
+    400: {
+      description: L[lang].INPUT_VALIDATION_ERROR(),
+      content: {
+        "application/json": {
+          schema: ValidationErrorResponseSchema,
+        },
+      },
+    },
+    401: {
+      description: L[lang].ACCESS_DENIED(),
+      content: {
+        "application/json": {
+          schema: GenericResponseSchema,
+        },
+      },
+    },
+    403: {
+      description: `${L[lang].INVALID_ACCESS_TOKEN()} or ${L[
+        lang
+      ].REVOKED_ACCESS_TOKEN()}`,
+      content: {
+        "application/json": {
+          schema: GenericResponseSchema,
+        },
+      },
+    },
+    404: {
+      description: L[lang].PROPERTY_NOT_FOUND(),
+      content: {
+        "application/json": {
+          schema: GenericResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: L[lang].INTERNAL_SERVER_ERROR(),
+      content: {
+        "application/json": {
+          schema: GenericResponseSchema,
+        },
+      },
+    },
+  },
+});
+registry.registerPath({
   method: "patch",
   path: "/api/properties/{id}",
   tags: ["Properties"],
