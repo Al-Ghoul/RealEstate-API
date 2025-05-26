@@ -15,6 +15,11 @@ USER ||--o{ PROPERTY : "User's properties"
 USER ||--o{ USER_ROLE : "has"
 ROLE ||--o{ USER_ROLE : "assigned to"
 
+USER ||--o{ PROPERTY_VIEW : "User's properties views"
+PROPERTY ||--o| PROPERTY_VIEW : "User's properties"
+
+PROPERTY ||--o{ PROPERTY_MEDIA : "Property's media"
+
 
 USER {
     UUID id PK
@@ -89,6 +94,25 @@ PROPERTY {
     TEXT description
     DECIMAL price
     POINT location
+    DATETIME created_at
+    DATETIME updated_at
+}
+
+PROPERTY_VIEW {
+    SERIAL id PK
+    UUID property_id FK
+    UUID user_id FK
+    DATETIME viewed_at
+    DATETIME created_at
+    DATETIME updated_at
+}
+
+PROPERTY_MEDIA {
+    SERIAL id PK
+    UUID property_id FK
+    TEXT url
+    ENUM type "IMAGE, VIDEO"
+    TEXT mimeType
     DATETIME created_at
     DATETIME updated_at
 }
