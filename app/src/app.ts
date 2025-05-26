@@ -1,4 +1,8 @@
-import express from "express";
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import { join } from "path";
 import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 import swaggerUi from "swagger-ui-express";
@@ -10,13 +14,16 @@ import {
   errorLogger,
   accessLogger,
 } from "./middlewares/morganLogger.middleware";
-import { env } from "process";
 import compression from "compression";
 import responseTime from "response-time";
 import createLocaleMiddleware from "express-locale";
 import { loadAllLocales } from "./i18n/i18n-util.sync";
 import propertyRoutes from "./routes/property.routes";
 import { openApiDoc } from "./docs";
+import type { Locales } from "./i18n/i18n-types";
+import { configureZodI18n } from "./dtos";
+import chatRoutes from "./routes/chat.routes";
+import { env } from "./config/env.config";
 
 loadAllLocales();
 
@@ -32,7 +39,9 @@ if (env.NODE_ENV !== "production") {
   };
 
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDoc, options));
-  console.log("✅ Swagger docs available at http://localhost:3000/api-docs");
+  console.log(
+    `✅ Swagger docs available at http://localhost:${env.PORT.toString()}/api-docs`,
+  );
 }
 
 app.use(responseTime());
@@ -58,6 +67,12 @@ app.use(
     allowed: ["en", "ar", "en-US", "ar-EG"],
   }),
 );
+
+app.use((req: Request, _: Response, next: NextFunction) => {
+  const lang = req.locale.language as Locales;
+  configureZodI18n(lang);
+  next();
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);

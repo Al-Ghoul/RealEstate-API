@@ -126,6 +126,9 @@ const ar = {
   FIELD_IS_REQUIED: "هذا الحقل مطلوب",
   INVALID_CODE: "كود غير صحيح، يأتي الكود في هذه الصيغة: XXX-XXX",
   EXPECTED_X_RECEIVED_Y: "المطلوب {expected}، ولكن تم استلام {received}",
+  PRICE_MUST_BE_A_VALID_DECIMAL: "السعر يجب ان يكون رقم",
+  ROOMS_MUST_BE_A_VALID_INTEGER: "عدد الغرف يجب ان يكون رقم",
+  AREA_MUST_BE_A_VALID_DECIMAL: "المساحة يجب ان تكون رقم",
 
   string: "جملة",
   number: "رقم",

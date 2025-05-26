@@ -68,12 +68,9 @@ export const createPropertyInputDTO = basePropertyDTO
     updatedAt: true,
   })
   .extend({
-    price: z.coerce
-      .string()
-      .regex(/^\d+(\.\d{1,2})?$/)
-      .openapi({
-        example: "199.99",
-      }),
+    price: z.coerce.number().openapi({
+      format: "float",
+    }),
     location: locationSchema,
     rooms: z.coerce.number().min(0),
     area: z.coerce.number().min(0),

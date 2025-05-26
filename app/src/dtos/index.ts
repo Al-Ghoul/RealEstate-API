@@ -9,26 +9,26 @@ export function configureZodI18n(locale: Locales) {
       case z.ZodIssueCode.custom:
         if (issue.path[0] === "confirmPassword") {
           return { message: L[locale].PASSWORDS_DO_NOT_MATCH() };
+        } else if (issue.path[0] === "price") {
+          return { message: L[locale].PRICE_MUST_BE_A_VALID_DECIMAL() };
+        } else if (issue.path[0] === "rooms") {
+          return { message: L[locale].ROOMS_MUST_BE_A_VALID_INTEGER() };
+        } else if (issue.path[0] === "area") {
+          return { message: L[locale].AREA_MUST_BE_A_VALID_DECIMAL() };
         }
         break;
 
       case z.ZodIssueCode.invalid_type:
         if (issue.path[0] === "code") {
           return { message: L[locale].CODE_IS_REQUIRED() };
-        } else if (
-          issue.path[0] === "price" &&
-          issue.received !== "undefined"
-        ) {
+        } else if (issue.path[0] === "price") {
           return {
             message: L[locale].EXPECTED_X_RECEIVED_Y({
               expected: L[locale][issue.expected](),
               received: L[locale][issue.received](),
             }),
           };
-        } else if (
-          issue.path[0] === "location" &&
-          issue.received !== "undefined"
-        ) {
+        } else if (issue.path[0] === "location") {
           return {
             message: L[locale].EXPECTED_X_RECEIVED_Y({
               expected: L[locale][issue.expected](),

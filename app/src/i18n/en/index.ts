@@ -120,6 +120,9 @@ const en = {
   FIELD_IS_REQUIED: "This field is required",
   INVALID_CODE: "Invalid code, the code must be in this form XXX-XXX",
   EXPECTED_X_RECEIVED_Y: "Expected {expected} but received {received}",
+  PRICE_MUST_BE_A_VALID_DECIMAL: "Price must be a valid decimal",
+  ROOMS_MUST_BE_A_VALID_INTEGER: "Rooms must be a valid integer",
+  AREA_MUST_BE_A_VALID_DECIMAL: "Area must be a valid decimal",
 
   string: "string",
   number: "number",
