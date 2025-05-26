@@ -242,7 +242,12 @@ export async function linkAccount(
   });
 }
 
-export async function createUserByFacebook(fbUserData: FacebookUser) {
+export async function createUserByFacebook(
+  fbUserData: FacebookUser,
+  input: {
+    role: CreateUserInputDTO["role"];
+  },
+) {
   const {
     id,
     email,
@@ -251,6 +256,15 @@ export async function createUserByFacebook(fbUserData: FacebookUser) {
     picture,
   } = fbUserData;
 
+  const [selectedRole] = await db
+    .select()
+    .from(role)
+    .where(eq(role.name, input.role))
+    .limit(1);
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (!selectedRole) throw new Error("Role not found");
+
   const [createdUser] = await db
     .insert(user)
     .values({
@@ -258,6 +272,10 @@ export async function createUserByFacebook(fbUserData: FacebookUser) {
       emailVerified: email ? new Date() : null,
     })
     .returning({ id: user.id, email: user.email });
+
+  await db
+    .insert(userRole)
+    .values({ userId: createdUser.id, roleId: selectedRole.id });
 
   await db
     .insert(profile)
@@ -286,9 +304,23 @@ export async function unLinkAccount(provider: string, userId: string) {
     .where(and(eq(account.provider, provider), eq(account.userId, userId)));
 }
 
-export async function createUserByGoogle(data: TokenPayload | undefined) {
+export async function createUserByGoogle(
+  data: TokenPayload | undefined,
+  input: {
+    role: CreateUserInputDTO["role"];
+  },
+) {
   if (!data) throw new Error("No user data");
   const [firstName, lastName] = data.name?.split(" ") ?? [null, null];
+
+  const [selectedRole] = await db
+    .select()
+    .from(role)
+    .where(eq(role.name, input.role))
+    .limit(1);
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (!selectedRole) throw new Error("Role not found");
 
   const [createdUser] = await db
     .insert(user)
@@ -297,6 +329,10 @@ export async function createUserByGoogle(data: TokenPayload | undefined) {
       emailVerified: data.email_verified ? new Date() : null,
     })
     .returning({ id: user.id, email: user.email });
+
+  await db
+    .insert(userRole)
+    .values({ userId: createdUser.id, roleId: selectedRole.id });
 
   const imageURI = `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${
     data.name || data.sub

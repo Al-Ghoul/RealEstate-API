@@ -1251,7 +1251,9 @@ export async function loginWithFacebook(req: Request, res: Response) {
       }
     }
 
-    const user = await userService.createUserByFacebook(fbUserData);
+    const user = await userService.createUserByFacebook(fbUserData, {
+      role: "client",
+    });
 
     logger.info({
       route: req.originalUrl,
@@ -1355,7 +1357,9 @@ export async function loginWithGoogle(req: Request, res: Response) {
       }
     }
 
-    const user = await userService.createUserByGoogle(googleUserData);
+    const user = await userService.createUserByGoogle(googleUserData, {
+      role: "client",
+    });
 
     logger.info({
       route: req.originalUrl,
