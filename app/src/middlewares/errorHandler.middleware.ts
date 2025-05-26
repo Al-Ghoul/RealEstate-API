@@ -14,11 +14,23 @@ export function errorHandlerMiddleware(
 
   if (error) {
     if (error instanceof multer.MulterError) {
+      logger.warn({
+        router: req.originalUrl,
+        message: "Invalid mime type",
+        info: {
+          userId: req.user.id,
+          requestId: req.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+
       res.status(400).json({
         requestId: req.id,
-        message: L[lang].UNABLE_TO_UPLOAD_IMAGE(),
-        details: L[lang].UNABLE_TO_UPLOAD_IMAGE_DETAILS(),
+        message: L[lang].INVALID_MEDIA_FILES(),
+        details: L[lang].INVALID_MEDIA_FILES_DETAILS(),
       });
+      return;
     } else if (error instanceof Error) {
       if (error.message === "Unauthenticated") {
         logger.warn({
@@ -36,6 +48,23 @@ export function errorHandlerMiddleware(
           details: L[lang].MISSING_AUTHORIZATION_TOKEN_DETAILS(),
         });
         return;
+      } else if (error.message === "Invalid mime type") {
+        logger.warn({
+          router: req.originalUrl,
+          message: "Invalid mime type",
+          info: {
+            requestId: req.id,
+            ip: req.ip,
+            browser: req.headers["user-agent"],
+          },
+        });
+
+        res.status(400).json({
+          requestId: req.id,
+          message: L[lang].INVALID_MEDIA_FILES(),
+          details: L[lang].INVALID_MEDIA_FILES_DETAILS(),
+        });
+        return;
       }
 
       logger.error({
@@ -49,10 +78,10 @@ export function errorHandlerMiddleware(
         },
       });
 
-      res.status(400).json({
+      res.status(500).json({
         requestId: req.id,
-        message: L[lang].UNABLE_TO_UPLOAD_IMAGE(),
-        details: L[lang].UNABLE_TO_UPLOAD_IMAGE_DETAILS(),
+        message: L[lang].INTERNAL_SERVER_ERROR(),
+        details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
       });
     }
     return;
