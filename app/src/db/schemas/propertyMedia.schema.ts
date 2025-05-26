@@ -4,8 +4,8 @@ import { relations } from "drizzle-orm";
 import { property } from "./property.schema";
 
 export const propertyMediaType = pgEnum("property_media_type", [
-  "image",
-  "video",
+  "IMAGE",
+  "VIDEO",
 ]);
 
 export const propertyMedia = pgTable("property_media", {

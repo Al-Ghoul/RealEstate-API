@@ -20,7 +20,7 @@ export async function createProperty(req: Request, res: Response) {
   assertAuthenticated(req);
   const lang = req.locale.language as Locales;
 
-  if (!req.user.roles.includes("agent") && !req.user.roles.includes("admin")) {
+  if (!req.user.roles.includes("AGENT") && !req.user.roles.includes("ADMIN")) {
     res.status(403).json({
       requestId: req.id,
       message: L[lang].ACCESS_DENIED(),
@@ -595,7 +595,7 @@ export async function addPropertyMedia(req: Request, res: Response) {
       url: `${req.protocol}://${
         req.get("host") ?? "localhost"
       }/public/uploads/property-media/${fileName}`,
-      type: fileType.mime.includes("image") ? "image" : "video",
+      type: fileType.mime.includes("image") ? "IMAGE" : "VIDEO",
       mimeType: fileType.mime,
     });
   }

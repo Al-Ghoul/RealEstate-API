@@ -33,7 +33,7 @@ export const createUserInputDTO = z
     lastName: baseProfileDTO.shape.lastName.unwrap(),
     password: baseUserDTO.shape.password.unwrap(),
     confirmPassword: baseUserDTO.shape.password.unwrap(),
-    role: z.enum(roleType.enumValues).exclude(["admin"]),
+    role: z.enum(roleType.enumValues).exclude(["ADMIN"]),
   })
   .strict()
   .refine((data) => data.password === data.confirmPassword, {

@@ -17,17 +17,17 @@ import { propertyView } from "./propertyView.schema";
 import { propertyMedia } from "./propertyMedia.schema";
 
 export const propertyType = pgEnum("property_type", [
-  "apartment",
-  "house",
-  "land",
-  "coastal",
-  "commercial",
+  "APARTMENT",
+  "HOUSE",
+  "LAND",
+  "COASTAL",
+  "COMMERCIAL",
 ]);
 
 export const propertyStatus = pgEnum("property_status", [
-  "available",
-  "rented",
-  "sold",
+  "AVAILABLE",
+  "RENTED",
+  "SOLD",
 ]);
 
 export const property = pgTable(

@@ -164,13 +164,13 @@ describe("Check for auth endpoints inputs and outputs ", () => {
 beforeAll(async () => {
   await db.insert(role).values([
     {
-      name: "admin",
+      name: "ADMIN",
     },
     {
-      name: "agent",
+      name: "AGENT",
     },
     {
-      name: "client",
+      name: "CLIENT",
     },
   ]);
 

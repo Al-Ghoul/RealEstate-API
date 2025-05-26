@@ -14,7 +14,7 @@ const basicUser = {
   lastName: "Doe",
   password: "password",
   confirmPassword: "password",
-  role: "client",
+  role: "CLIENT",
 };
 
 describe("Check for user endpoints inputs and outputs ", () => {
@@ -172,13 +172,13 @@ describe("Check for user endpoints inputs and outputs ", () => {
 beforeAll(async () => {
   await db.insert(role).values([
     {
-      name: "admin",
+      name: "ADMIN",
     },
     {
-      name: "agent",
+      name: "AGENT",
     },
     {
-      name: "client",
+      name: "CLIENT",
     },
   ]);
 

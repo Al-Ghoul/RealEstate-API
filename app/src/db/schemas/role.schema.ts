@@ -3,7 +3,7 @@ import { relations } from "drizzle-orm";
 import { timestamps } from "../helpers/time.helpers";
 import { userRole } from "./userRole.schema";
 
-export const roleType = pgEnum("role_type", ["agent", "client", "admin"]);
+export const roleType = pgEnum("role_type", ["AGENT", "CLIENT", "ADMIN"]);
 
 export const role = pgTable("role", {
   id: serial().primaryKey(),
