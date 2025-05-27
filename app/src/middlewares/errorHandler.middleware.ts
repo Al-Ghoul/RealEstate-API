@@ -18,7 +18,6 @@ export function errorHandlerMiddleware(
         router: req.originalUrl,
         message: "Invalid mime type",
         info: {
-          userId: req.user.id,
           requestId: req.id,
           ip: req.ip,
           browser: req.headers["user-agent"],
