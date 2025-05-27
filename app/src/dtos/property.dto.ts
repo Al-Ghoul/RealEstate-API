@@ -68,7 +68,8 @@ export const createPropertyInputDTO = basePropertyDTO
     updatedAt: true,
   })
   .extend({
-    price: z.coerce.number().openapi({
+    price: z.coerce.string().openapi({
+      example: "1.99",
       format: "float",
     }),
     location: locationSchema,
