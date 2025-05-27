@@ -194,43 +194,94 @@ components:
         - userId
         - provider
         - providerAccountId
-    Property:
+    PropertyMedia:
       type: object
       properties:
         id:
           type: integer
           minimum: -2147483648
           maximum: 2147483647
-        title:
+        propertyId:
+          type: integer
+          minimum: -2147483648
+          maximum: 2147483647
+        url:
           type: string
-          example: Some title
-        description:
+        type:
           type: string
-        price:
+          enum: &a4
+            - IMAGE
+            - VIDEO
+        mimeType:
           type: string
-        location:
-          type: object
-          properties:
-            x:
-              type: number
-            y:
-              type: number
-          required:
-            - x
-            - y
-        userId:
-          type: string
-          format: uuid
         updatedAt:
           type: string
         createdAt:
           type: string
       required:
+        - propertyId
+        - url
+        - type
+        - mimeType
+    Property:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: string
+          nullable: true
+          format: float
+          example: "1.99"
+        type:
+          type: string
+          enum: &a2
+            - APARTMENT
+            - HOUSE
+            - LAND
+            - COASTAL
+            - COMMERCIAL
+        status:
+          type: string
+          enum: &a3
+            - AVAILABLE
+            - RENTED
+            - SOLD
+        area:
+          type: number
+          nullable: true
+          minimum: 0
+        rooms:
+          type: number
+          nullable: true
+          minimum: 0
+        isPublished:
+          type: boolean
+          nullable: true
+          default: false
+        location:
+          anyOf:
+            - type: object
+              properties:
+                x:
+                  type: number
+                y:
+                  type: number
+              required:
+                - x
+                - y
+            - type: string
+      required:
         - title
         - description
-        - price
+        - type
+        - status
+        - area
+        - rooms
         - location
-        - userId
+      additionalProperties: false
   parameters: {}
 paths:
   /api/auth/register:
@@ -286,8 +337,8 @@ paths:
                 role:
                   type: string
                   enum:
-                    - agent
-                    - client
+                    - CLIENT
+                    - ADMIN
               required:
                 - email
                 - firstName
@@ -1851,7 +1902,7 @@ paths:
                   - requestId
                   - message
                   - details
-  /api/auth/me/accounts/unlink:
+  /api/auth/me/accounts/unlink/{provider}:
     delete:
       tags:
         - Auth | Accounts
@@ -2724,32 +2775,62 @@ paths:
           name: Accept-Language
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
                 title:
                   type: string
-                  example: Some title
                 description:
                   type: string
                 price:
                   type: string
+                  nullable: true
+                  format: float
+                  example: "1.99"
+                type:
+                  type: string
+                  enum: *a2
+                status:
+                  type: string
+                  enum: *a3
+                area:
+                  type: number
+                  nullable: true
+                  minimum: 0
+                rooms:
+                  type: number
+                  nullable: true
+                  minimum: 0
+                isPublished:
+                  type: boolean
+                  nullable: true
+                  default: false
                 location:
-                  type: object
-                  properties:
-                    x:
-                      type: number
-                    y:
-                      type: number
-                  required:
-                    - x
-                    - y
+                  anyOf:
+                    - type: object
+                      properties:
+                        x:
+                          type: number
+                        y:
+                          type: number
+                      required:
+                        - x
+                        - y
+                    - type: string
+                thumbnail:
+                  type: string
+                  format: binary
+                  description: The thumbnail image file
               required:
                 - title
                 - description
-                - price
+                - type
+                - status
+                - area
+                - rooms
                 - location
+                - thumbnail
               additionalProperties: false
       responses:
         "201":
@@ -2770,10 +2851,29 @@ paths:
                         maximum: 2147483647
                       title:
                         type: string
-                        example: Some title
                       description:
                         type: string
                       price:
+                        type: string
+                      type:
+                        type: string
+                        enum: *a2
+                      status:
+                        type: string
+                        enum: *a3
+                      area:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      rooms:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      isPublished:
+                        type: boolean
+                      isFeatured:
+                        type: boolean
+                      thumbnailURL:
                         type: string
                       location:
                         type: object
@@ -2796,12 +2896,17 @@ paths:
                       - title
                       - description
                       - price
+                      - type
+                      - status
+                      - area
+                      - rooms
+                      - thumbnailURL
                       - location
                       - userId
                 required:
                   - data
         "400":
-          description: Input validation error
+          description: Input validation error or Invalid image format
           content:
             application/json:
               schema:
@@ -2898,14 +3003,46 @@ paths:
           required: false
           description: Limit the number of properties returned
           name: limit
-          in: path
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            description: Filter properties by number of rooms
+          required: false
+          description: Filter properties by number of rooms
+          name: rooms
+          in: query
+        - schema:
+            type: number
+            minimum: 1
+            description: Filter properties by area
+          required: false
+          description: Filter properties by area
+          name: area
+          in: query
+        - schema:
+            type: string
+            enum: *a2
+            description: Filter properties by type
+          required: false
+          description: Filter properties by type
+          name: type
+          in: query
+        - schema:
+            type: string
+            enum: *a3
+            description: Filter properties by status
+          required: false
+          description: Filter properties by status
+          name: status
+          in: query
         - schema:
             type: string
             description: Search properties by name or description
           required: false
           description: Search properties by name or description
           name: searchTerm
-          in: path
+          in: query
         - schema:
             type: number
             nullable: true
@@ -2914,7 +3051,7 @@ paths:
           required: false
           description: Filter properties by minimum price
           name: minPrice
-          in: path
+          in: query
         - schema:
             type: number
             nullable: true
@@ -2923,7 +3060,7 @@ paths:
           required: false
           description: Filter properties by maximum price
           name: maxPrice
-          in: path
+          in: query
         - schema:
             type: number
             nullable: true
@@ -2933,7 +3070,7 @@ paths:
           required: false
           description: Filter properties by longitude
           name: longitude
-          in: path
+          in: query
         - schema:
             type: number
             nullable: true
@@ -2943,7 +3080,7 @@ paths:
           required: false
           description: Filter properties by latitude
           name: latitude
-          in: path
+          in: query
         - schema:
             type: number
             nullable: true
@@ -2952,7 +3089,7 @@ paths:
           required: false
           description: Filter properties by radius (in kilometers, 1 = 1km)
           name: radius
-          in: path
+          in: query
         - schema:
             type: string
             enum:
@@ -2962,7 +3099,7 @@ paths:
           required: false
           description: Sort properties by price or created_at
           name: sortBy
-          in: path
+          in: query
         - schema:
             type: string
             enum:
@@ -2972,7 +3109,7 @@ paths:
           required: false
           description: Sort properties in ascending or descending order
           name: order
-          in: path
+          in: query
         - schema:
             type: integer
             nullable: true
@@ -2981,14 +3118,14 @@ paths:
           required: false
           description: Cursor ID to paginate after a specific property
           name: cursor
-          in: path
+          in: query
         - schema:
             type: string
             description: Cursor created_at to paginate after a specific property
           required: false
           description: Cursor created_at to paginate after a specific property
           name: cursorCreatedAt
-          in: path
+          in: query
         - schema:
             type: string
             enum: *a1
@@ -3017,10 +3154,29 @@ paths:
                           maximum: 2147483647
                         title:
                           type: string
-                          example: Some title
                         description:
                           type: string
                         price:
+                          type: string
+                        type:
+                          type: string
+                          enum: *a2
+                        status:
+                          type: string
+                          enum: *a3
+                        area:
+                          type: integer
+                          minimum: -2147483648
+                          maximum: 2147483647
+                        rooms:
+                          type: integer
+                          minimum: -2147483648
+                          maximum: 2147483647
+                        isPublished:
+                          type: boolean
+                        isFeatured:
+                          type: boolean
+                        thumbnailURL:
                           type: string
                         location:
                           type: object
@@ -3043,6 +3199,11 @@ paths:
                         - title
                         - description
                         - price
+                        - type
+                        - status
+                        - area
+                        - rooms
+                        - thumbnailURL
                         - location
                         - userId
                   meta:
@@ -3149,6 +3310,1126 @@ paths:
                   - details
         "403":
           description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+  /api/properties/{id}:
+    get:
+      tags:
+        - Properties
+      description: Get a property by id
+      summary: Get a property by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: string
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      responses:
+        "200":
+          description: Property was retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      title:
+                        type: string
+                      description:
+                        type: string
+                      price:
+                        type: string
+                      type:
+                        type: string
+                        enum: *a2
+                      status:
+                        type: string
+                        enum: *a3
+                      area:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      rooms:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      isPublished:
+                        type: boolean
+                      isFeatured:
+                        type: boolean
+                      thumbnailURL:
+                        type: string
+                      location:
+                        type: object
+                        properties:
+                          x:
+                            type: number
+                          y:
+                            type: number
+                        required:
+                          - x
+                          - y
+                      userId:
+                        type: string
+                        format: uuid
+                      updatedAt:
+                        type: string
+                      createdAt:
+                        type: string
+                    required:
+                      - title
+                      - description
+                      - price
+                      - type
+                      - status
+                      - area
+                      - rooms
+                      - thumbnailURL
+                      - location
+                      - userId
+                required:
+                  - data
+        "400":
+          description: Input validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  details:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+                      required:
+                        - path
+                        - message
+                required:
+                  - message
+                  - details
+                  - errors
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "404":
+          description: Property not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+    delete:
+      tags:
+        - Properties
+      description: Delete a property by id
+      summary: Delete a property by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: string
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      responses:
+        "200":
+          description: Property was deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      title:
+                        type: string
+                      description:
+                        type: string
+                      price:
+                        type: string
+                      type:
+                        type: string
+                        enum: *a2
+                      status:
+                        type: string
+                        enum: *a3
+                      area:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      rooms:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      isPublished:
+                        type: boolean
+                      isFeatured:
+                        type: boolean
+                      thumbnailURL:
+                        type: string
+                      location:
+                        type: object
+                        properties:
+                          x:
+                            type: number
+                          y:
+                            type: number
+                        required:
+                          - x
+                          - y
+                      userId:
+                        type: string
+                        format: uuid
+                      updatedAt:
+                        type: string
+                      createdAt:
+                        type: string
+                    required:
+                      - title
+                      - description
+                      - price
+                      - type
+                      - status
+                      - area
+                      - rooms
+                      - thumbnailURL
+                      - location
+                      - userId
+                required:
+                  - data
+        "400":
+          description: Input validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  details:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+                      required:
+                        - path
+                        - message
+                required:
+                  - message
+                  - details
+                  - errors
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "404":
+          description: Property not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+    patch:
+      tags:
+        - Properties
+      description: Update a property by id
+      summary: Update a property by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: string
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                price:
+                  type: string
+                  nullable: true
+                  format: float
+                  example: "1.99"
+                type:
+                  type: string
+                  enum: *a2
+                status:
+                  type: string
+                  enum: *a3
+                area:
+                  type: number
+                  nullable: true
+                  minimum: 0
+                rooms:
+                  type: number
+                  nullable: true
+                  minimum: 0
+                isPublished:
+                  type: boolean
+                  nullable: true
+                  default: false
+                location:
+                  anyOf:
+                    - type: object
+                      properties:
+                        x:
+                          type: number
+                        y:
+                          type: number
+                      required:
+                        - x
+                        - y
+                    - type: string
+                thumbnail:
+                  type: string
+                  format: binary
+                  description: The thumbnail image file
+              required:
+                - title
+                - description
+                - type
+                - status
+                - area
+                - rooms
+                - location
+              additionalProperties: false
+      responses:
+        "200":
+          description: Property was updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      title:
+                        type: string
+                      description:
+                        type: string
+                      price:
+                        type: string
+                      type:
+                        type: string
+                        enum: *a2
+                      status:
+                        type: string
+                        enum: *a3
+                      area:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      rooms:
+                        type: integer
+                        minimum: -2147483648
+                        maximum: 2147483647
+                      isPublished:
+                        type: boolean
+                      isFeatured:
+                        type: boolean
+                      thumbnailURL:
+                        type: string
+                      location:
+                        type: object
+                        properties:
+                          x:
+                            type: number
+                          y:
+                            type: number
+                        required:
+                          - x
+                          - y
+                      userId:
+                        type: string
+                        format: uuid
+                      updatedAt:
+                        type: string
+                      createdAt:
+                        type: string
+                    required:
+                      - title
+                      - description
+                      - price
+                      - type
+                      - status
+                      - area
+                      - rooms
+                      - thumbnailURL
+                      - location
+                      - userId
+                required:
+                  - data
+        "400":
+          description: Input validation error or Invalid image format
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  details:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+                      required:
+                        - path
+                        - message
+                required:
+                  - message
+                  - details
+                  - errors
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "404":
+          description: Property not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+  /api/properties/{id}/media:
+    post:
+      tags:
+        - Properties
+      description: Add a media to a property by id
+      summary: Add a media to a property by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: string
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                    description: The media files
+              required:
+                - media
+      responses:
+        "200":
+          description: Property was updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          minimum: -2147483648
+                          maximum: 2147483647
+                        propertyId:
+                          type: integer
+                          minimum: -2147483648
+                          maximum: 2147483647
+                        url:
+                          type: string
+                        type:
+                          type: string
+                          enum: *a4
+                        mimeType:
+                          type: string
+                        updatedAt:
+                          type: string
+                        createdAt:
+                          type: string
+                      required:
+                        - propertyId
+                        - url
+                        - type
+                        - mimeType
+                required:
+                  - data
+        "400":
+          description:
+            Input validation error, Invalid media files or Property media limit
+            reached
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  details:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+                      required:
+                        - path
+                        - message
+                required:
+                  - message
+                  - details
+                  - errors
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "404":
+          description: Property not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+    get:
+      tags:
+        - Properties
+      description: Get all media of a property by id
+      summary: Get all media of a property by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: string
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      responses:
+        "200":
+          description: Property media was retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          minimum: -2147483648
+                          maximum: 2147483647
+                        propertyId:
+                          type: integer
+                          minimum: -2147483648
+                          maximum: 2147483647
+                        url:
+                          type: string
+                        type:
+                          type: string
+                          enum: *a4
+                        mimeType:
+                          type: string
+                        updatedAt:
+                          type: string
+                        createdAt:
+                          type: string
+                      required:
+                        - propertyId
+                        - url
+                        - type
+                        - mimeType
+                required:
+                  - data
+        "400":
+          description: Input validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  details:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+                      required:
+                        - path
+                        - message
+                required:
+                  - message
+                  - details
+                  - errors
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+  /api/properties/{id}/media/{mediaId}:
+    delete:
+      tags:
+        - Properties
+      description: Delete a media of a property by id
+      summary: Delete a media of a property by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: string
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+          required: true
+          name: mediaId
+          in: path
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      responses:
+        "200":
+          description: Property media was deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          minimum: -2147483648
+                          maximum: 2147483647
+                        propertyId:
+                          type: integer
+                          minimum: -2147483648
+                          maximum: 2147483647
+                        url:
+                          type: string
+                        type:
+                          type: string
+                          enum: *a4
+                        mimeType:
+                          type: string
+                        updatedAt:
+                          type: string
+                        createdAt:
+                          type: string
+                      required:
+                        - propertyId
+                        - url
+                        - type
+                        - mimeType
+                required:
+                  - data
+        "400":
+          description: Input validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  details:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+                      required:
+                        - path
+                        - message
+                required:
+                  - message
+                  - details
+                  - errors
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "404":
+          description: Property not found or Property has no media
           content:
             application/json:
               schema:
