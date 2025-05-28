@@ -153,13 +153,13 @@ export const ValidationErrorResponseSchema = z.object({
 
 registry.register("ValidationError", ValidationErrorResponseSchema);
 
-export const GenericResponseSchema = z.object({
+export const genericResponseSchema = z.object({
   requestId: z.string().uuid(),
   message: z.string(),
   details: z.string(),
 });
 
-registry.register("GenericResponse", GenericResponseSchema);
+registry.register("GenericResponse", genericResponseSchema);
 
 export const acceptLanguageHeader = z
   .enum(["en", "ar", "en-US", "ar-EG"])

@@ -14,7 +14,7 @@ import {
   acceptLanguageHeader,
   baseSuccessResponseSchema,
   createSuccessResponseSchema,
-  GenericResponseSchema,
+  genericResponseSchema,
   ValidationErrorResponseSchema,
 } from "../dtos";
 import { z } from "zod";
@@ -76,7 +76,7 @@ registry.registerPath({
       description: L[lang].EMAIL_ALREADY_USED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -84,7 +84,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -133,7 +133,7 @@ registry.registerPath({
       description: L[lang].INVALID_CREDENTIALS(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -141,7 +141,7 @@ registry.registerPath({
       description: L[lang].USER_CAN_ONLY_LOGIN_WITH_LINKED_ACCOUNT(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -149,7 +149,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -198,7 +198,7 @@ registry.registerPath({
       description: L[lang].INVALID_REFRESH_TOKEN(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -206,7 +206,7 @@ registry.registerPath({
       description: L[lang].REVOKED_ACCESS_TOKEN(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -214,7 +214,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -262,7 +262,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -270,7 +270,7 @@ registry.registerPath({
       description: L[lang].PASSWORD_RESET_CODE_COULD_NOT_BE_SENT(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -314,7 +314,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -376,7 +376,7 @@ registry.registerPath({
       description: L[lang].EMAIL_ALREADY_USED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -384,7 +384,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -446,7 +446,7 @@ registry.registerPath({
       description: L[lang].EMAIL_ALREADY_USED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -454,7 +454,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -484,7 +484,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -494,7 +494,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -502,7 +502,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -534,7 +534,7 @@ registry.registerPath({
       ].VERIFICATION_CODE_ALREADY_SENT()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -542,7 +542,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -552,7 +552,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -560,7 +560,7 @@ registry.registerPath({
       description: L[lang].CAN_NOT_SEND_VERIFICATION_CODE(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -568,7 +568,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -576,7 +576,7 @@ registry.registerPath({
       description: L[lang].VERIFICATION_CODE_COULD_NOT_BE_SENT(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -613,7 +613,7 @@ registry.registerPath({
       description: L[lang].INPUT_VALIDATION_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -621,7 +621,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -631,7 +631,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -639,7 +639,7 @@ registry.registerPath({
       description: L[lang].INVALID_OR_EXPIRED_VERIFICATION_CODE(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -647,7 +647,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -686,7 +686,7 @@ registry.registerPath({
       ].PASSWORD_INCORRECT()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -694,7 +694,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -704,7 +704,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()} or ${L[lang].PASSWORD_NOT_SET()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -712,7 +712,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -749,7 +749,7 @@ registry.registerPath({
       description: L[lang].INPUT_VALIDATION_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -757,7 +757,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -765,7 +765,7 @@ registry.registerPath({
       description: L[lang].PASSWORD_ALREADY_SET(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -773,7 +773,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -812,7 +812,7 @@ registry.registerPath({
       ].ACCOUNT_COULD_NOT_BE_LINKED()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -820,7 +820,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -830,7 +830,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -838,7 +838,7 @@ registry.registerPath({
       description: L[lang].EMAIL_ALREADY_USED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -846,7 +846,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -877,7 +877,7 @@ registry.registerPath({
       description: L[lang].INPUT_VALIDATION_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -885,7 +885,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -895,7 +895,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()} or ${L[lang].PASSWORD_NOT_SET()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -903,7 +903,7 @@ registry.registerPath({
       description: L[lang].ACCOUNT_NOT_FOUND(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -911,7 +911,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -941,7 +941,7 @@ registry.registerPath({
       description: L[lang].INPUT_VALIDATION_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -949,7 +949,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -959,7 +959,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -967,7 +967,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },

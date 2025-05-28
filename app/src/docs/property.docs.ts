@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   acceptLanguageHeader,
   createSuccessResponseSchema,
-  GenericResponseSchema,
+  genericResponseSchema,
   metaSchema,
   ValidationErrorResponseSchema,
 } from "../dtos";
@@ -65,7 +65,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -75,7 +75,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()} or ${L[lang].ACCESS_DENIED()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -83,7 +83,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -124,7 +124,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -134,7 +134,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -142,7 +142,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -181,7 +181,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -191,7 +191,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -199,7 +199,7 @@ registry.registerPath({
       description: L[lang].PROPERTY_NOT_FOUND(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -207,7 +207,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -246,7 +246,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -256,7 +256,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -264,7 +264,7 @@ registry.registerPath({
       description: L[lang].PROPERTY_NOT_FOUND(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -272,7 +272,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -327,7 +327,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -337,7 +337,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -345,7 +345,7 @@ registry.registerPath({
       description: L[lang].PROPERTY_NOT_FOUND(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -353,7 +353,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -408,7 +408,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -418,7 +418,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -426,7 +426,7 @@ registry.registerPath({
       description: L[lang].PROPERTY_NOT_FOUND(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -434,7 +434,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -473,7 +473,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -483,7 +483,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -491,7 +491,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -530,7 +530,7 @@ registry.registerPath({
       description: L[lang].ACCESS_DENIED(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -540,7 +540,7 @@ registry.registerPath({
       ].REVOKED_ACCESS_TOKEN()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -550,7 +550,7 @@ registry.registerPath({
       ].PROPERTY_HAS_NO_MEDIA()}`,
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
@@ -558,7 +558,7 @@ registry.registerPath({
       description: L[lang].INTERNAL_SERVER_ERROR(),
       content: {
         "application/json": {
-          schema: GenericResponseSchema,
+          schema: genericResponseSchema,
         },
       },
     },
