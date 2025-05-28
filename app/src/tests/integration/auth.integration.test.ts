@@ -7,13 +7,15 @@ import { basicUser, createUser } from "../lib";
 import { expect, describe, it, afterEach, beforeAll, afterAll } from "bun:test";
 import { role } from "../../db/schemas/role.schema";
 import { redisClient } from "../../utils/redis.utils";
+import L from "../../i18n/i18n-node";
 
+const locale = "en";
 describe("Check for auth endpoints inputs and outputs ", () => {
   it("POST /api/auth/register with valid data returns 201", async () => {
-    const response = await createUser(basicUser);
+    const createUserResponse = await createUser(basicUser);
 
-    expect(response.body).toMatchObject({
-      message: "Your registration was successful",
+    expect(createUserResponse.body).toMatchObject({
+      message: L[locale].REIGSTER_SUCCESS(),
       data: {
         id: expect.any(String),
         email: basicUser.email,
@@ -25,20 +27,20 @@ describe("Check for auth endpoints inputs and outputs ", () => {
   });
 
   it("POST /api/auth/login with an existing user returns 200", async () => {
-    const input = {
+    await createUser(basicUser);
+    const userLoginInput = {
       email: basicUser.email,
       password: basicUser.password,
     };
-    await createUser(basicUser);
-    const response = await request(app)
+    const userLoginResponse = await request(app)
       .post("/api/auth/login")
-      .send(input)
+      .send(userLoginInput)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(response.body).toMatchObject({
-      message: "Login was successful",
+    expect(userLoginResponse.body).toMatchObject({
+      message: L[locale].LOGIN_SUCCESS(),
       data: {
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
@@ -47,30 +49,30 @@ describe("Check for auth endpoints inputs and outputs ", () => {
   });
 
   it("POST /api/auth/refresh with a valid refresh token refreshes a user token", async () => {
-    const input = {
+    await createUser(basicUser);
+    const userLoginPut = {
       email: basicUser.email,
       password: basicUser.password,
     };
-    await createUser(basicUser);
-    const response = await request(app)
+    const userLoginResponse = await request(app)
       .post("/api/auth/login")
-      .send(input)
+      .send(userLoginPut)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    const refreshToken = response.body.data.refreshToken;
+    const refreshToken = userLoginResponse.body.data.refreshToken;
 
-    const response2 = await request(app)
+    const refreshTokensResponse = await request(app)
       .post("/api/auth/refresh")
       .send({ refreshToken })
-      .set("Authorization", `Bearer ${response.body.data.accessToken}`)
+      .set("Authorization", `Bearer ${userLoginResponse.body.data.accessToken}`)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(response2.body).toMatchObject({
-      message: "Tokens refreshed successfully",
+    expect(refreshTokensResponse.body).toMatchObject({
+      message: L[locale].TOKENS_REFRESHED_SUCCESSFULLY(),
       data: {
         accessToken: expect.any(String),
         refreshToken: expect.any(String),
@@ -79,84 +81,84 @@ describe("Check for auth endpoints inputs and outputs ", () => {
   });
 
   it("POST /api/auth/me/logout logs out a user", async () => {
-    const input = {
+    await createUser(basicUser);
+    const useLoginInput = {
       email: basicUser.email,
       password: basicUser.password,
     };
-    await createUser(basicUser);
-    const response = await request(app)
+    const userLoginResponse = await request(app)
       .post("/api/auth/login")
-      .send(input)
+      .send(useLoginInput)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    const response2 = await request(app)
+    const userLogoutResponse = await request(app)
       .post("/api/auth/me/logout")
-      .set("Authorization", `Bearer ${response.body.data.accessToken}`)
+      .set("Authorization", `Bearer ${userLoginResponse.body.data.accessToken}`)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(response2.body).toMatchObject({
-      message: "Logout was successful",
+    expect(userLogoutResponse.body).toMatchObject({
+      message: L[locale].LOGOUT_SUCCESS(),
     });
   });
 
   it("POST /api/auth/me/change-password with valid data changes a user password", async () => {
-    const input = {
+    await createUser(basicUser);
+    const userLoginInput = {
       email: basicUser.email,
       password: basicUser.password,
     };
-    await createUser(basicUser);
-    const response = await request(app)
+    const userLoginResponse = await request(app)
       .post("/api/auth/login")
-      .send(input)
+      .send(userLoginInput)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    const input2 = {
+    const updateUserPasswordINput = {
       currentPassword: basicUser.password,
       password: "newPassword",
       confirmPassword: "newPassword",
     };
-    const response2 = await request(app)
+    const updateCurrentUserPasswordResponse = await request(app)
       .post("/api/auth/me/change-password")
-      .send(input2)
-      .set("Authorization", `Bearer ${response.body.data.accessToken}`)
+      .send(updateUserPasswordINput)
+      .set("Authorization", `Bearer ${userLoginResponse.body.data.accessToken}`)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(response2.body).toMatchObject({
-      message: "Password change was successful",
+    expect(updateCurrentUserPasswordResponse.body).toMatchObject({
+      message: L[locale].PASSWORD_CHANGE_SUCCESS(),
     });
   });
 
   it("GET /api/auth/me/accounts with an existing user return user's accounts", async () => {
-    const input = {
+    await createUser(basicUser);
+    const userLoginInput = {
       email: basicUser.email,
       password: basicUser.password,
     };
-    await createUser(basicUser);
-    const response = await request(app)
+    const userLoginResponse = await request(app)
       .post("/api/auth/login")
-      .send(input)
+      .send(userLoginInput)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    const response2 = await request(app)
+    const getCurrentUserAccountsResponse = await request(app)
       .get("/api/auth/me/accounts")
-      .set("Authorization", `Bearer ${response.body.data.accessToken}`)
+      .set("Authorization", `Bearer ${userLoginResponse.body.data.accessToken}`)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(response2.body).toMatchObject({
-      message: "Accounts were retrieved successfully",
-      data: expect.any(Array),
+    expect(getCurrentUserAccountsResponse.body).toMatchObject({
+      message: L[locale].ACCOUNTS_RETRIEVED_SUCCESSFULLY(),
+      data: [],
     });
   });
 });

@@ -7,6 +7,9 @@ import { createUser } from "../lib";
 import { expect, describe, it, afterEach, beforeAll, afterAll } from "bun:test";
 import { role } from "../../db/schemas/role.schema";
 import { redisClient } from "../../utils/redis.utils";
+import L from "../../i18n/i18n-node";
+import { baseUserDTO } from "../../dtos/user.dto";
+import { z } from "zod";
 
 const basicUser = {
   email: "johndoe@example.com",
@@ -17,70 +20,75 @@ const basicUser = {
   role: "CLIENT",
 };
 
+const locale = "en";
+
 describe("Check for user endpoints inputs and outputs ", () => {
   it("GET /api/users/me with an existing user return user's data", async () => {
-    const input = {
+    await createUser(basicUser);
+    const userLoginInput = {
       email: basicUser.email,
       password: basicUser.password,
     };
-    await createUser(basicUser);
-    const response = await request(app)
+    const userLoginResponse = await request(app)
       .post("/api/auth/login")
-      .send(input)
+      .send(userLoginInput)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    const response2 = await request(app)
+    const getCurrentUserResponse = await request(app)
       .get("/api/users/me")
-      .set("Authorization", `Bearer ${response.body.data.accessToken}`)
+      .set("Authorization", `Bearer ${userLoginResponse.body.data.accessToken}`)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(response2.body).toMatchObject({
-      message: "User was retrieved successfully",
+    const getCurrentUserData: Omit<z.infer<typeof baseUserDTO>, "password"> = {
+      id: expect.any(String),
+      email: basicUser.email,
+      emailVerified: null,
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+    };
+
+    expect(getCurrentUserResponse.body).toMatchObject({
+      message: L[locale].USER_RETRIEVED_SUCCESSFULLY(),
       data: {
-        id: expect.any(String),
-        email: basicUser.email,
-        emailVerified: null,
+        ...getCurrentUserData,
         hasPassword: expect.any(Boolean),
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
       },
     });
   });
 
   it("PATCH /api/users/me with an existing user changes user's data", async () => {
     await createUser(basicUser);
-
-    const input = {
+    const userLoginInput = {
       email: basicUser.email,
       password: basicUser.password,
     };
-    const loginResw = await request(app)
+    const userLoginResponse = await request(app)
       .post("/api/auth/login")
-      .send(input)
+      .send(userLoginInput)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    const input2 = {
+    const updateCurrentUserInput = {
       email: "fj4Eo@example.com",
     };
-    const userPatchRes = await request(app)
+    const updateCurrentUserResponse = await request(app)
       .patch("/api/users/me")
-      .send(input2)
-      .set("Authorization", `Bearer ${loginResw.body.data.accessToken}`)
+      .send(updateCurrentUserInput)
+      .set("Authorization", `Bearer ${userLoginResponse.body.data.accessToken}`)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(userPatchRes.body).toMatchObject({
-      message: "User was updated successfully",
+    expect(updateCurrentUserResponse.body).toMatchObject({
+      message: L[locale].USER_UPDATE_SUCCESS(),
       data: {
         id: expect.any(String),
-        email: input2.email,
+        email: updateCurrentUserInput.email,
         emailVerified: null,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
@@ -89,27 +97,27 @@ describe("Check for user endpoints inputs and outputs ", () => {
   });
 
   it("GET /api/users/me/profile with an existing user return user's data", async () => {
-    const input = {
+    await createUser(basicUser);
+    const userLoginInput = {
       email: basicUser.email,
       password: basicUser.password,
     };
-    await createUser(basicUser);
-    const response = await request(app)
+    const userLoginResponse = await request(app)
       .post("/api/auth/login")
-      .send(input)
+      .send(userLoginInput)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    const response2 = await request(app)
+    const getCurrentUserProfileResponse = await request(app)
       .get("/api/users/me/profile")
-      .set("Authorization", `Bearer ${response.body.data.accessToken}`)
+      .set("Authorization", `Bearer ${userLoginResponse.body.data.accessToken}`)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(response2.body).toMatchObject({
-      message: "User profile was retrieved successfully",
+    expect(getCurrentUserProfileResponse.body).toMatchObject({
+      message: L[locale].USER_PROFILE_RETRIEVED_SUCCESSFULLY(),
       data: {
         firstName: basicUser.firstName,
         lastName: basicUser.lastName,
@@ -123,43 +131,37 @@ describe("Check for user endpoints inputs and outputs ", () => {
   });
 
   it("PATCH /api/users/me/profile with an existing user changes user's profile", async () => {
-    await request(app)
-      .post("/api/auth/register")
-      .send(basicUser)
-      .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(201);
-
-    const input = {
+    await createUser(basicUser);
+    const userLoginInput = {
       email: basicUser.email,
       password: basicUser.password,
     };
-    const loginRes = await request(app)
+    const userLoginResponse = await request(app)
       .post("/api/auth/login")
-      .send(input)
+      .send(userLoginInput)
       .set("Accept", "application/json")
       .expect("Content-Type", /json/)
       .expect(200);
 
-    const input2 = {
+    const updateCurrentUserProfileInput = {
       firstName: "Abdo",
       lastName: "AlGhoul",
       bio: "Shame on you if you thought I'd ever leave.",
     };
 
-    const profilePatchRes = await request(app)
+    const updateCurrentUserProfileResponse = await request(app)
       .patch("/api/users/me/profile")
-      .send(input2)
-      .set("Authorization", `Bearer ${loginRes.body.data.accessToken}`)
+      .send(updateCurrentUserProfileInput)
+      .set("Authorization", `Bearer ${userLoginResponse.body.data.accessToken}`)
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(profilePatchRes.body).toMatchObject({
-      message: "User profile was updated successfully",
+    expect(updateCurrentUserProfileResponse.body).toMatchObject({
+      message: L[locale].USER_PROFILE_UPDATE_SUCCESS(),
       data: {
-        firstName: input2.firstName,
-        lastName: input2.lastName,
-        bio: input2.bio,
+        firstName: updateCurrentUserProfileInput.firstName,
+        lastName: updateCurrentUserProfileInput.lastName,
+        bio: updateCurrentUserProfileInput.bio,
         image: expect.any(String),
         imageBlurHash: null,
         createdAt: expect.any(String),
