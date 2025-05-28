@@ -386,8 +386,8 @@ registry.registerPath({
     },
   },
   responses: {
-    200: {
-      description: L[lang].PROPERTY_UPDATED_SUCCESSFULLY(),
+    201: {
+      description: L[lang].PROPERTY_MEDIA_CREATED_SUCCESSFULLY(),
       content: {
         "application/json": {
           schema: createSuccessResponseSchema(z.array(basePropertyMediaDTO)),

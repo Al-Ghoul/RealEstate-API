@@ -646,8 +646,8 @@ export async function addPropertyMedia(req: Request, res: Response) {
       return;
     }
 
-    res.status(200).json({
-      message: L[lang].PROPERTY_UPDATED_SUCCESSFULLY(),
+    res.status(201).json({
+      message: L[lang].PROPERTY_MEDIA_CREATED_SUCCESSFULLY(),
       data: property,
     });
   } catch (error) {
@@ -737,7 +737,7 @@ export async function getPropertyMedia(req: Request, res: Response) {
     const property = await propertyService.getPropertyMedia(params.data.id);
 
     res.status(200).json({
-      message: L[lang].PROPERTY_UPDATED_SUCCESSFULLY(),
+      message: L[lang].PROPERTY_MEDIA_RETRIEVED_SUCCESSFULLY(),
       data: property,
     });
   } catch (error) {

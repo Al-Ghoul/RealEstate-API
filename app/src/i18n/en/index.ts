@@ -66,6 +66,8 @@ const en = {
   PROPERTY_MEDIA_DELETED_SUCCESSFULLY:
     "Property media was deleted successfully",
   PROPERTY_MEDIA_LIMIT_REACHED: "Property media limit reached",
+  PROPERTY_MEDIA_CREATED_SUCCESSFULLY:
+    "Property media was created successfully",
 
   // details
   EMAIL_ALREADY_USED_DETAILS: "Please choose another email",
