@@ -71,6 +71,13 @@
       "when": 1748304699989,
       "tag": "0009_capitalize_enum_types",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1748398256404,
+      "tag": "0010_apply_delete_cascade_on_property_view_table",
+      "breakpoints": true
     }
   ]
 }
