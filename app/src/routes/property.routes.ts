@@ -16,6 +16,8 @@ router.get("/", isAuthenticated, propertyController.getProperties);
 
 router.get("/:id", isAuthenticated, propertyController.getProperty);
 
+router.delete("/:id", isAuthenticated, propertyController.deleteProperty);
+
 router.patch(
   "/:id",
   isAuthenticated,
@@ -37,7 +39,5 @@ router.delete(
   isAuthenticated,
   propertyController.deletePropertyMedia,
 );
-
-router.delete("/:id", isAuthenticated, propertyController.deleteProperty);
 
 export default router;
