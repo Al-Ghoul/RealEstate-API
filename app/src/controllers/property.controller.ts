@@ -810,7 +810,7 @@ export async function deletePropertyMedia(req: Request, res: Response) {
       params.data.mediaId,
     );
 
-    if (!property.rowCount) {
+    if (!property.length) {
       logger.warn({
         route: req.originalUrl,
         message: "Property was not found or property has no media",

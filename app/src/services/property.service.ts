@@ -201,7 +201,8 @@ export async function deletePropertyMedia(
         eq(propertyMedia.propertyId, propertyId),
         eq(propertyMedia.id, mediaId),
       ),
-    );
+    )
+    .returning();
 }
 
 export async function getMediaCount(propertyId: Property["id"]) {
