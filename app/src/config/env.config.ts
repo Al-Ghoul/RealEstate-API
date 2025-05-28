@@ -17,6 +17,7 @@ const envSchema = z.object({
     .enum(["development", "production", "test"])
     .default("development"),
   PORT: z.string().transform(Number),
+  DOMAIN: z.string().url(),
 });
 
 export const env = envSchema.parse(process.env);

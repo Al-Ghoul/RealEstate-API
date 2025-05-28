@@ -12,6 +12,7 @@ import { join } from "path";
 import { logger } from "../utils/logger.utils";
 import L from "../i18n/i18n-node";
 import type { Locales } from "../i18n/i18n-types";
+import { env } from "../config/env.config";
 
 export async function getCurrentUser(req: Request, res: Response) {
   assertAuthenticated(req);
@@ -323,9 +324,7 @@ export async function updateCurrentUserProfileImage(
       req.user.id,
       // TODO: change this to use an env var
       {
-        image: `${req.protocol}://${
-          req.get("host") ?? "localhost"
-        }/public/uploads/profile-images/${fileName}`,
+        image: `${env.DOMAIN}/public/uploads/profile-images/${fileName}`,
         imageBlurHash: blurHash,
       },
     );

@@ -15,6 +15,7 @@ import { fileTypeFromBuffer } from "file-type";
 import fs from "fs/promises";
 import { join } from "path";
 import { DatabaseError } from "pg";
+import { env } from "../config/env.config";
 
 export async function createProperty(req: Request, res: Response) {
   assertAuthenticated(req);
@@ -107,9 +108,7 @@ export async function createProperty(req: Request, res: Response) {
   try {
     const property = await propertyService.createProperty({
       ...input.data,
-      thumbnailURL: `${req.protocol}://${
-        req.get("host") ?? "localhost"
-      }/public/uploads/properties-thumbnails/${fileName}`,
+      thumbnailURL: `${env.DOMAIN}/public/uploads/properties-thumbnails/${fileName}`,
       userId: req.user.id,
     });
 
@@ -412,9 +411,7 @@ export async function updateProperty(req: Request, res: Response) {
     const fileName = `${Date.now().toString()}-${originalname}`;
     const filePath = `${uploadDir}${fileName}`;
     await fs.writeFile(filePath, buffer);
-    thumbnailURL = `${req.protocol}://${
-      req.get("host") ?? "localhost"
-    }/public/uploads/properties-thumbnails/${fileName}`;
+    thumbnailURL = `${env.DOMAIN}/public/uploads/properties-thumbnails/${fileName}`;
   }
 
   try {
@@ -592,9 +589,7 @@ export async function addPropertyMedia(req: Request, res: Response) {
 
     propertyMedia.push({
       propertyId: params.data.id,
-      url: `${req.protocol}://${
-        req.get("host") ?? "localhost"
-      }/public/uploads/property-media/${fileName}`,
+      url: `${env.DOMAIN}/public/uploads/property-media/${fileName}`,
       type: fileType.mime.includes("image") ? "IMAGE" : "VIDEO",
       mimeType: fileType.mime,
     });
