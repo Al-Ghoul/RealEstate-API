@@ -183,7 +183,7 @@ export const propertyQueryParamsSchema = propertyQueryParams.openapi({
 
 export const getItemByIdInputDTO = z
   .object({
-    id: z.string().transform((value) => parseInt(value)),
+    id: z.coerce.number(),
   })
   .strict()
   .openapi({
@@ -194,7 +194,7 @@ export const getItemByIdInputDTO = z
 
 export const getMediaByIdInputDTO = z
   .object({
-    mediaId: z.string().transform((value) => parseInt(value)),
+    mediaId: z.coerce.number(),
   })
   .strict()
   .openapi({
