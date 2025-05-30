@@ -217,7 +217,16 @@ export async function getUserByProviderAndId(
 ) {
   return first(
     await db
-      .select({ id: user.id, email: user.email })
+      .select({
+        id: user.id,
+        email: user.email,
+        roles: sql<Array<Role["name"]>>`
+      COALESCE(
+        json_agg(${role.name}),
+        '[]'
+      )
+    `,
+      })
       .from(account)
       .where(
         and(
@@ -225,7 +234,10 @@ export async function getUserByProviderAndId(
           eq(account.provider, provider),
         ),
       )
+      .leftJoin(userRole, eq(userRole.userId, account.userId))
+      .leftJoin(role, eq(role.id, userRole.roleId))
       .leftJoin(user, eq(user.id, account.userId))
+      .groupBy(user.id)
       .limit(1),
   );
 }

@@ -1244,7 +1244,7 @@ export async function loginWithFacebook(req: Request, res: Response) {
 
         res.status(200).json({
           message: L[lang].LOGIN_SUCCESS(),
-          data: generateJWTTokens(user.id as string, ["CLIENT"]),
+          data: generateJWTTokens(user.id as string, user.roles),
         });
 
         return;
@@ -1350,7 +1350,7 @@ export async function loginWithGoogle(req: Request, res: Response) {
 
         res.status(200).json({
           message: L[lang].LOGIN_SUCCESS(),
-          data: generateJWTTokens(user.id as string, ["CLIENT"]),
+          data: generateJWTTokens(user.id as string, user.roles),
         });
 
         return;
