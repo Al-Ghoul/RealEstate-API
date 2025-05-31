@@ -36,4 +36,8 @@ router.put(
   userController.updateCurrentUserProfileImage,
 );
 
+router.get("/:id", isAuthenticated, userController.getUserById);
+
+router.get("/:id/profile", isAuthenticated, userController.getUserProfile);
+
 export default router;

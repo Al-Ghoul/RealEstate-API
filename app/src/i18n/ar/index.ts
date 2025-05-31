@@ -67,6 +67,8 @@ const ar = {
   PROPERTY_MEDIA_LIMIT_REACHED: "تم تجاوز حد الوسائط للعقار",
   PROPERTY_DELETED_SUCCESSFULLY: "تم حذف العقار بنجاح",
   PROPERTY_MEDIA_CREATED_SUCCESSFULLY: "تم إنشاء وسائط العقار بنجاح",
+  USER_NOT_FOUND: "لم يتم العثور على المستخدم",
+  USER_PROFILE_NOT_FOUND: "لم يتم العثور على ملف المستخدم",
 
   INTERNAL_SERVER_ERROR: "حدث خطأ بالخادم",
 
@@ -106,6 +108,8 @@ const ar = {
   PROPERTY_IS_NOT_FOUND_OR_NO_MEDIA_DETAILS:
     "الرجاء من وجود العقار و وجود ملفات وسائط مرفقة",
   PROPERTY_MEDIA_LIMIT_REACHED_DETAILS: "الرجاء حذف بعض الملفات اولا",
+  USER_NOT_FOUND_DETAILS: "الرجاء توفير معرف مستخدم صحيح",
+  USER_PROFILE_NOT_FOUND_DETAILS: "الرجاء توفير معرف ملف صحيح",
 
   INTERNAL_SERVER_ERROR_DETAILS: "الرجاء المحاولة في وقت لاحق",
 

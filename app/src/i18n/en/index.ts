@@ -68,6 +68,8 @@ const en = {
   PROPERTY_MEDIA_LIMIT_REACHED: "Property media limit reached",
   PROPERTY_MEDIA_CREATED_SUCCESSFULLY:
     "Property media was created successfully",
+  USER_NOT_FOUND: "User not found",
+  USER_PROFILE_NOT_FOUND: "User profile not found",
 
   // details
   EMAIL_ALREADY_USED_DETAILS: "Please choose another email",
@@ -106,6 +108,8 @@ const en = {
     "Please check if the property exists and has media",
   PROPERTY_MEDIA_LIMIT_REACHED_DETAILS: "Please delete some media first",
   PROPERTY_DELETED_SUCCESSFULLY: "Property was deleted successfully",
+  USER_NOT_FOUND_DETAILS: "Please provide a valid user id",
+  USER_PROFILE_NOT_FOUND_DETAILS: "Please provide a valid user profile id",
 
   INTERNAL_SERVER_ERROR_DETAILS: "Please try again later",
 

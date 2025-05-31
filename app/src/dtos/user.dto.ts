@@ -55,6 +55,17 @@ export const updateUserProfileDTO = baseProfileDTO
   })
   .strict();
 
+export const getUserByIdInputDTO = z
+  .object({
+    id: z.coerce.string().uuid(),
+  })
+  .strict()
+  .openapi({
+    param: {
+      in: "path",
+    },
+  });
+
 export type CreateUserInputDTO = z.infer<typeof createUserInputDTO>;
 export type UpdateUserDTO = z.infer<typeof updateUserDTO>;
 export type UpdateUserProfileDTO = z.infer<typeof updateUserProfileDTO>;

@@ -2,6 +2,7 @@ import { type Request, type Response } from "express";
 import * as userService from "../services/user.service";
 import { assertAuthenticated } from "../utils/assertions.utils";
 import {
+  getUserByIdInputDTO,
   type UpdateUserDTO,
   type UpdateUserProfileDTO,
 } from "../dtos/user.dto";
@@ -364,6 +365,209 @@ export async function updateCurrentUserProfileImage(
         info: {
           requestId: req.id,
           error: error,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
+
+    res.status(500).json({
+      requestId: req.id,
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
+    });
+  }
+}
+
+export async function getUserById(req: Request, res: Response) {
+  assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
+  const input = getUserByIdInputDTO.safeParse(req.params);
+
+  if (!input.success) {
+    logger.warn({
+      router: req.originalUrl,
+      message: "Invalid input",
+      info: {
+        requestId: req.id,
+        userId: req.user.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+    const errors = input.error.errors;
+    res.status(400).json({
+      requestId: req.id,
+      message: L[lang].INPUT_VALIDATION_ERROR(),
+      errors: errors.map((error) => {
+        return { path: error.path[0], message: error.message };
+      }),
+    });
+    return;
+  }
+
+  try {
+    const user = await userService.getUserById(input.data.id);
+    // @ts-ignore TS complains about this, but we can and MUST delete it...
+    delete user.password;
+
+    if (!user) {
+      logger.warn({
+        router: req.originalUrl,
+        message: "User not found",
+        info: {
+          requestId: req.id,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+      res.status(404).json({
+        requestId: req.id,
+        message: L[lang].USER_NOT_FOUND(),
+        details: L[lang].USER_NOT_FOUND_DETAILS(),
+      });
+      return;
+    }
+
+    logger.info({
+      router: req.originalUrl,
+      message: "User was found successfully",
+      info: {
+        requestId: req.id,
+        userId: req.user.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
+    res.status(200).json({
+      message: L[lang].USER_RETRIEVED_SUCCESSFULLY(),
+      data: user,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    }
+
+    res.status(500).json({
+      requestId: req.id,
+      message: L[lang].INTERNAL_SERVER_ERROR(),
+      details: L[lang].INTERNAL_SERVER_ERROR_DETAILS(),
+    });
+  }
+}
+
+export async function getUserProfile(req: Request, res: Response) {
+  assertAuthenticated(req);
+  const lang = req.locale.language as Locales;
+  const input = getUserByIdInputDTO.safeParse(req.params);
+
+  if (!input.success) {
+    logger.warn({
+      router: req.originalUrl,
+      message: "Invalid input",
+      info: {
+        requestId: req.id,
+        userId: req.user.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+    const errors = input.error.errors;
+    res.status(400).json({
+      requestId: req.id,
+      message: L[lang].INPUT_VALIDATION_ERROR(),
+      errors: errors.map((error) => {
+        return { path: error.path[0], message: error.message };
+      }),
+    });
+
+    return;
+  }
+
+  try {
+    const profile = await userService.getUserProfile(input.data.id);
+
+    if (!profile) {
+      logger.warn({
+        router: req.originalUrl,
+        message: "User profile not found",
+        info: {
+          requestId: req.id,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+      res.status(404).json({
+        requestId: req.id,
+        message: L[lang].USER_PROFILE_NOT_FOUND(),
+        details: L[lang].USER_PROFILE_NOT_FOUND_DETAILS(),
+      });
+      return;
+    }
+
+    logger.info({
+      router: req.originalUrl,
+      message: "User profile was found successfully",
+      info: {
+        requestId: req.id,
+        userId: req.user.id,
+        ip: req.ip,
+        browser: req.headers["user-agent"],
+      },
+    });
+
+    res.status(200).json({
+      message: L[lang].USER_PROFILE_RETRIEVED_SUCCESSFULLY(),
+      data: profile,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          stack: error.stack,
+          userId: req.user.id,
+          ip: req.ip,
+          browser: req.headers["user-agent"],
+        },
+      });
+    } else {
+      logger.error({
+        route: req.originalUrl,
+        message: "Internal server error",
+        info: {
+          requestId: req.id,
+          error: error,
+          userId: req.user.id,
           ip: req.ip,
           browser: req.headers["user-agent"],
         },
