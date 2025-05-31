@@ -92,6 +92,8 @@ export const propertyQueryParams = z.object({
     .default(10)
     .describe("Limit the number of properties returned"),
 
+  userId: z.string().uuid().optional().describe("Filter properties by user ID"),
+
   rooms: z.coerce
     .number()
     .min(1)

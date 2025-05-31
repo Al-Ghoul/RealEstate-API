@@ -56,6 +56,7 @@ export async function getProperties(input: PropertyQueryParams) {
     type,
     rooms,
     status,
+    userId,
   } = input;
   let query = db.select().from(property);
 
@@ -134,6 +135,8 @@ export async function getProperties(input: PropertyQueryParams) {
   if (rooms !== undefined) filters.push(eq(property.rooms, rooms));
 
   if (status !== undefined) filters.push(eq(property.status, status));
+
+  if (userId !== undefined) filters.push(eq(property.userId, userId));
 
   filters.push(eq(property.isPublished, true));
 
