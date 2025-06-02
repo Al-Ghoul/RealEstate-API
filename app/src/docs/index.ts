@@ -4,6 +4,7 @@ import { env } from "../config/env.config";
 import "./auth.docs";
 import "./user.docs";
 import "./property.docs";
+import "./chat.docs";
 
 const generator = new OpenApiGeneratorV3(registry.definitions);
 export const openApiDoc = generator.generateDocument({

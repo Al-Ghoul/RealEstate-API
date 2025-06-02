@@ -69,6 +69,7 @@ const ar = {
   PROPERTY_MEDIA_CREATED_SUCCESSFULLY: "تم إنشاء وسائط العقار بنجاح",
   USER_NOT_FOUND: "لم يتم العثور على المستخدم",
   USER_PROFILE_NOT_FOUND: "لم يتم العثور على ملف المستخدم",
+  CHAT_CREATED_SUCCESSFULLY: "تم إنشاء المحادثة بنجاح",
 
   INTERNAL_SERVER_ERROR: "حدث خطأ بالخادم",
 

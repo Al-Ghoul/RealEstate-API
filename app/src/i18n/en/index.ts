@@ -70,6 +70,7 @@ const en = {
     "Property media was created successfully",
   USER_NOT_FOUND: "User not found",
   USER_PROFILE_NOT_FOUND: "User profile not found",
+  CHAT_CREATED_SUCCESSFULLY: "Chat was created successfully",
 
   // details
   EMAIL_ALREADY_USED_DETAILS: "Please choose another email",
