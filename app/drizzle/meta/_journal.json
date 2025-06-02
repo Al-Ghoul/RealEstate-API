@@ -78,6 +78,13 @@
       "when": 1748398256404,
       "tag": "0010_apply_delete_cascade_on_property_view_table",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1748839369488,
+      "tag": "0011_add_initial_chat_related_tables",
+      "breakpoints": true
     }
   ]
 }

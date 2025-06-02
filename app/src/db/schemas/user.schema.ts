@@ -14,6 +14,7 @@ import { profile } from "./profile.schema";
 import { userRole } from "./userRole.schema";
 import { property } from "./property.schema";
 import { propertyView } from "./propertyView.schema";
+import { chatParticipant, message } from "./chat.schema";
 
 export const user = pgTable(
   "user",
@@ -36,4 +37,6 @@ export const userRelations = relations(user, ({ many, one }) => ({
   roles: many(userRole),
   properties: many(property),
   propertyViews: many(propertyView),
+  chats: many(chatParticipant),
+  messages: many(message),
 }));

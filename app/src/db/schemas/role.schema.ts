@@ -11,6 +11,6 @@ export const role = pgTable("role", {
   ...timestamps,
 });
 
-export const rolesRelations = relations(role, ({ many }) => ({
+export const roleRelations = relations(role, ({ many }) => ({
   users: many(userRole),
 }));
