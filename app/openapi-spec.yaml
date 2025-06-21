@@ -337,8 +337,8 @@ paths:
                 role:
                   type: string
                   enum:
+                    - AGENT
                     - CLIENT
-                    - ADMIN
               required:
                 - email
                 - firstName
@@ -2156,6 +2156,276 @@ paths:
                   - requestId
                   - message
                   - details
+  /api/users/{id}:
+    get:
+      tags:
+        - Users
+      description: Get a user by id
+      summary: Get a user by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      responses:
+        "200":
+          description: User was retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      email:
+                        type: string
+                        nullable: true
+                        maxLength: 255
+                        format: email
+                        example: 9YsD0@example.com
+                      emailVerified:
+                        type: string
+                        nullable: true
+                        example: 2025-05-15 13:52:05.232193
+                        format: Date
+                      updatedAt:
+                        type: string
+                        nullable: true
+                        example: 2025-05-15 13:52:05.232193
+                        format: Date
+                      createdAt:
+                        type: string
+                        nullable: true
+                        example: 2025-05-15 13:52:05.232193
+                        format: Date
+                required:
+                  - data
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+  /api/users/{id}/profile:
+    get:
+      tags:
+        - Users
+      description: Get a user by id
+      summary: Get a user by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          required: true
+          name: id
+          in: path
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      responses:
+        "200":
+          description: User profile was retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        nullable: true
+                        maxLength: 16
+                        example: John
+                      lastName:
+                        type: string
+                        nullable: true
+                        maxLength: 16
+                        example: Doe
+                      bio:
+                        type: string
+                        nullable: true
+                        maxLength: 255
+                      image:
+                        type: string
+                        nullable: true
+                      imageBlurHash:
+                        type: string
+                        nullable: true
+                      updatedAt:
+                        type: string
+                        example: 2025-05-15 13:52:05.232193
+                        format: Date
+                      createdAt:
+                        type: string
+                        example: 2025-05-15 13:52:05.232193
+                        format: Date
+                required:
+                  - data
+        "401":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "404":
+          description: User profile not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
   /api/users/me:
     get:
       tags:
@@ -3005,6 +3275,14 @@ paths:
           name: limit
           in: query
         - schema:
+            type: string
+            format: uuid
+            description: Filter properties by user ID
+          required: false
+          description: Filter properties by user ID
+          name: userId
+          in: query
+        - schema:
             type: number
             minimum: 1
             description: Filter properties by number of rooms
@@ -3354,8 +3632,9 @@ paths:
         - bearerAuth: []
       parameters:
         - schema:
-            type: string
-          required: true
+            type: number
+            nullable: true
+          required: false
           name: id
           in: path
         - schema:
@@ -3546,8 +3825,9 @@ paths:
         - bearerAuth: []
       parameters:
         - schema:
-            type: string
-          required: true
+            type: number
+            nullable: true
+          required: false
           name: id
           in: path
         - schema:
@@ -3738,8 +4018,9 @@ paths:
         - bearerAuth: []
       parameters:
         - schema:
-            type: string
-          required: true
+            type: number
+            nullable: true
+          required: false
           name: id
           in: path
         - schema:
@@ -3989,8 +4270,9 @@ paths:
         - bearerAuth: []
       parameters:
         - schema:
-            type: string
-          required: true
+            type: number
+            nullable: true
+          required: false
           name: id
           in: path
         - schema:
@@ -4015,8 +4297,8 @@ paths:
               required:
                 - media
       responses:
-        "200":
-          description: Property was updated successfully
+        "201":
+          description: Property media was created successfully
           content:
             application/json:
               schema:
@@ -4165,8 +4447,9 @@ paths:
         - bearerAuth: []
       parameters:
         - schema:
-            type: string
-          required: true
+            type: number
+            nullable: true
+          required: false
           name: id
           in: path
         - schema:
@@ -4308,13 +4591,15 @@ paths:
         - bearerAuth: []
       parameters:
         - schema:
-            type: string
-          required: true
+            type: number
+            nullable: true
+          required: false
           name: id
           in: path
         - schema:
-            type: string
-          required: true
+            type: number
+            nullable: true
+          required: false
           name: mediaId
           in: path
         - schema:
@@ -4430,6 +4715,426 @@ paths:
                   - details
         "404":
           description: Property not found or Property has no media
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+  /api/chats:
+    get:
+      tags:
+        - Chat
+      description: Get and filter user's chats
+      summary: Get and filter user's chats
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            description: Limit the number of records returned
+          required: false
+          description: Limit the number of records returned
+          name: limit
+          in: query
+        - schema:
+            type: string
+            format: uuid
+            description: Cursor ID to paginate after a specific chat
+          required: false
+          description: Cursor ID to paginate after a specific chat
+          name: cursor
+          in: query
+        - schema:
+            type: string
+            description: Cursor created_at to paginate after a specific chat
+          required: false
+          description: Cursor created_at to paginate after a specific chat
+          name: cursorCreatedAt
+          in: query
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      responses:
+        "200":
+          description: User chats were retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        chatId:
+                          type: string
+                        lastReadMessageId:
+                          type: string
+                          nullable: true
+                          format: uuid
+                        otherUserId:
+                          type: string
+                          format: uuid
+                        otherUserFullName:
+                          type: string
+                          nullable: true
+                          maxLength: 16
+                          example: John
+                        lastMessageContent:
+                          type: string
+                        lastMessageCreatedAt:
+                          type: string
+                        lastMessageSenderId:
+                          type: string
+                          format: uuid
+                        unreadCount:
+                          type: number
+                      required:
+                        - chatId
+                        - lastMessageContent
+                        - lastMessageCreatedAt
+                        - unreadCount
+                  meta:
+                    type: object
+                    properties:
+                      has_next_page:
+                        type: boolean
+                        description: Does next page exist
+                      has_previous_page:
+                        type: boolean
+                        description: Does previous page exist
+                      count:
+                        type: integer
+                        minimum: 0
+                        description: Number of items in current page
+                      per_page:
+                        type: integer
+                        minimum: 0
+                        exclusiveMinimum: true
+                        description: Number of items per page
+                      next_cursor:
+                        type: number
+                        nullable: true
+                        description: Next page cursor
+                      next_cursor_created_at:
+                        type: string
+                        description: Cursor created_at to paginate after a specific property
+                    required:
+                      - has_next_page
+                      - has_previous_page
+                      - count
+                      - per_page
+                      - next_cursor
+                required:
+                  - data
+                  - meta
+        "400":
+          description: Input validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  details:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+                      required:
+                        - path
+                        - message
+                required:
+                  - message
+                  - details
+                  - errors
+        "401":
+          description: Missing authorization token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description: Invalid access token or Revoked access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+  /api/chats/{id}/messages:
+    get:
+      tags:
+        - Chat
+      description: Get and filter chat's messages
+      summary: Get and filter chat's messages
+      security:
+        - bearerAuth: []
+      parameters:
+        - schema:
+            type: string
+            nullable: true
+          required: false
+          name: id
+          in: path
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            description: Limit the number of records returned
+          required: false
+          description: Limit the number of records returned
+          name: limit
+          in: query
+        - schema:
+            type: string
+            format: uuid
+            description: Cursor ID to paginate after a specific chat
+          required: false
+          description: Cursor ID to paginate after a specific chat
+          name: cursor
+          in: query
+        - schema:
+            type: string
+            description: Cursor created_at to paginate after a specific chat
+          required: false
+          description: Cursor created_at to paginate after a specific chat
+          name: cursorCreatedAt
+          in: query
+        - schema:
+            type: string
+            enum: *a1
+            default: en
+          required: false
+          in: header
+          name: Accept-Language
+      responses:
+        "200":
+          description: User chat messages were retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        chatId:
+                          type: string
+                          nullable: true
+                        senderId:
+                          type: string
+                          format: uuid
+                        content:
+                          type: string
+                        createdAt:
+                          type: string
+                          nullable: true
+                        updatedAt:
+                          type: string
+                          nullable: true
+                        replyToId:
+                          type: string
+                          nullable: true
+                          format: uuid
+                        replyTo:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            content:
+                              type: string
+                            senderId:
+                              type: string
+                              format: uuid
+                            createdAt:
+                              type: string
+                              nullable: true
+                          required:
+                            - content
+                            - senderId
+                      required:
+                        - senderId
+                        - content
+                        - replyTo
+                  meta:
+                    type: object
+                    properties:
+                      has_next_page:
+                        type: boolean
+                        description: Does next page exist
+                      has_previous_page:
+                        type: boolean
+                        description: Does previous page exist
+                      count:
+                        type: integer
+                        minimum: 0
+                        description: Number of items in current page
+                      per_page:
+                        type: integer
+                        minimum: 0
+                        exclusiveMinimum: true
+                        description: Number of items per page
+                      next_cursor:
+                        type: number
+                        nullable: true
+                        description: Next page cursor
+                      next_cursor_created_at:
+                        type: string
+                        description: Cursor created_at to paginate after a specific property
+                    required:
+                      - has_next_page
+                      - has_previous_page
+                      - count
+                      - per_page
+                      - next_cursor
+                required:
+                  - data
+                  - meta
+        "400":
+          description: Input validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  details:
+                    type: string
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                        message:
+                          type: string
+                      required:
+                        - path
+                        - message
+                required:
+                  - message
+                  - details
+                  - errors
+        "401":
+          description: Missing authorization token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  details:
+                    type: string
+                required:
+                  - requestId
+                  - message
+                  - details
+        "403":
+          description:
+            Invalid access token, Revoked access token or User is not a
+            participant
           content:
             application/json:
               schema:
