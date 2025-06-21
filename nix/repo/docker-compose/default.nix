@@ -15,6 +15,7 @@
       bun add sharp # needed for image processing
       RealEstate-API
     '';
+    port = "80";
   in
     inputs.nixpkgs.dockerTools.buildLayeredImage {
       name = "real-estate-api";
@@ -30,6 +31,8 @@
 
       extraCommands = ''
         mkdir -p ./app/public/uploads/profile-images
+        mkdir -p ./app/public/uploads/properties-thumbnails
+        mkdir -p ./app/public/uploads/property-media
         mkdir -p ./app/log
       '';
 
@@ -40,7 +43,7 @@
         Stopsignal = "SIGINT";
 
         ExposedPorts = {
-          "80/tcp" = {};
+          "${port}/tcp" = {};
         };
 
         Env = [
@@ -51,7 +54,8 @@
           "REDIS_URL=redis://:secure_password@real-estate-redis:6379"
           # Application settings
           "NODE_ENV=production"
-          "PORT=80"
+          "PORT=${port}"
+          "WS_PORT=3001"
           # JWT settings
           "TOKEN_ISSUER=http://localhost"
           # Use openssl to generate a pair of keys
@@ -65,8 +69,9 @@
           # Social auth settings
           "FACEBOOK_APP_ID=XXXXXXXXXXXXXXX"
           "FACEBOOK_APP_SECRET=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-          "GOOGLE_CLIENT_ID=XXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com"
+          "GOOGLE_CLIENT_ID=XXXXXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.wpps.googleusercontent.com"
           "GOOGLE_CLIENT_SECRET=XXXXXX-XXXX-XXXXXXXXXXXXXXXXXXXXXXX"
+          "DOMAIN=http://192.168.1.19:${port}"
         ];
       };
     };
@@ -173,7 +178,7 @@ in
           service = {
             container_name = "RealEstate-API";
             stop_signal = "SIGINT";
-            ports = ["80:80"];
+            ports = ["80:80" "3001:3001"];
             links = ["real-estate-postgres" "real-estate-redis"];
             volumes = ["api-data:/public/:/log"];
             depends_on = {"real-estate-postgres" = {condition = "service_healthy";};};
