@@ -33,7 +33,7 @@ describe("Check for auth endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      message: "Access denied",
+      message: "Missing authorization token",
       details: "Please provide an authorization token",
     });
   });
@@ -56,7 +56,7 @@ describe("Check for auth endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      message: "Access denied",
+      message: "Missing authorization token",
       details: "Please provide an authorization token",
     });
   });
@@ -68,7 +68,7 @@ describe("Check for auth endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      message: "Access denied",
+      message: "Missing authorization token",
       details: "Please provide an authorization token",
     });
   });
@@ -102,7 +102,7 @@ describe("Check for auth endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      message: "Access denied",
+      message: "Missing authorization token",
       details: "Please provide an authorization token",
     });
   });
@@ -136,7 +136,7 @@ describe("Check for auth endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      message: "Access denied",
+      message: "Missing authorization token",
       details: "Please provide an authorization token",
     });
   });
@@ -148,7 +148,7 @@ describe("Check for auth endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      message: "Access denied",
+      message: "Missing authorization token",
       details: "Please provide an authorization token",
     });
   });
@@ -160,7 +160,7 @@ describe("Check for auth endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      message: "Access denied",
+      message: "Missing authorization token",
       details: "Please provide an authorization token",
     });
   });
@@ -172,7 +172,7 @@ describe("Check for auth endpoints existence", () => {
       .expect(401);
 
     expect(response.body).toMatchObject({
-      message: "Access denied",
+      message: "Missing authorization token",
       details: "Please provide an authorization token",
     });
   });
