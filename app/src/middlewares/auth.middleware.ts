@@ -26,7 +26,7 @@ export async function isAuthenticated(
     });
 
     res.status(401).json({
-      message: L[lang].ACCESS_DENIED(),
+      message: L[lang].MISSING_AUTHORIZATION_TOKEN(),
       details: L[lang].MISSING_AUTHORIZATION_TOKEN_DETAILS(),
     });
 
