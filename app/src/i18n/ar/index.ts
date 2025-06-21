@@ -69,7 +69,14 @@ const ar = {
   PROPERTY_MEDIA_CREATED_SUCCESSFULLY: "تم إنشاء وسائط العقار بنجاح",
   USER_NOT_FOUND: "لم يتم العثور على المستخدم",
   USER_PROFILE_NOT_FOUND: "لم يتم العثور على ملف المستخدم",
-  CHAT_CREATED_SUCCESSFULLY: "تم إنشاء المحادثة بنجاح",
+  MISSING_AUTHORIZATION_TOKEN: "لم يتم توفير رمز الوصول",
+  USER_CHATS_RETRIEVED_SUCCESSFULLY: "تم جلب محادثات المستخدم بنجاح",
+  USER_CHAT_MESSAGES_RETRIEVED_SUCCESSFULLY: "تم جلب رسائل المحادثة بنجاح",
+  USER_IS_NOT_A_PARTICIPANT: "المستخدم ليس مشارك",
+  CHAT_DELETED_SUCCESSFULLY: "تم حذف المحادثة بنجاح",
+  CHAT_COULD_NOT_BE_CREATED: "لا يمكن إنشاء المحادثة",
+  CHAT_MESSAGE_NOT_FOUND: "لم يتم العثور على رسالة المحادثة",
+  CHAT_MESSAGE_RETRIEVED_SUCCESSFULLY: "تم جلب رسالة المحادثة بنجاح",
 
   INTERNAL_SERVER_ERROR: "حدث خطأ بالخادم",
 
@@ -111,6 +118,7 @@ const ar = {
   PROPERTY_MEDIA_LIMIT_REACHED_DETAILS: "الرجاء حذف بعض الملفات اولا",
   USER_NOT_FOUND_DETAILS: "الرجاء توفير معرف مستخدم صحيح",
   USER_PROFILE_NOT_FOUND_DETAILS: "الرجاء توفير معرف ملف صحيح",
+  CAN_NOT_CREATE_A_CHAT_WITH_YOURSELF: "لا يمكنك انشاء محادثة مع نفسك",
 
   INTERNAL_SERVER_ERROR_DETAILS: "الرجاء المحاولة في وقت لاحق",
 

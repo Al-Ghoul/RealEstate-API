@@ -70,7 +70,16 @@ const en = {
     "Property media was created successfully",
   USER_NOT_FOUND: "User not found",
   USER_PROFILE_NOT_FOUND: "User profile not found",
-  CHAT_CREATED_SUCCESSFULLY: "Chat was created successfully",
+  MISSING_AUTHORIZATION_TOKEN: "Missing authorization token",
+  USER_CHATS_RETRIEVED_SUCCESSFULLY: "User chats were retrieved successfully",
+  USER_CHAT_MESSAGES_RETRIEVED_SUCCESSFULLY:
+    "User chat messages were retrieved successfully",
+  USER_IS_NOT_A_PARTICIPANT: "User is not a participant",
+  CHAT_DELETED_SUCCESSFULLY: "Chat was deleted successfully",
+  CHAT_COULD_NOT_BE_CREATED: "Chat could not be created",
+  CHAT_MESSAGE_NOT_FOUND: "Chat message not found",
+  CHAT_MESSAGE_RETRIEVED_SUCCESSFULLY:
+    "Chat message was retrieved successfully",
 
   // details
   EMAIL_ALREADY_USED_DETAILS: "Please choose another email",
@@ -111,6 +120,8 @@ const en = {
   PROPERTY_DELETED_SUCCESSFULLY: "Property was deleted successfully",
   USER_NOT_FOUND_DETAILS: "Please provide a valid user id",
   USER_PROFILE_NOT_FOUND_DETAILS: "Please provide a valid user profile id",
+  CAN_NOT_CREATE_A_CHAT_WITH_YOURSELF:
+    "You can not create a chat with yourself",
 
   INTERNAL_SERVER_ERROR_DETAILS: "Please try again later",
 
