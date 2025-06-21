@@ -38,5 +38,10 @@ export const userRelations = relations(user, ({ many, one }) => ({
   properties: many(property),
   propertyViews: many(propertyView),
   chats: many(chatParticipant),
-  messages: many(message),
+  sentMessages: many(message, {
+    relationName: "sentMessages",
+  }),
+  deletedMessages: many(message, {
+    relationName: "deletedMessages",
+  }),
 }));

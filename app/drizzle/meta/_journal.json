@@ -5,85 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1745985611944,
+      "when": 1750493586676,
       "tag": "0000_initial",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1746975478183,
-      "tag": "0001_add_role_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1746982581523,
-      "tag": "0002_add_property_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1747167412814,
-      "tag": "0003_add_location_and_index_to_property_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1747414717436,
-      "tag": "0004_add_userId_roleId_cascade_on_user_role",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1747441064688,
-      "tag": "0005_add_userId_cascade_on_property",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1747584104283,
-      "tag": "0006_add_more_fields_on_property_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1747768056790,
-      "tag": "0007_add_property_views_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1748051902649,
-      "tag": "0008_add_property_medias_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1748304699989,
-      "tag": "0009_capitalize_enum_types",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "7",
-      "when": 1748398256404,
-      "tag": "0010_apply_delete_cascade_on_property_view_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "7",
-      "when": 1748839369488,
-      "tag": "0011_add_initial_chat_related_tables",
       "breakpoints": true
     }
   ]
