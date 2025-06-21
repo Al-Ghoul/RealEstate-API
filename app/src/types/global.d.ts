@@ -5,8 +5,7 @@ import { profile } from "../db/schemas/profile.schema";
 import { role } from "../db/schemas/role.schema";
 import { property } from "../db/schemas/property.schema";
 import { propertyMedia } from "../db/schemas/propertyMedia.schema";
-import { chat } from "../db/schemas/chat.schema";
-import { chatParticipant } from "../db/schemas/chatParticipant.schema";
+import { chat, chatParticipant, message } from "../db/schemas/chat.schema";
 
 declare global {
   type User = typeof user.$inferSelect;
@@ -18,6 +17,7 @@ declare global {
   type PropertyMedia = typeof propertyMedia.$inferSelect;
   type Chat = typeof chat.$inferSelect;
   type ChatParticipant = typeof chatParticipant.$inferInsert;
+  type ChatMessage = typeof message.$inferSelect;
 
   interface FacebookDebugTokenResponse {
     data: {

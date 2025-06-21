@@ -2,7 +2,7 @@ import { app } from "./app";
 import { env } from "./config/env.config";
 import { logger } from "./utils/logger.utils";
 import { redisClient } from "./utils/redis.utils";
-import wsServer from "./wsServer";
+import "./wsServer";
 
 console.log(`Environment: ${env.NODE_ENV}`);
 
@@ -26,7 +26,5 @@ redisClient.connect().catch((error: unknown) => {
 });
 
 app.listen(env.PORT, () => {
-  console.log(`Server is running on http://localhost:${env.PORT.toString()}`);
+  console.log(`Server is running on PORT:${env.PORT.toString()}`);
 });
-
-wsServer();
