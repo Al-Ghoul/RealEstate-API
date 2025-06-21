@@ -130,14 +130,16 @@ export const baseSuccessResponseSchema = z.object({
 });
 
 export function createSuccessResponseSchema<T extends z.ZodTypeAny>(
-  dataSchema: T,
+  dataSchema?: T,
   extraFields: { [key: string]: z.ZodTypeAny } = {},
 ) {
-  return z.object({
-    message: z.string().optional(),
-    data: dataSchema,
-    ...extraFields,
-  });
+  if (dataSchema)
+    return baseSuccessResponseSchema.extend({
+      data: dataSchema,
+      ...extraFields,
+    });
+
+  return baseSuccessResponseSchema.extend({ ...extraFields });
 }
 
 export const ValidationErrorResponseSchema = z.object({
