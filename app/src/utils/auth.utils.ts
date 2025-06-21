@@ -62,16 +62,21 @@ export async function getGoogleUserData(idToken: string) {
 }
 
 export function generateJWTTokens(
-  userId: User["id"],
+  user: Partial<User & Profile>,
   roles: Array<Role["name"]> = [],
 ) {
   const accessToken = jwt.sign(
-    { token_type: "access", roles },
+    {
+      token_type: "access",
+      roles,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    },
     env.JWT_SECRET,
     {
       keyid: randomUUIDv7(),
       issuer: env.TOKEN_ISSUER,
-      subject: userId,
+      subject: user.id,
       audience: "RealEstate:Mobile",
       expiresIn: "15m",
     },
@@ -80,7 +85,7 @@ export function generateJWTTokens(
   const refreshToken = jwt.sign({ token_type: "refresh" }, env.JWT_SECRET, {
     keyid: randomUUIDv7(),
     issuer: env.TOKEN_ISSUER,
-    subject: userId,
+    subject: user.id,
     audience: "RealEstate:Mobile",
     expiresIn: "7d",
   });

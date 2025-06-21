@@ -54,5 +54,7 @@ declare module "jsonwebtoken" {
   interface JwtPayload {
     token_type: "access" | "refresh";
     roles: Array<Role["name"]>;
+    firstName: Profile["firstName"];
+    lastName: Profile["lastName"];
   }
 }

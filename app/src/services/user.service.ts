@@ -220,6 +220,8 @@ export async function getUserByProviderAndId(
       .select({
         id: user.id,
         email: user.email,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
         roles: sql<Array<Role["name"]>>`
       COALESCE(
         json_agg(${role.name}),
@@ -237,7 +239,8 @@ export async function getUserByProviderAndId(
       .leftJoin(userRole, eq(userRole.userId, account.userId))
       .leftJoin(role, eq(role.id, userRole.roleId))
       .leftJoin(user, eq(user.id, account.userId))
-      .groupBy(user.id)
+      .leftJoin(profile, eq(profile.userId, account.userId))
+      .groupBy(user.id, user.email, profile.firstName, profile.lastName)
       .limit(1),
   );
 }
@@ -307,7 +310,7 @@ export async function createUserByFacebook(
 
   await linkAccount(createdUser.id, "facebook", id);
 
-  return createdUser;
+  return { ...createdUser, firstName, lastName };
 }
 
 export async function unLinkAccount(provider: string, userId: string) {
@@ -367,7 +370,7 @@ export async function createUserByGoogle(
 
   await linkAccount(createdUser.id, "google", data.sub);
 
-  return createdUser;
+  return { ...createdUser, firstName, lastName };
 }
 
 export async function getUserRoles(userId: User["id"]) {

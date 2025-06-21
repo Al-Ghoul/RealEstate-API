@@ -152,6 +152,8 @@ export async function loginUser(req: Request, res: Response) {
       return;
     }
 
+    const userProfile = await userService.getUserProfile(user.id);
+
     if (!user.password) {
       logger.warn({
         route: req.originalUrl,
@@ -211,7 +213,7 @@ export async function loginUser(req: Request, res: Response) {
 
     res.status(200).json({
       message: L[lang].LOGIN_SUCCESS(),
-      data: generateJWTTokens(user.id, user.roles),
+      data: generateJWTTokens({ ...user, ...userProfile }, user.roles),
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -343,6 +345,7 @@ export async function refreshUserToken(req: Request, res: Response) {
     );
 
     const roles = await userService.getUserRoles(sub);
+    const userProfile = await userService.getUserProfile(sub);
 
     logger.info({
       route: req.originalUrl,
@@ -357,7 +360,14 @@ export async function refreshUserToken(req: Request, res: Response) {
 
     res.status(200).json({
       message: L[lang].TOKENS_REFRESHED_SUCCESSFULLY(),
-      data: generateJWTTokens(sub, roles?.roles),
+      data: generateJWTTokens(
+        {
+          id: sub,
+          firstName: userProfile?.firstName,
+          lastName: userProfile?.lastName,
+        },
+        roles?.roles,
+      ),
     });
   } catch (error) {
     if (error instanceof JsonWebTokenError) {
@@ -1230,7 +1240,7 @@ export async function loginWithFacebook(req: Request, res: Response) {
         fbUserData.id,
       );
 
-      if (user) {
+      if (user && user.id) {
         logger.info({
           route: req.originalUrl,
           message: "User has logged in using facebook successfully",
@@ -1244,7 +1254,14 @@ export async function loginWithFacebook(req: Request, res: Response) {
 
         res.status(200).json({
           message: L[lang].LOGIN_SUCCESS(),
-          data: generateJWTTokens(user.id as string, user.roles),
+          data: generateJWTTokens(
+            {
+              id: user.id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+            },
+            user.roles,
+          ),
         });
 
         return;
@@ -1268,10 +1285,14 @@ export async function loginWithFacebook(req: Request, res: Response) {
 
     res.status(201).json({
       message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
-      data: generateJWTTokens(user.id, ["CLIENT"]),
+      data: generateJWTTokens(
+        { id: user.id, firstName: user.firstName, lastName: user.lastName },
+        ["CLIENT"],
+      ),
     });
   } catch (error) {
     if (error instanceof DatabaseError) {
+      console.log("db error", error);
       if (error.code === "23505") {
         logger.warn({
           route: req.originalUrl,
@@ -1336,7 +1357,7 @@ export async function loginWithGoogle(req: Request, res: Response) {
         googleUserData?.sub as string,
       );
 
-      if (user) {
+      if (user && user.id) {
         logger.info({
           route: req.originalUrl,
           message: "User has logged in using google successfully",
@@ -1350,7 +1371,14 @@ export async function loginWithGoogle(req: Request, res: Response) {
 
         res.status(200).json({
           message: L[lang].LOGIN_SUCCESS(),
-          data: generateJWTTokens(user.id as string, user.roles),
+          data: generateJWTTokens(
+            {
+              id: user.id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+            },
+            user.roles,
+          ),
         });
 
         return;
@@ -1374,7 +1402,10 @@ export async function loginWithGoogle(req: Request, res: Response) {
 
     res.status(201).json({
       message: L[lang].USER_CREATED_AND_LOGGED_IN_SUCCESSFULLY(),
-      data: generateJWTTokens(user.id, ["CLIENT"]),
+      data: generateJWTTokens(
+        { id: user.id, firstName: user.firstName, lastName: user.lastName },
+        ["CLIENT"],
+      ),
     });
   } catch (error) {
     if (error instanceof DatabaseError) {
