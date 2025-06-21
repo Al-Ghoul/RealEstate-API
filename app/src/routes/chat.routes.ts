@@ -1,16 +1,14 @@
 import { Router } from "express";
 import { isAuthenticated } from "../middlewares/auth.middleware";
-import { chatInputDTO } from "../dtos/chat.dto";
-import { schemaValidatorMiddleware } from "../middlewares/schemaValidator.middleware";
-import { createChat } from "../controllers/chat.controller";
+import {
+  getUserChatMessages,
+  getUserChats,
+} from "../controllers/chat.controller";
 
 const router = Router();
 
-router.post(
-  "/",
-  isAuthenticated,
-  schemaValidatorMiddleware(chatInputDTO),
-  createChat,
-);
+router.get("/", isAuthenticated, getUserChats);
+
+router.get("/:id/messages", isAuthenticated, getUserChatMessages);
 
 export default router;

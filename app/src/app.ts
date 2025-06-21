@@ -77,5 +77,6 @@ app.use((req: Request, _: Response, next: NextFunction) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/properties", propertyRoutes);
+app.use("/api/chats", chatRoutes);
 
 app.use(errorHandlerMiddleware);
