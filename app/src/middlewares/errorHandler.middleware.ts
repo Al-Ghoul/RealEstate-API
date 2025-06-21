@@ -34,7 +34,7 @@ export function errorHandlerMiddleware(
       if (error.message === "Unauthenticated") {
         logger.warn({
           route: req.originalUrl,
-          message: "Missing authorization token",
+          message: "Unauthenticated",
           info: {
             ip: req.ip,
             browser: req.headers["user-agent"],
