@@ -16,6 +16,16 @@ import fs from "fs/promises";
 import { join } from "path";
 import { DatabaseError } from "pg";
 import { env } from "../config/env.config";
+import { existsSync, mkdirSync } from "fs";
+
+const thumbnailsDir = join(
+  process.cwd(),
+  "public/uploads/properties-thumbnails",
+);
+if (!existsSync(thumbnailsDir)) mkdirSync(thumbnailsDir, { recursive: true });
+
+const mediaDir = join(process.cwd(), "public/uploads/property-media/");
+if (!existsSync(mediaDir)) mkdirSync(mediaDir, { recursive: true });
 
 export async function createProperty(req: Request, res: Response) {
   assertAuthenticated(req);
@@ -97,12 +107,8 @@ export async function createProperty(req: Request, res: Response) {
     return;
   }
 
-  const uploadDir = join(
-    process.cwd(),
-    "public/uploads/properties-thumbnails/",
-  );
   const fileName = `${Date.now().toString()}-${originalname}`;
-  const filePath = `${uploadDir}${fileName}`;
+  const filePath = `${thumbnailsDir}${fileName}`;
   await fs.writeFile(filePath, buffer);
 
   try {
@@ -404,12 +410,8 @@ export async function updateProperty(req: Request, res: Response) {
       return;
     }
 
-    const uploadDir = join(
-      process.cwd(),
-      "public/uploads/properties-thumbnails/",
-    );
     const fileName = `${Date.now().toString()}-${originalname}`;
-    const filePath = `${uploadDir}${fileName}`;
+    const filePath = `${thumbnailsDir}${fileName}`;
     await fs.writeFile(filePath, buffer);
     thumbnailURL = `${env.DOMAIN}/public/uploads/properties-thumbnails/${fileName}`;
   }
@@ -580,9 +582,8 @@ export async function addPropertyMedia(req: Request, res: Response) {
       return;
     }
 
-    const uploadDir = join(process.cwd(), "public/uploads/property-media/");
     const fileName = `${Date.now().toString()}-${originalname}`;
-    const filePath = `${uploadDir}${fileName}`;
+    const filePath = `${mediaDir}${fileName}`;
     await fs.writeFile(filePath, buffer);
 
     if (propertyMedia.length > 10) break; // only allow 10 media files
