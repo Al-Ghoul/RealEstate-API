@@ -20,6 +20,13 @@ PROPERTY ||--o| PROPERTY_VIEW : "User's properties"
 
 PROPERTY ||--o{ PROPERTY_MEDIA : "Property's media"
 
+USER ||--o{ CHAT_PARTICIPANT : "participates in"
+CHAT ||--o{ CHAT_PARTICIPANT : "has participants"
+USER ||--o{ MESSAGE : "sends"
+CHAT ||--o{ MESSAGE : "contains"
+MESSAGE ||--o{ MESSAGE : "replies to"
+USER ||--o{ MESSAGE : "deleted for user"
+CHAT_PARTICIPANT ||--o| MESSAGE : "last read message"
 
 USER {
     UUID id PK
@@ -113,6 +120,36 @@ PROPERTY_MEDIA {
     TEXT url
     ENUM type "IMAGE, VIDEO"
     TEXT mimeType
+    DATETIME created_at
+    DATETIME updated_at
+}
+
+CHAT {
+    TEXT id PK
+    DATETIME deleted_at
+    DATETIME created_at
+    DATETIME updated_at
+}
+
+CHAT_PARTICIPANT {
+    TEXT chat_id FK
+    UUID user_id FK
+    UUID last_read_message_id FK
+    DATETIME left_at
+    DATETIME created_at
+    DATETIME updated_at
+}
+
+MESSAGE {
+    UUID id PK
+    TEXT chat_id FK
+    UUID sender_id FK
+    TEXT content
+    ENUM type "TEXT, IMAGE, VIDEO, AUDIO, FILE, VOICE, LOCATION, SYSTEM, DELETED"
+    UUID reply_to_id FK
+    DATETIME deleted_at
+    UUID deleted_for_id FK
+    JSONB metadata
     DATETIME created_at
     DATETIME updated_at
 }
