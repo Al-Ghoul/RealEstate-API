@@ -40,7 +40,7 @@ export const chatParticipant = pgTable(
       onDelete: "set null",
     }),
     leftAt: timestamp(),
-    joinedAt: timestamp().defaultNow().notNull(),
+    ...timestamps,
   },
   (table) => [
     primaryKey({
