@@ -321,14 +321,10 @@ export async function updateCurrentUserProfileImage(
 
   try {
     const blurHash = await generateBlurHash(buffer);
-    await userService.updateUserProfileImage(
-      req.user.id,
-      // TODO: change this to use an env var
-      {
-        image: `${env.DOMAIN}/public/uploads/profile-images/${fileName}`,
-        imageBlurHash: blurHash,
-      },
-    );
+    await userService.updateUserProfileImage(req.user.id, {
+      image: `${env.DOMAIN}/public/uploads/profile-images/${fileName}`,
+      imageBlurHash: blurHash,
+    });
 
     logger.info({
       router: req.originalUrl,
