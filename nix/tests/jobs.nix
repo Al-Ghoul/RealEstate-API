@@ -15,6 +15,7 @@ in {
     doCheck = true;
     checkPhase = ''
       runHook preCheck
+      # HINT: We run this because we skip the build phase
       bun ./node_modules/typesafe-i18n/cli/typesafe-i18n.mjs --no-watch
       bunx tsc --noEmit
       runHook postCheck
@@ -37,6 +38,7 @@ in {
     doCheck = true;
     checkPhase = ''
       runHook preCheck
+      # HINT: We run this because we skip the build phase
       bun ./node_modules/typesafe-i18n/cli/typesafe-i18n.mjs --no-watch
       bun lint
       runHook postCheck

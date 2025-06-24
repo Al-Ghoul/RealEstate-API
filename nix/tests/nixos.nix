@@ -18,6 +18,7 @@
 
       installPhase = ''
         runHook preInstall
+        # HINT: We run this because we skip the build phase
         bun ./node_modules/typesafe-i18n/cli/typesafe-i18n.mjs --no-watch
 
         mkdir -p $out/bin/real-estate-api
