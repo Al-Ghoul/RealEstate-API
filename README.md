@@ -46,9 +46,9 @@ Tools & Bundlers:
 
 ## Extras
 
-- [x] [Type checks CI/CD](...) – runs `tsc --noEmit`
-- [x] [Linting CI/CD](...) – checks lint rules via `eslint`
-- [x] [Integration tests CI/CD](...) – uses Bun tests to run & validate associated tests
+- [x] [Type checks CI/CD](/nix/tests/jobs.nix#L7) – runs `tsc --noEmit`
+- [x] [Linting CI/CD](/nix/tests/jobs.nix#L30) – checks lint rules via `eslint`
+- [x] [Integration tests CI/CD](nix/tests/nixos.nix#L34) – uses Bun tests to run & validate associated tests
 
 ## Installation
 
