@@ -66,6 +66,8 @@ Swagger is used to document the API, the spec file is generated using `bun run g
 
 Instead of using the spec file, You can view the live API docs on [Swagger Editor](https://editor-next.swagger.io/?url=https://raw.githubusercontent.com/Al-Ghoul/RealEstate-API/refs/heads/develop/app/openapi-spec.yaml)
 
+For the DB's LDM see [app/src/db/README.md](/app/src/db/README.md)
+
 ## License
 
 This project is licensed under the **AGPLv3**. See [LICENSE](./LICENSE) for details.
